@@ -18,7 +18,6 @@
             display:flex;
             align-items:center;
             justify-content:center;
-            background-color: #181818;
             color:#fff;
         }
         h1{
@@ -29,24 +28,52 @@
         }
 	    h1 span{
 	    	font-size:1.1rem;
-		opacity:.7;
+		opacity:.8;
 	    }
         a{
-            color:#fff;
+            color:inherit;
             text-decoration:none;
         }
         a:hover{
             text-decoration:underline;
         }
+        .bg-one{
+          background-color: #5e0dff;
+        }
+        .bg-two{
+          background-color: #0c66ff;
+        }
+        .bg-three{
+          background-color: #0D101E;
+        }
+        .bg-four{
+          background-color: #ff5c75;
+        }
+        .bg-five{
+          background-color: #ffbe3d;
+        }
+        .bg-six{
+          background-color: #eff2f7;
+          color:#141b24;
+        }
     </style>
 </head>
 
-<body>
+<body class="site-body">
 
     
 	<h1><a href="https://www.facebook.com/iliashhosain">iliash hosain<br/> <span>Front-End Developer</span></a></h1>
 
-    
+<script>
+  function random_bg(colors){
+    return colors[Math.floor(Math.random()*colors.length)];
+  }
+  var colors = ["#5e0dff", "#0c66ff", "#0D101E", "#ff5c75","#ffbe3d"];
+  var classes = ["bg-one", "bg-two", "bg-three", "bg-four","bg-five", "bg-six"];
+  var body = document.querySelector(".site-body");
+  // body.style.backgroundColor = random_bg(colors);
+  body.classList.add(random_bg(classes));
+</script>
 </body>
 
 </html>
