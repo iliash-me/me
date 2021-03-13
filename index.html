@@ -6,6 +6,7 @@
     <meta name="author" content="iliash">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="personal website">
+    <meta name="theme-color" content="">
     <!-- Page Title  -->
     <title> iliash | Front-End Developer</title>
     
@@ -41,7 +42,7 @@
           background-color: #5e0dff;
         }
         .bg-two{
-          background-color: #0c66ff;
+          background-color: #0D101E;
         }
         .bg-three{
           background-color: #0D101E;
@@ -68,11 +69,38 @@
   function random_bg(colors){
     return colors[Math.floor(Math.random()*colors.length)];
   }
-  var colors = ["#5e0dff", "#0c66ff", "#0D101E", "#ff5c75","#ffbe3d"];
   var classes = ["bg-one", "bg-two", "bg-three", "bg-four","bg-five", "bg-six"];
-  var body = document.querySelector(".site-body");
-  // body.style.backgroundColor = random_bg(colors);
-  body.classList.add(random_bg(classes));
+  let styles = [
+    {
+      classname : "bg-one",
+      bgcolor : "#5e0dff"
+    },
+    {
+      classname : "bg-two",
+      bgcolor : "#0c66ff"
+    },
+    {
+      classname : "bg-three",
+      bgcolor : "#0D101E"
+    },
+    {
+      classname : "bg-four",
+      bgcolor : "#ff5c75"
+    },
+    {
+      classname : "bg-five",
+      bgcolor : "#ffbe3d"
+    },
+    {
+      classname : "bg-six",
+      bgcolor : "#eff2f7"
+    }
+  ]
+  
+  var randomstyle = random_bg(styles);
+  document.querySelector(".site-body").classList.add(randomstyle.classname);
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", randomstyle.bgcolor);
+  
 </script>
 </body>
 
