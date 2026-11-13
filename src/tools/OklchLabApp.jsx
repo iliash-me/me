@@ -505,53 +505,36 @@ export default function OklchLabApp({ onNavigateHome }) {
             {/* Stage */}
             <div className={`oklch-stage ${previewTheme === "dark" ? "is-dark-ui" : "is-light-ui"}`}>
               {activeTab === "components" && (
-                <div className="oklch-ui-showcase">
-                  <div className="preview-banner">
-                    <span className="preview-badge">NEW RELEASE</span>
-                    <span className="preview-banner-text">
-                      Balanced contrast across every hue and lightness stop.
-                    </span>
+                <div className="min-preview-card">
+                  <div className="min-preview-top">
+                    <div className="min-preview-brand">
+                      <span className="min-preview-dot" />
+                      <div>
+                        <h3 className="min-preview-title">Interface Specimen</h3>
+                        <span className="min-preview-sub">Live scale binding</span>
+                      </div>
+                    </div>
+                    <span className="min-preview-badge">v2.4</span>
                   </div>
 
-                  <div className="preview-saas-card">
-                    <div className="preview-card-top">
-                      <div>
-                        <div className="preview-card-kicker">PRODUCTION CLUSTER</div>
-                        <h3 className="preview-card-heading">Edge Compute Usage</h3>
-                      </div>
-                      <span className="preview-status-pill">● Healthy</span>
-                    </div>
+                  <p className="min-preview-text">
+                    Surfaces, borders, badges, and actions adapt automatically across light and dark
+                    modes.
+                  </p>
 
-                    <p className="preview-card-body">
-                      All color surfaces, borders, badges, and buttons are bound live to your{" "}
-                      <code>50–950</code> color scale.
-                    </p>
+                  <div className="min-preview-tags">
+                    <span className="min-tag">Surface {previewTheme === "light" ? "50" : "900"}</span>
+                    <span className="min-tag">Border {previewTheme === "light" ? "200" : "800"}</span>
+                    <span className="min-tag is-accent">Accent 600</span>
+                  </div>
 
-                    <div className="preview-progress-wrap">
-                      <div className="preview-progress-labels">
-                        <span>Bandwidth Quota</span>
-                        <strong>74%</strong>
-                      </div>
-                      <div className="preview-progress-track">
-                        <div className="preview-progress-fill" style={{ width: "74%" }} />
-                      </div>
-                    </div>
-
-                    <div className="preview-actions-row">
-                      <input
-                        type="text"
-                        readOnly
-                        value={`--color-${paletteName}-500: ${scaleMap[500].hex}`}
-                        className="preview-input"
-                        aria-label="Live color token"
-                      />
-                      <button type="button" className="preview-btn-solid">
-                        Deploy
-                      </button>
-                      <button type="button" className="preview-btn-soft">
-                        Inspect
-                      </button>
-                    </div>
+                  <div className="min-preview-footer">
+                    <button type="button" className="min-btn-secondary">
+                      Dismiss
+                    </button>
+                    <button type="button" className="min-btn-primary">
+                      Apply Palette
+                    </button>
                   </div>
                 </div>
               )}
@@ -559,8 +542,8 @@ export default function OklchLabApp({ onNavigateHome }) {
               {activeTab === "pair" && (
                 <div className="pair-stage-panel">
                   <div className="pair-selectors-grid">
-                    <div className="pair-selector-block">
-                      <span className="pair-select-label">Foreground Stop ({selectedStep})</span>
+                    <div className="pair-selector-row">
+                      <span className="pair-select-label">Text</span>
                       <div className="pair-step-chips">
                         {SCALE_STEPS.map((st) => (
                           <button
@@ -575,8 +558,8 @@ export default function OklchLabApp({ onNavigateHome }) {
                       </div>
                     </div>
 
-                    <div className="pair-selector-block">
-                      <span className="pair-select-label">Background Stop ({compareBgStep})</span>
+                    <div className="pair-selector-row">
+                      <span className="pair-select-label">Surface</span>
                       <div className="pair-step-chips">
                         {SCALE_STEPS.map((st) => (
                           <button
@@ -602,26 +585,25 @@ export default function OklchLabApp({ onNavigateHome }) {
                   >
                     <div className="specimen-top-row">
                       <span className="specimen-tag">
-                        Stop {selectedStep} on Stop {compareBgStep}
+                        {selectedStep} on {compareBgStep}
                       </span>
                       <div className="pair-badges">
                         <span className="pair-metric-pill">
-                          WCAG {activeWcag.toFixed(2)}:1 ·{" "}
+                          {activeWcag.toFixed(2)}:1{" "}
                           {activeWcag >= 7
                             ? "AAA"
                             : activeWcag >= 4.5
                             ? "AA"
                             : activeWcag >= 3
-                            ? "AA Large"
+                            ? "AA+"
                             : "Fail"}
                         </span>
-                        <span className="pair-metric-pill">APCA Lc {activeApca}</span>
+                        <span className="pair-metric-pill">Lc {activeApca}</span>
                       </div>
                     </div>
-                    <h4 className="specimen-headline">Aa — Typography & Icon Legibility</h4>
+                    <h4 className="specimen-headline">Aa — Clean Typographic Contrast</h4>
                     <p className="specimen-paragraph">
-                      Testing body copy legibility at 14px–16px. WCAG 4.5:1+ (or APCA Lc 60+) is
-                      recommended for normal body text, and 3.0:1+ for large headings or UI icons.
+                      4.5:1+ (Lc 60+) recommended for body copy; 3.0:1+ for headings and icons.
                     </p>
                   </div>
                 </div>
@@ -631,20 +613,17 @@ export default function OklchLabApp({ onNavigateHome }) {
                 <div className="oklch-matrix-view">
                   <div className="matrix-grid">
                     {[
-                      { fg: 950, bg: 50, role: "Primary Body Text (Light)" },
-                      { fg: 800, bg: 100, role: "Secondary Text on Subtle Surface" },
-                      { fg: 700, bg: 100, role: "Badge Text on Tint (700 on 100)" },
-                      { fg: 50, bg: 600, role: "Solid Button Label (50 on 600)" },
-                      { fg: 50, bg: 950, role: "Primary Body Text (Dark)" },
-                      { fg: 200, bg: 900, role: "Secondary Text on Dark Card" },
-                      { fg: 300, bg: 900, role: "Accent Link on Dark Surface" },
-                      { fg: 950, bg: 400, role: "High-Visibility Callout" }
+                      { fg: 950, bg: 50, role: "Body on Light" },
+                      { fg: 700, bg: 100, role: "Badge on Tint" },
+                      { fg: 50, bg: 600, role: "Primary Button" },
+                      { fg: 50, bg: 950, role: "Body on Dark" },
+                      { fg: 200, bg: 900, role: "Muted on Dark" },
+                      { fg: 300, bg: 900, role: "Accent on Dark" }
                     ].map((pair, idx) => {
                       const fgS = scaleMap[pair.fg];
                       const bgS = scaleMap[pair.bg];
                       const ratio = getWcagContrast(fgS.luminance, bgS.luminance);
-                      const lc = getApcaLc(fgS.luminance, bgS.luminance);
-                      const passLevel = ratio >= 7 ? "AAA" : ratio >= 4.5 ? "AA" : "AA Large";
+                      const passLevel = ratio >= 7 ? "AAA" : ratio >= 4.5 ? "AA" : "AA+";
 
                       return (
                         <div
@@ -653,15 +632,14 @@ export default function OklchLabApp({ onNavigateHome }) {
                           style={{ backgroundColor: bgS.hex, color: fgS.hex }}
                         >
                           <div className="matrix-pair-top">
-                            <span className="matrix-pair-stops">
-                              {pair.fg} on {pair.bg}
+                            <span>
+                              {pair.fg} / {pair.bg}
                             </span>
                             <span className="matrix-pair-badge">
-                              {ratio.toFixed(1)}:1 · {passLevel}
+                              {ratio.toFixed(1)}:1 {passLevel}
                             </span>
                           </div>
                           <div className="matrix-pair-role">{pair.role}</div>
-                          <div className="matrix-pair-sub">APCA Lc {lc}</div>
                         </div>
                       );
                     })}
@@ -672,13 +650,12 @@ export default function OklchLabApp({ onNavigateHome }) {
               {activeTab === "tokens" && (
                 <div className="oklch-tokens-list">
                   {[
-                    { name: "bg-canvas", light: 50, dark: 950, desc: "App background" },
-                    { name: "bg-subtle", light: 100, dark: 900, desc: "Card / secondary surface" },
-                    { name: "border-subtle", light: 200, dark: 800, desc: "Hairline dividers & inputs" },
-                    { name: "solid-primary", light: 600, dark: 500, desc: "Primary CTA fill" },
-                    { name: "solid-hover", light: 700, dark: 400, desc: "Primary hover state" },
-                    { name: "text-accent", light: 700, dark: 300, desc: "Links & active indicators" },
-                    { name: "text-primary", light: 950, dark: 50, desc: "High-contrast headings" }
+                    { name: "bg-canvas", light: 50, dark: 950, desc: "Canvas" },
+                    { name: "bg-surface", light: 100, dark: 900, desc: "Card surface" },
+                    { name: "border", light: 200, dark: 800, desc: "Hairline border" },
+                    { name: "accent", light: 600, dark: 500, desc: "Primary fill" },
+                    { name: "text-muted", light: 700, dark: 300, desc: "Secondary text" },
+                    { name: "text-primary", light: 950, dark: 50, desc: "Primary text" }
                   ].map((tok) => {
                     const activeStepNum = previewTheme === "light" ? tok.light : tok.dark;
                     const s = scaleMap[activeStepNum];
@@ -689,13 +666,11 @@ export default function OklchLabApp({ onNavigateHome }) {
                             className="token-swatch-circle"
                             style={{ backgroundColor: s.hex }}
                           />
-                          <div>
-                            <code className="token-name">--{tok.name}</code>
-                            <span className="token-desc">{tok.desc}</span>
-                          </div>
+                          <code className="token-name">--{tok.name}</code>
+                          <span className="token-desc">{tok.desc}</span>
                         </div>
                         <div className="token-row-right">
-                          <span className="token-step-badge">Stop {activeStepNum}</span>
+                          <span className="token-step-badge">{activeStepNum}</span>
                           <code className="token-hex">{s.hex}</code>
                         </div>
                       </div>
