@@ -8,7 +8,8 @@ export default function CommandPalette({
   onToggleTheme,
   onCopyEmail,
   onOpenContactSheet,
-  onOpenTunerSheet
+  onOpenTunerSheet,
+  onOpenOklchLab
 }) {
   const [query, setQuery] = useState("");
 
@@ -40,6 +41,16 @@ export default function CommandPalette({
       action: () => {
         onClose();
         onOpenTunerSheet();
+      }
+    },
+    {
+      id: "cmd-oklch-lab",
+      group: "Tools",
+      label: "Open OKLCH Palette & Contrast Lab",
+      shortcut: "O",
+      action: () => {
+        onClose();
+        onOpenOklchLab?.();
       }
     },
     {

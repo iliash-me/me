@@ -3,6 +3,7 @@ import "./App.css";
 import { PROFILE } from "./data/portfolioData";
 import CommandPalette from "./components/CommandPalette";
 import SpringTunerApp from "./tools/SpringTunerApp";
+import OklchLabApp from "./tools/OklchLabApp";
 
 const INQUIRY_TOPICS = ["Web App / UI", "Design System", "3D / Creative", "General Inquiry"];
 
@@ -10,6 +11,9 @@ function getNormalizedRoute() {
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
   if (path === "/tools/spring-tuner" || window.location.hash === "#/tools/spring-tuner") {
     return "/tools/spring-tuner";
+  }
+  if (path === "/tools/oklch-lab" || window.location.hash === "#/tools/oklch-lab") {
+    return "/tools/oklch-lab";
   }
   return "/";
 }
@@ -57,6 +61,8 @@ export default function App() {
     if (metaTheme) {
       if (route === "/tools/spring-tuner") {
         metaTheme.setAttribute("content", "#f5f5f3");
+      } else if (route === "/tools/oklch-lab") {
+        metaTheme.setAttribute("content", "#0e0f12");
       } else {
         metaTheme.setAttribute("content", theme === "dark" ? "#0B0D11" : "#F6F4EF");
       }
@@ -102,9 +108,12 @@ export default function App() {
     };
   }, [contactOpen, toolsMenuOpen]);
 
-  // If on /tools/spring-tuner route, render standalone tool with its own vibe
+  // Render standalone tools with their own dedicated vibes
   if (route === "/tools/spring-tuner") {
     return <SpringTunerApp onNavigateHome={() => navigateTo("/")} />;
+  }
+  if (route === "/tools/oklch-lab") {
+    return <OklchLabApp onNavigateHome={() => navigateTo("/")} />;
   }
 
   const handleToggleTheme = () => {
@@ -121,6 +130,12 @@ export default function App() {
     setToolsMenuOpen(false);
     setContactOpen(false);
     navigateTo("/tools/spring-tuner");
+  };
+
+  const openOklchRoute = () => {
+    setToolsMenuOpen(false);
+    setContactOpen(false);
+    navigateTo("/tools/oklch-lab");
   };
 
   const openContact = () => {
@@ -248,6 +263,23 @@ export default function App() {
                     <div className="tools-dropdown-item-text">
                       <span className="tools-dropdown-item-title">Spring & Easing Tuner</span>
                       <span className="tools-dropdown-item-sub">Interactive curve & UI motion studio</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+
+                  <a
+                    href="/tools/oklch-lab"
+                    id="dropdown-oklch-lab-link"
+                    role="menuitem"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openOklchRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">OKLCH Palette & Contrast Lab</span>
+                      <span className="tools-dropdown-item-sub">Perceptual 50–950 scale & WCAG/APCA studio</span>
                     </div>
                     <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
                   </a>
@@ -582,6 +614,7 @@ export default function App() {
         onCopyEmail={handleCopyEmail}
         onOpenContactSheet={openContact}
         onOpenTunerSheet={openTunerRoute}
+        onOpenOklchLab={openOklchRoute}
       />
     </div>
   );

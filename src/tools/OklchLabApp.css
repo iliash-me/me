@@ -1,0 +1,860 @@
+/* ==========================================================================
+   STANDALONE ROUTE (/tools/oklch-lab)
+   VIBE: CALIBRATED COLORIST STUDIO (Neutral Achromatic Darkroom)
+   ========================================================================== */
+
+.oklch-studio-root {
+  min-height: 100vh;
+  background-color: #0e0f12;
+  color: #f3f4f6;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.oklch-container {
+  width: min(1140px, 100% - 2.5rem);
+  margin-inline: auto;
+}
+
+/* Header */
+.oklch-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: rgba(14, 15, 18, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.oklch-header-inner {
+  min-height: 58px;
+  padding: 0.45rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.oklch-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.oklch-back-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  color: #9ca3af;
+  transition: color 0.15s ease;
+}
+
+.oklch-back-link:hover {
+  color: #ffffff;
+}
+
+.oklch-sep {
+  color: #374151;
+}
+
+.oklch-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #f9fafb;
+}
+
+.oklch-presets-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.oklch-preset-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  padding: 0.3rem 0.68rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: #9ca3af;
+  background-color: #16181d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.15s ease;
+}
+
+.oklch-preset-pill:hover {
+  color: #f3f4f6;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.oklch-preset-pill.is-active {
+  color: #ffffff;
+  background-color: #22252d;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.preset-color-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Main */
+.oklch-main {
+  flex: 1;
+  padding: 1.25rem 0 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Swatch Strip Card */
+.oklch-swatch-strip-card {
+  background-color: #15171c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.oklch-strip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.oklch-strip-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.oklch-section-label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+}
+
+.oklch-hint-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: #6b7280;
+}
+
+.oklch-span-pills,
+.oklch-curve-pills,
+.oklch-theme-switch {
+  display: inline-flex;
+  background-color: #0e0f12;
+  padding: 2px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  gap: 2px;
+}
+
+.oklch-mini-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 0.24rem 0.55rem;
+  border-radius: 6px;
+  color: #9ca3af;
+  transition: all 0.15s ease;
+}
+
+.oklch-mini-pill:hover {
+  color: #f3f4f6;
+}
+
+.oklch-mini-pill.is-active {
+  background-color: #252830;
+  color: #ffffff;
+}
+
+/* 11-Stop Swatches Grid */
+.oklch-swatches-grid {
+  display: grid;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.oklch-swatch-tile {
+  height: 92px;
+  border-radius: 10px;
+  padding: 0.55rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+}
+
+.oklch-swatch-tile:hover {
+  transform: translateY(-2px);
+}
+
+.oklch-swatch-tile.is-selected {
+  box-shadow: 0 0 0 2px #ffffff, 0 8px 20px rgba(0, 0, 0, 0.45);
+  z-index: 2;
+}
+
+.oklch-swatch-tile.is-light-text {
+  color: #111315;
+}
+
+.oklch-swatch-tile.is-dark-text {
+  color: #ffffff;
+}
+
+.swatch-tile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.swatch-step-num {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.swatch-contrast-tag {
+  font-size: 0.62rem;
+  opacity: 0.75;
+}
+
+.swatch-tile-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.swatch-hex-code {
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.swatch-lch-micro {
+  font-size: 0.58rem;
+  opacity: 0.72;
+}
+
+/* Two-Column Workbench */
+.oklch-workbench-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.oklch-card {
+  background-color: #15171c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.oklch-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Sliders */
+.oklch-sliders-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.oklch-slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+}
+
+.slider-row-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.76rem;
+  color: #d1d5db;
+}
+
+.slider-row-head code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  color: #ffffff;
+}
+
+.oklch-slider-row input[type="range"] {
+  width: 100%;
+  accent-color: var(--c-500, #3b82f6);
+  cursor: pointer;
+}
+
+.oklch-hue-range {
+  appearance: none;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    oklch(65% 0.2 0),
+    oklch(65% 0.2 60),
+    oklch(65% 0.2 120),
+    oklch(65% 0.2 180),
+    oklch(65% 0.2 240),
+    oklch(65% 0.2 300),
+    oklch(65% 0.2 360)
+  );
+}
+
+/* Contrast Pair Inspector */
+.oklch-pair-inspector {
+  margin-top: auto;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.pair-inspector-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pair-Equation {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: #9ca3af;
+}
+
+.pair-selectors-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.pair-select-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.pair-select-label {
+  font-size: 0.72rem;
+  color: #9ca3af;
+}
+
+.pair-step-chips {
+  display: flex;
+  gap: 0.22rem;
+}
+
+.pair-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.66rem;
+  padding: 0.2rem 0.42rem;
+  border-radius: 5px;
+  background-color: #0e0f12;
+  color: #9ca3af;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.pair-chip.is-active {
+  background-color: #ffffff;
+  color: #0e0f12;
+  font-weight: 600;
+}
+
+.pair-sample-card {
+  padding: 0.8rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pair-sample-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.pair-sample-text strong {
+  font-size: 0.85rem;
+}
+
+.pair-sample-text span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  opacity: 0.82;
+}
+
+.pair-badges {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.pair-metric-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.24rem 0.5rem;
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(4px);
+}
+
+/* Right Preview Tabs & Stage */
+.oklch-view-tabs {
+  display: flex;
+  gap: 0.25rem;
+  background-color: #0e0f12;
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.oklch-tab-pill {
+  font-size: 0.74rem;
+  font-weight: 500;
+  padding: 0.28rem 0.7rem;
+  border-radius: 6px;
+  color: #9ca3af;
+  transition: all 0.15s ease;
+}
+
+.oklch-tab-pill:hover {
+  color: #ffffff;
+}
+
+.oklch-tab-pill.is-active {
+  background-color: #252830;
+  color: #ffffff;
+}
+
+.oklch-stage {
+  flex: 1;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.oklch-stage.is-light-ui {
+  background-color: var(--c-50);
+  color: var(--c-950);
+  border: 1px solid var(--c-200);
+}
+
+.oklch-stage.is-dark-ui {
+  background-color: var(--c-950);
+  color: var(--c-50);
+  border: 1px solid var(--c-800);
+}
+
+/* UI Showcase inside Stage */
+.oklch-ui-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.preview-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  background-color: var(--c-100);
+  color: var(--c-900);
+  border: 1px solid var(--c-200);
+}
+
+.oklch-stage.is-dark-ui .preview-banner {
+  background-color: var(--c-900);
+  color: var(--c-100);
+  border-color: var(--c-800);
+}
+
+.preview-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background-color: var(--c-600);
+  color: var(--c-50);
+}
+
+.preview-saas-card {
+  background-color: #ffffff;
+  color: var(--c-950);
+  border: 1px solid var(--c-200);
+  border-radius: 12px;
+  padding: 1.15rem;
+  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.oklch-stage.is-dark-ui .preview-saas-card {
+  background-color: var(--c-900);
+  color: var(--c-50);
+  border-color: var(--c-800);
+  box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.45);
+}
+
+.preview-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.preview-card-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--c-600);
+}
+
+.oklch-stage.is-dark-ui .preview-card-kicker {
+  color: var(--c-400);
+}
+
+.preview-card-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 0.1rem;
+}
+
+.preview-status-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  background-color: var(--c-100);
+  color: var(--c-700);
+  border: 1px solid var(--c-200);
+}
+
+.oklch-stage.is-dark-ui .preview-status-pill {
+  background-color: var(--c-800);
+  color: var(--c-200);
+  border-color: var(--c-700);
+}
+
+.preview-card-body {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--c-800);
+}
+
+.oklch-stage.is-dark-ui .preview-card-body {
+  color: var(--c-200);
+}
+
+.preview-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.preview-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.74rem;
+}
+
+.preview-progress-track {
+  height: 8px;
+  border-radius: 999px;
+  background-color: var(--c-100);
+  overflow: hidden;
+}
+
+.oklch-stage.is-dark-ui .preview-progress-track {
+  background-color: var(--c-800);
+}
+
+.preview-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background-color: var(--c-600);
+}
+
+.oklch-stage.is-dark-ui .preview-progress-fill {
+  background-color: var(--c-500);
+}
+
+.preview-actions-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding-top: 0.2rem;
+}
+
+.preview-input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 0.7rem;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  background-color: var(--c-50);
+  color: var(--c-900);
+  border: 1px solid var(--c-300);
+}
+
+.oklch-stage.is-dark-ui .preview-input {
+  background-color: var(--c-950);
+  color: var(--c-100);
+  border-color: var(--c-700);
+}
+
+.preview-btn-solid {
+  height: 36px;
+  padding: 0 0.9rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background-color: var(--c-600);
+  color: var(--c-50);
+  transition: background-color 0.15s ease;
+}
+
+.preview-btn-solid:hover {
+  background-color: var(--c-700);
+}
+
+.preview-btn-soft {
+  height: 36px;
+  padding: 0 0.85rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background-color: var(--c-100);
+  color: var(--c-800);
+  border: 1px solid var(--c-200);
+}
+
+.oklch-stage.is-dark-ui .preview-btn-soft {
+  background-color: var(--c-800);
+  color: var(--c-100);
+  border-color: var(--c-700);
+}
+
+/* Contrast Matrix Tab */
+.matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+
+.matrix-pair-card {
+  padding: 0.7rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(128, 128, 128, 0.22);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.matrix-pair-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.matrix-pair-badge {
+  padding: 0.12rem 0.4rem;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.14);
+}
+
+.matrix-pair-role {
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.matrix-pair-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  opacity: 0.78;
+}
+
+/* Semantic Tokens Tab */
+.oklch-tokens-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.42rem;
+}
+
+.token-row-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.48rem 0.7rem;
+  border-radius: 8px;
+  background-color: rgba(128, 128, 128, 0.08);
+}
+
+.token-row-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.token-swatch-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+.token-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  margin-right: 0.6rem;
+}
+
+.token-desc {
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+
+.token-row-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+}
+
+.token-step-badge {
+  opacity: 0.75;
+}
+
+/* Bottom Export Bar */
+.oklch-export-bar {
+  background-color: #15171c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.oklch-export-tabs {
+  display: flex;
+  gap: 0.25rem;
+  background-color: #0e0f12;
+  padding: 3px;
+  border-radius: 8px;
+}
+
+.oklch-export-tab {
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 0.28rem 0.62rem;
+  border-radius: 6px;
+  color: #9ca3af;
+}
+
+.oklch-export-tab.is-active {
+  background-color: #252830;
+  color: #ffffff;
+}
+
+.oklch-export-pre {
+  flex: 1;
+  min-width: 240px;
+  max-height: 76px;
+  overflow-y: auto;
+  background-color: #0e0f12;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 0.45rem 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: #d1d5db;
+  margin: 0;
+}
+
+.oklch-copy-btn {
+  height: 36px;
+  padding: 0 1rem;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  background-color: #ffffff;
+  color: #0e0f12;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+}
+
+.oklch-copy-btn:hover {
+  opacity: 0.9;
+}
+
+.oklch-copy-btn.is-copied {
+  background-color: #22c55e;
+  color: #ffffff;
+}
+
+@media (max-width: 920px) {
+  .oklch-swatches-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .oklch-workbench-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .matrix-grid {
+    grid-template-columns: 1fr;
+  }
+}
