@@ -454,8 +454,8 @@ export default function KineticStackApp({ onNavigateHome }) {
       g.cameraY += (g.targetCameraY - g.cameraY) * 0.12;
 
       const originX = cw / 2;
-      // Position base so tower rises upwards comfortably
-      const originY = ch * 0.72 + g.cameraY * 0.85;
+      // Position base higher to eliminate excess top blank space and keep active block centered
+      const originY = ch * 0.48 + g.cameraY;
 
       const currentModeConfig = MODES.find((m) => m.id === mode) || MODES[1];
 
@@ -492,7 +492,7 @@ export default function KineticStackApp({ onNavigateHome }) {
         d.rotZ += (d.vRotZ || 0);
         d.opacity -= 0.65 * dt;
 
-        if (d.opacity <= 0 || d.y < -15) {
+        if (d.opacity <= 0 || d.y < -35) {
           g.debris.splice(i, 1);
         }
       }

@@ -167,7 +167,7 @@
 /* Background Score Watermark */
 .stack-bg-watermark {
   position: absolute;
-  top: 15%;
+  top: 8%;
   font-family: 'JetBrains Mono', monospace;
   font-size: clamp(4.5rem, 14vw, 8rem);
   font-weight: 700;
