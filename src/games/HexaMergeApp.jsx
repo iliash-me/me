@@ -276,32 +276,40 @@ export default function HexaMergeApp({ onNavigateHome }) {
     lastTime: 0
   });
 
-  // Ensure initial fresh board is saved on mount and auto-save on page unload/unmount
-  useEffect(() => {
-    const existing = loadHexaProgress(mode);
-    if (!existing) {
-      saveHexaProgress(mode, {
-        tiles: gameRef.current.tiles.map((t) => ({ id: t.id, q: t.q, r: t.r, value: t.value })),
-        score,
-        combo,
-        canUndo,
-        history: gameRef.current.history,
-        gameState,
-        hasWon2048
-      });
-    }
+  const stateRef = useRef({
+    mode,
+    score,
+    combo,
+    canUndo,
+    gameState,
+    hasWon2048
+  });
 
+  useEffect(() => {
+    stateRef.current = {
+      mode,
+      score,
+      combo,
+      canUndo,
+      gameState,
+      hasWon2048
+    };
+  }, [mode, score, combo, canUndo, gameState, hasWon2048]);
+
+  // Auto-save active board to localStorage on page exit or component unmount (never overwrites other modes)
+  useEffect(() => {
     const handleBeforeUnload = () => {
       const g = gameRef.current;
+      const st = stateRef.current;
       if (g?.tiles?.length) {
-        saveHexaProgress(mode, {
+        saveHexaProgress(st.mode, {
           tiles: g.tiles.map((t) => ({ id: t.id, q: t.q, r: t.r, value: t.value })),
-          score,
-          combo,
-          canUndo,
+          score: st.score,
+          combo: st.combo,
+          canUndo: st.canUndo,
           history: g.history,
-          gameState,
-          hasWon2048
+          gameState: st.gameState,
+          hasWon2048: st.hasWon2048
         });
       }
     };
@@ -311,7 +319,7 @@ export default function HexaMergeApp({ onNavigateHome }) {
       window.removeEventListener("beforeunload", handleBeforeUnload);
       handleBeforeUnload();
     };
-  }, [mode, score, combo, canUndo, gameState, hasWon2048]);
+  }, []);
 
   // Spawn random tile (2 with 90% probability, 4 with 10%)
   const spawnTile = useCallback((tilesList, boardRadius) => {
@@ -364,24 +372,49 @@ export default function HexaMergeApp({ onNavigateHome }) {
     [radius, mode]
   );
 
+  // Switch difficulty mode cleanly preserving all other modes and options
   const handleSelectMode = (newMode) => {
+    if (newMode === mode) return;
+
+    // 1. Cleanly save current mode's active board state before switching
+    const currentG = gameRef.current;
+    if (currentG?.tiles?.length > 0) {
+      saveHexaProgress(mode, {
+        tiles: currentG.tiles.map((t) => ({ id: t.id, q: t.q, r: t.r, value: t.value })),
+        score,
+        combo,
+        canUndo,
+        history: currentG.history,
+        gameState,
+        hasWon2048
+      });
+    }
+
+    // 2. Switch to new mode and update mode preference
     setMode(newMode);
     try {
       localStorage.setItem("iliash_hexa_mode", newMode);
-      const saved = localStorage.getItem(`iliash_hexa_best_${newMode}`);
-      setBestScore(saved ? parseInt(saved, 10) : 0);
+      const savedBest = localStorage.getItem(`iliash_hexa_best_${newMode}`);
+      setBestScore(savedBest ? parseInt(savedBest, 10) : 0);
     } catch {
       setBestScore(0);
     }
 
-    // Check if player has an active in-progress board for the selected mode
-    const progress = loadHexaProgress(newMode);
+    // 3. Load or initialize target mode's independent progress without resetting anything else
     const targetConfig = MODES.find((m) => m.id === newMode) || MODES[1];
+    const progress = loadHexaProgress(newMode);
 
-    if (progress && progress.tiles?.length > 0) {
-      gameRef.current.tiles = progress.tiles;
-      gameRef.current.history = progress.history || null;
-      gameRef.current.nextTileId = Math.max(...progress.tiles.map((t) => t.id || 0), 1) + 1;
+    if (progress && Array.isArray(progress.tiles) && progress.tiles.length > 0) {
+      currentG.tiles = progress.tiles.map((t) => ({
+        id: t.id,
+        q: t.q,
+        r: t.r,
+        value: t.value,
+        scale: 1,
+        isNew: false
+      }));
+      currentG.history = progress.history || null;
+      currentG.nextTileId = Math.max(...progress.tiles.map((t) => t.id || 0), 1) + 1;
       setScore(progress.score || 0);
       setCombo(progress.combo || 0);
       setCanUndo(Boolean(progress.canUndo));
@@ -389,7 +422,27 @@ export default function HexaMergeApp({ onNavigateHome }) {
       setHasWon2048(Boolean(progress.hasWon2048));
       setShowMilestone(false);
     } else {
-      resetGame(targetConfig.radius, newMode);
+      const freshTiles = createInitialHexaTiles(targetConfig.radius);
+      currentG.tiles = freshTiles;
+      currentG.history = null;
+      currentG.nextTileId = freshTiles.length + 1;
+      setScore(0);
+      setCombo(0);
+      setCanUndo(false);
+      setGameState("playing");
+      setHasWon2048(false);
+      setShowMilestone(false);
+
+      saveHexaProgress(newMode, {
+        tiles: freshTiles,
+        score: 0,
+        combo: 0,
+        canUndo: false,
+        history: null,
+        gameState: "playing",
+        hasWon2048: false
+      });
+      updateHexaStats(0, 0, 1);
     }
   };
 
