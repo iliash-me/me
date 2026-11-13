@@ -364,39 +364,52 @@ export default function OklchLabApp({ onNavigateHome }) {
 
   return (
     <div className="oklch-studio-root" style={cssVarsStyle}>
-      {/* Top Bar */}
-      <header className="oklch-header">
-        <div className="oklch-container oklch-header-inner">
-          <div className="oklch-header-left">
-            <a
-              href="/"
-              id="oklch-back-home"
-              className="oklch-back-link"
-              onClick={(e) => {
-                e.preventDefault();
-                onNavigateHome();
-              }}
-            >
-              ← iliash.me
-            </a>
-            <span className="oklch-sep">/</span>
-            <h1 className="oklch-title">Palette & Contrast Studio</h1>
-          </div>
+      {/* Minimal Header (Matches Spring Tuner Header Structure) */}
+      <header className="oklch-nav">
+        <div className="oklch-nav-left">
+          <button
+            type="button"
+            id="oklch-back-home"
+            className="oklch-back-link"
+            onClick={onNavigateHome}
+          >
+            ← iliash.me
+          </button>
+          <span className="oklch-nav-title">Palette & Contrast</span>
+        </div>
 
-          <div className="oklch-presets-row" role="group" aria-label="Color presets">
-            {COLOR_PRESETS.map((p) => (
+        <div className="oklch-presets-row" role="group" aria-label="Color presets">
+          {COLOR_PRESETS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              id={`oklch-preset-${p.id}`}
+              className={`oklch-preset-pill ${paletteName === p.id ? "is-active" : ""}`}
+              onClick={() => applyPreset(p)}
+            >
+              <span
+                className="preset-color-dot"
+                style={{ backgroundColor: oklchToSrgb(0.62, p.chroma, p.hue).hex }}
+              />
+              <span>{p.name}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="oklch-nav-right">
+          <div className="oklch-span-pills" role="group" aria-label="Lightness contrast span">
+            {[
+              { id: "soft", label: "Soft" },
+              { id: "standard", label: "Standard" },
+              { id: "high", label: "High" }
+            ].map((sp) => (
               <button
-                key={p.id}
+                key={sp.id}
                 type="button"
-                id={`oklch-preset-${p.id}`}
-                className={`oklch-preset-pill ${paletteName === p.id ? "is-active" : ""}`}
-                onClick={() => applyPreset(p)}
+                className={`oklch-mini-pill ${contrastSpan === sp.id ? "is-active" : ""}`}
+                onClick={() => setContrastSpan(sp.id)}
               >
-                <span
-                  className="preset-color-dot"
-                  style={{ backgroundColor: oklchToSrgb(0.62, p.chroma, p.hue).hex }}
-                />
-                <span>{p.name}</span>
+                {sp.label}
               </button>
             ))}
           </div>
@@ -408,26 +421,8 @@ export default function OklchLabApp({ onNavigateHome }) {
         {/* 1. Top 11-Stop Swatch Strip */}
         <section className="oklch-swatch-strip-card" aria-label="Generated 50 to 950 color scale">
           <div className="oklch-strip-header">
-            <div className="oklch-strip-meta">
-              <span className="oklch-section-label">Color Scale (50 – 950)</span>
-              <span className="oklch-hint-text">Click any stop to inspect & copy HEX</span>
-            </div>
-            <div className="oklch-span-pills" role="group" aria-label="Lightness contrast span">
-              {[
-                { id: "soft", label: "Soft Span" },
-                { id: "standard", label: "Standard" },
-                { id: "high", label: "High Contrast" }
-              ].map((sp) => (
-                <button
-                  key={sp.id}
-                  type="button"
-                  className={`oklch-mini-pill ${contrastSpan === sp.id ? "is-active" : ""}`}
-                  onClick={() => setContrastSpan(sp.id)}
-                >
-                  {sp.label}
-                </button>
-              ))}
-            </div>
+            <span className="oklch-section-label">Color Scale (50 – 950)</span>
+            <span className="oklch-hint-text">Click any stop to inspect & copy HEX</span>
           </div>
 
           <div className="oklch-swatches-grid">
