@@ -258,7 +258,7 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Slide-Over Contact Sheet (Drawer) */}
+      {/* Bottom Slide-Up Contact Sheet */}
       {contactOpen && (
         <div
           className="sheet-backdrop"
@@ -268,6 +268,10 @@ export default function App() {
           onClick={() => setContactOpen(false)}
         >
           <aside className="contact-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="sheet-grab-bar" onClick={() => setContactOpen(false)} aria-hidden="true">
+              <span className="sheet-grab-pill" />
+            </div>
+
             <div className="sheet-header">
               <div>
                 <span className="sheet-kicker">// DIRECT MESSAGE</span>
@@ -275,75 +279,82 @@ export default function App() {
                   Get in touch
                 </h2>
               </div>
-              <button
-                type="button"
-                id="close-contact-sheet-btn"
-                className="sheet-close-btn"
-                onClick={() => setContactOpen(false)}
-                aria-label="Close contact sheet"
-              >
-                ✕
-              </button>
+              <div className="sheet-header-right">
+                <div className="sheet-email-bar">
+                  <a href={`mailto:${PROFILE.email}`} className="sheet-email-link">
+                    {PROFILE.email}
+                  </a>
+                  <button
+                    type="button"
+                    id="sheet-copy-email-btn"
+                    className="btn-secondary btn-compact"
+                    onClick={handleCopyEmail}
+                  >
+                    {copiedEmail ? "Copied ✓" : "Copy"}
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  id="close-contact-sheet-btn"
+                  className="sheet-close-btn"
+                  onClick={() => setContactOpen(false)}
+                  aria-label="Close contact sheet"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             <div className="sheet-body">
-              <div className="sheet-email-bar">
-                <a href={`mailto:${PROFILE.email}`} className="sheet-email-link">
-                  {PROFILE.email}
-                </a>
-                <button
-                  type="button"
-                  id="sheet-copy-email-btn"
-                  className="btn-secondary btn-compact"
-                  onClick={handleCopyEmail}
-                >
-                  {copiedEmail ? "Copied ✓" : "Copy"}
-                </button>
-              </div>
+              <div className="sheet-grid">
+                <div className="sheet-col-left">
+                  <div className="composer-field">
+                    <span className="composer-label">Topic</span>
+                    <div className="composer-topic-list">
+                      {INQUIRY_TOPICS.map((topic, idx) => (
+                        <button
+                          key={topic}
+                          type="button"
+                          id={`sheet-topic-btn-${idx}`}
+                          className={`composer-topic-btn ${selectedTopic === topic ? "is-selected" : ""}`}
+                          onClick={() => setSelectedTopic(topic)}
+                        >
+                          {topic}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-              <div className="composer-field">
-                <span className="composer-label">Topic</span>
-                <div className="composer-topic-list">
-                  {INQUIRY_TOPICS.map((topic, idx) => (
-                    <button
-                      key={topic}
-                      type="button"
-                      id={`sheet-topic-btn-${idx}`}
-                      className={`composer-topic-btn ${selectedTopic === topic ? "is-selected" : ""}`}
-                      onClick={() => setSelectedTopic(topic)}
-                    >
-                      {topic}
-                    </button>
-                  ))}
+                  <div className="composer-field">
+                    <label htmlFor="sheet-sender-name" className="composer-label">
+                      Your Name (Optional)
+                    </label>
+                    <input
+                      id="sheet-sender-name"
+                      type="text"
+                      className="composer-input"
+                      placeholder="Jane Doe"
+                      value={senderName}
+                      onChange={(e) => setSenderName(e.target.value)}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="composer-field">
-                <label htmlFor="sheet-sender-name" className="composer-label">
-                  Your Name (Optional)
-                </label>
-                <input
-                  id="sheet-sender-name"
-                  type="text"
-                  className="composer-input"
-                  placeholder="Jane Doe"
-                  value={senderName}
-                  onChange={(e) => setSenderName(e.target.value)}
-                />
-              </div>
-
-              <div className="composer-field">
-                <label htmlFor="sheet-custom-note" className="composer-label">
-                  Message
-                </label>
-                <textarea
-                  id="sheet-custom-note"
-                  rows="4"
-                  className="composer-textarea"
-                  placeholder="Tell me briefly about what you're building..."
-                  value={customNote}
-                  onChange={(e) => setCustomNote(e.target.value)}
-                />
+                <div className="sheet-col-right">
+                  <div className="composer-field sheet-message-field">
+                    <label htmlFor="sheet-custom-note" className="composer-label">
+                      Message
+                    </label>
+                    <textarea
+                      id="sheet-custom-note"
+                      rows="4"
+                      className="composer-textarea"
+                      placeholder="Tell me briefly about what you're building..."
+                      value={customNote}
+                      onChange={(e) => setCustomNote(e.target.value)}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
