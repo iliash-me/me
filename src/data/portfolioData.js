@@ -3,9 +3,9 @@ export const PROFILE = {
   handle: "iliash-me",
   domain: "iliash.me",
   role: "Front-End Developer & UI Engineer",
-  tagline: "Crafting fast, tactile web interfaces where engineering rigor meets typographic precision.",
+  tagline: "I build fast, tactile web interfaces.",
   summary:
-    "I design and engineer production interfaces, design systems, and procedural 3D web experiences. My work focuses on zero-bloat architecture, responsive fluid layouts, and micro-interactions that feel immediate and effortless.",
+    "I focus on clean design systems, fluid layouts, and high-performance front-end engineering.",
   email: "iliashhosain@gmail.com",
   avatar: "https://avatars.githubusercontent.com/u/6237937?v=4",
   timezone: "Asia/Dhaka",

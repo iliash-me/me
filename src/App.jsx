@@ -139,9 +139,7 @@ export default function App() {
               </div>
 
               <h1 id="hero-headline" className="hero-title">
-                Iliash Hosain builds fast,{" "}
-                <span className="serif-italic">tactile web interfaces</span> where engineering
-                meets typographic craft.
+                Hi, I’m Iliash. I build fast, <span className="serif-italic">tactile</span> web interfaces.
               </h1>
 
               <p className="hero-lead">{PROFILE.summary}</p>
