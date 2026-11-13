@@ -393,18 +393,6 @@
   .stack-fullscreen-btn {
     padding: 0.32rem 0.45rem;
   }
-  .stack-card-expand-label {
-    display: none;
-  }
-  .stack-card-expand-btn {
-    padding: 0.35rem;
-    min-width: 32px;
-    height: 32px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-  }
 }
 
 /* ==========================================================================
@@ -416,12 +404,18 @@
   top: 1.25rem;
   right: 1.5rem;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
-  padding: 0.35rem 0.65rem;
-  border-radius: 999px;
+  font-size: 0.95rem;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  border-radius: 50%;
   background-color: #f6f6f4;
-  border: 1px solid rgba(0, 0, 0, 0.07);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   color: #52525b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.15s ease;
   z-index: 10;
   cursor: pointer;

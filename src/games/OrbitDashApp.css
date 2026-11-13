@@ -353,18 +353,6 @@
   .orbit-fullscreen-pill {
     padding: 0.32rem 0.45rem;
   }
-  .orbit-card-expand-label {
-    display: none;
-  }
-  .orbit-card-expand-btn {
-    padding: 0.35rem;
-    min-width: 32px;
-    height: 32px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-  }
 }
 
 /* ==========================================================================
@@ -379,13 +367,18 @@
 
 .orbit-card-expand-btn {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
-  font-weight: 500;
-  padding: 0.35rem 0.65rem;
-  border-radius: 999px;
+  font-size: 0.95rem;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  border-radius: 50%;
   background-color: #f4f4f2;
   border: 1px solid rgba(0, 0, 0, 0.08);
   color: #52525b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.15s ease;
   cursor: pointer;
 }

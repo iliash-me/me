@@ -812,11 +812,10 @@ export default function KineticStackApp({ onNavigateHome }) {
               e.stopPropagation();
               toggleFullscreen();
             }}
-            title={isFullscreen ? "Exit Fullscreen (F)" : "Expand to Fullscreen (F)"}
+            title={isFullscreen ? "Exit Fullscreen (Esc / F)" : "Expand to Fullscreen (F)"}
             aria-label={isFullscreen ? "Exit Fullscreen" : "Expand to Fullscreen"}
           >
             <span className="stack-btn-icon" aria-hidden="true">{isFullscreen ? "⤓" : "⛶"}</span>
-            <span className="stack-card-expand-label">{isFullscreen ? "Exit" : "Expand"}</span>
           </button>
 
           {/* Background Score Watermark */}
