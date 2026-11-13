@@ -6,11 +6,21 @@ import SpringTunerApp from "./tools/SpringTunerApp";
 import OklchLabApp from "./tools/OklchLabApp";
 import OrbitDashApp from "./games/OrbitDashApp";
 import KineticStackApp from "./games/KineticStackApp";
+import TerminalApp from "./terminal/TerminalApp";
 
 const INQUIRY_TOPICS = ["Web App / UI", "Design System", "3D / Creative", "General Inquiry"];
 
 function getNormalizedRoute() {
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
+  if (
+    path === "/t" ||
+    path === "/terminal" ||
+    window.location.hash === "#/t" ||
+    window.location.hash === "#t" ||
+    window.location.hash === "#/terminal"
+  ) {
+    return "/t";
+  }
   if (path === "/tools/spring-tuner" || window.location.hash === "#/tools/spring-tuner") {
     return "/tools/spring-tuner";
   }
@@ -30,6 +40,8 @@ function getNormalizedRoute() {
   }
   return "/";
 }
+
+const CURRENT_YEAR = new Date().getFullYear();
 
 export default function App() {
   const [route, setRoute] = useState(getNormalizedRoute);
@@ -74,7 +86,9 @@ export default function App() {
     localStorage.setItem("iliash-theme", theme);
     const metaTheme = document.querySelector('meta[name="theme-color"]');
     if (metaTheme) {
-      if (
+      if (route === "/t") {
+        metaTheme.setAttribute("content", "#0b0d13");
+      } else if (
         route === "/tools/spring-tuner" ||
         route === "/games/orbit-dash" ||
         route === "/games/kinetic-stack"
@@ -131,7 +145,10 @@ export default function App() {
     };
   }, [contactOpen, toolsMenuOpen, gamesMenuOpen]);
 
-  // Render standalone tools and games with their own dedicated vibes
+  // Render standalone tools, games, and terminal with their own dedicated vibes
+  if (route === "/t") {
+    return <TerminalApp onNavigateHome={() => navigateTo("/")} onNavigateTo={navigateTo} />;
+  }
   if (route === "/tools/spring-tuner") {
     return <SpringTunerApp onNavigateHome={() => navigateTo("/")} />;
   }
@@ -153,6 +170,13 @@ export default function App() {
     navigator.clipboard?.writeText(PROFILE.email);
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 2000);
+  };
+
+  const openTerminalRoute = () => {
+    setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
+    setContactOpen(false);
+    navigateTo("/t");
   };
 
   const openTunerRoute = () => {
@@ -393,6 +417,19 @@ export default function App() {
               )}
             </div>
 
+            <a
+              href="/t"
+              id="nav-terminal-btn"
+              className="action-chip"
+              onClick={(e) => {
+                e.preventDefault();
+                openTerminalRoute();
+              }}
+              title="Interactive Terminal Mode (/t)"
+            >
+              <span>&gt;_ /t</span>
+            </a>
+
             <button
               type="button"
               id="nav-open-contact-btn"
@@ -570,7 +607,7 @@ export default function App() {
       <footer className="site-footer" role="contentinfo">
         <div className="page-shell footer-inner">
           <div className="footer-left">
-            <span>© {new Date().getFullYear()} {PROFILE.name}</span>
+            <span>© {CURRENT_YEAR} {PROFILE.name}</span>
           </div>
           <div className="footer-right">
             {PROFILE.socials.map((soc) => (
@@ -761,6 +798,7 @@ export default function App() {
         onOpenOklchLab={openOklchRoute}
         onOpenOrbitDash={openOrbitDashRoute}
         onOpenKineticStack={openKineticStackRoute}
+        onOpenTerminal={openTerminalRoute}
       />
     </div>
   );

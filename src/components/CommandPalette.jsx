@@ -11,7 +11,8 @@ export default function CommandPalette({
   onOpenTunerSheet,
   onOpenOklchLab,
   onOpenOrbitDash,
-  onOpenKineticStack
+  onOpenKineticStack,
+  onOpenTerminal
 }) {
   const [query, setQuery] = useState("");
 
@@ -35,6 +36,16 @@ export default function CommandPalette({
   if (!isOpen) return null;
 
   const actions = [
+    {
+      id: "cmd-terminal",
+      group: "Terminal",
+      label: "Open Terminal Mode (/t)",
+      shortcut: ">_",
+      action: () => {
+        onClose();
+        onOpenTerminal?.();
+      }
+    },
     {
       id: "cmd-kinetic-stack",
       group: "Games",
