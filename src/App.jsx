@@ -145,10 +145,7 @@ export default function App() {
     };
   }, [contactOpen, toolsMenuOpen, gamesMenuOpen]);
 
-  // Render standalone tools, games, and terminal with their own dedicated vibes
-  if (route === "/t") {
-    return <TerminalApp onNavigateHome={() => navigateTo("/")} onNavigateTo={navigateTo} />;
-  }
+  // Render standalone tools and games with their own dedicated vibes
   if (route === "/tools/spring-tuner") {
     return <SpringTunerApp onNavigateHome={() => navigateTo("/")} />;
   }
@@ -418,14 +415,18 @@ export default function App() {
             </div>
 
             <a
-              href="/t"
+              href={route === "/t" ? "/" : "/t"}
               id="nav-terminal-btn"
-              className="action-chip"
+              className={`action-chip ${route === "/t" ? "tools-dropdown-trigger is-open" : ""}`}
               onClick={(e) => {
                 e.preventDefault();
-                openTerminalRoute();
+                if (route === "/t") {
+                  navigateTo("/");
+                } else {
+                  openTerminalRoute();
+                }
               }}
-              title="Interactive Terminal Mode (/t)"
+              title="Toggle Draggable Terminal Window (/t)"
             >
               <span>&gt;_ /t</span>
             </a>
@@ -785,6 +786,14 @@ export default function App() {
           </form>
         </aside>
       </div>
+
+      {/* Draggable Floating Terminal Window (/t) */}
+      {route === "/t" && (
+        <TerminalApp
+          onNavigateHome={() => navigateTo("/")}
+          onNavigateTo={navigateTo}
+        />
+      )}
 
       {/* Keyboard-Accessible Command Palette Modal */}
       <CommandPalette

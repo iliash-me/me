@@ -66,6 +66,19 @@ function playTerminalSound(type, enabled) {
   }
 }
 
+function getInitialBounds() {
+  if (typeof window === "undefined") {
+    return { x: 80, y: 80, w: 860, h: 540 };
+  }
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const w = Math.min(860, Math.max(320, vw - 32));
+  const h = Math.min(540, Math.max(340, vh - 96));
+  const x = Math.max(16, Math.round((vw - w) / 2));
+  const y = Math.max(48, Math.round((vh - h) / 2));
+  return { x, y, w, h };
+}
+
 export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem("iliash-term-theme") || "dark";
@@ -74,6 +87,13 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
     return localStorage.getItem("iliash-term-crt") !== "false";
   });
   const [soundEnabled, setSoundEnabled] = useState(false);
+
+  // Draggable & Resizable Window State
+  const [bounds, setBounds] = useState(getInitialBounds);
+  const [isMaximized, setIsMaximized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
 
   const [cwd, setCwd] = useState("~");
   const [inputVal, setInputVal] = useState("");
@@ -84,6 +104,8 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
   const inputRef = useRef(null);
   const bodyRef = useRef(null);
   const executeCommandRef = useRef(null);
+  const dragRef = useRef(null);
+  const resizeRef = useRef(null);
 
   // Initial welcome message banner
   const [logs, setLogs] = useState(() => [
@@ -114,17 +136,36 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
             <span style={{ color: "var(--t-prompt)" }}>contact</span> ·{" "}
             <span style={{ color: "var(--t-prompt)" }}>socials</span>
             <br />
-            Switch back anytime with <span style={{ color: "var(--t-prompt)" }}>gui</span> or{" "}
-            <span style={{ color: "var(--t-prompt)" }}>exit</span>.
+            Drag the top bar to move this window, resize from the bottom-right corner, or type{" "}
+            <span style={{ color: "var(--t-prompt)" }}>exit</span> to close.
           </div>
         </div>
       )
     }
   ]);
 
-  // Keep input focused
+  // Keep input focused when opened/restored
   useEffect(() => {
-    inputRef.current?.focus();
+    if (!isMinimized) {
+      inputRef.current?.focus();
+    }
+  }, [isMinimized]);
+
+  // Clamp window inside viewport on browser resize
+  useEffect(() => {
+    const onResize = () => {
+      setBounds((prev) => {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const w = Math.min(prev.w, vw - 16);
+        const h = Math.min(prev.h, vh - 16);
+        const x = Math.max(8, Math.min(prev.x, vw - w - 8));
+        const y = Math.max(8, Math.min(prev.y, vh - 48));
+        return { x, y, w, h };
+      });
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   // Sync theme with localStorage
@@ -142,6 +183,88 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
       bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
     }
   }, [logs, inputVal]);
+
+  // Pointer Drag Handlers for Window Header
+  const handleHeaderPointerDown = (e) => {
+    if (isMaximized) return;
+    if (e.target.closest("button")) return;
+    e.preventDefault();
+    setIsDragging(true);
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      origX: bounds.x,
+      origY: bounds.y
+    };
+  };
+
+  useEffect(() => {
+    if (!isDragging) return;
+    const onPointerMove = (e) => {
+      if (!dragRef.current) return;
+      const dx = e.clientX - dragRef.current.startX;
+      const dy = e.clientY - dragRef.current.startY;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      setBounds((prev) => ({
+        ...prev,
+        x: Math.max(0, Math.min(vw - 120, dragRef.current.origX + dx)),
+        y: Math.max(0, Math.min(vh - 48, dragRef.current.origY + dy))
+      }));
+    };
+    const onPointerUp = () => {
+      setIsDragging(false);
+      dragRef.current = null;
+      inputRef.current?.focus();
+    };
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+    };
+  }, [isDragging]);
+
+  // Pointer Resize Handlers for Bottom-Right Grip
+  const handleResizePointerDown = (e) => {
+    if (isMaximized) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+    resizeRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      origW: bounds.w,
+      origH: bounds.h
+    };
+  };
+
+  useEffect(() => {
+    if (!isResizing) return;
+    const onPointerMove = (e) => {
+      if (!resizeRef.current) return;
+      const dx = e.clientX - resizeRef.current.startX;
+      const dy = e.clientY - resizeRef.current.startY;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      setBounds((prev) => ({
+        ...prev,
+        w: Math.max(320, Math.min(vw - prev.x - 8, resizeRef.current.origW + dx)),
+        h: Math.max(260, Math.min(vh - prev.y - 8, resizeRef.current.origH + dy))
+      }));
+    };
+    const onPointerUp = () => {
+      setIsResizing(false);
+      resizeRef.current = null;
+      inputRef.current?.focus();
+    };
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+    };
+  }, [isResizing]);
 
   const getDhakaTime = () => {
     try {
@@ -235,7 +358,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                 <tbody>
                   <tr>
                     <td className="term-cmd-col">gui / exit</td>
-                    <td className="term-desc-col">Return to the standard graphic site at /</td>
+                    <td className="term-desc-col">Close terminal window and return to /</td>
                   </tr>
                   <tr>
                     <td className="term-cmd-col">open &lt;app&gt;</td>
@@ -677,7 +800,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
             if (onNavigateTo) onNavigateTo("/games/orbit-dash");
             else window.location.href = "/games/orbit-dash";
           } else if (target === "gui" || target === "home") {
-            outputContent = <div>Returning to GUI site...</div>;
+            outputContent = <div>Closing terminal window...</div>;
             onNavigateHome?.();
           } else if (target === "github") {
             window.open("https://github.com/iliash-me", "_blank", "noopener,noreferrer");
@@ -695,7 +818,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
         case "gui":
         case "exit":
         case "quit": {
-          outputContent = <div>Navigating to main site...</div>;
+          outputContent = <div>Closing terminal window...</div>;
           onNavigateHome?.();
           break;
         }
@@ -984,67 +1107,82 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
     setTheme(THEMES[nextIdx]);
   };
 
-  const handleTrafficLightClose = () => {
-    onNavigateHome?.();
-  };
-
-  const handleTrafficLightMinimize = () => {
-    executeCommand("clear");
-  };
-
-  const handleTrafficLightExpand = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.().catch(() => {});
-    } else {
-      document.exitFullscreen?.().catch(() => {});
-    }
-  };
+  // Minimized pill view
+  if (isMinimized) {
+    return (
+      <button
+        type="button"
+        className="term-minimized-dock"
+        onClick={() => setIsMinimized(false)}
+        title="Restore Terminal Window"
+      >
+        <span className="term-live-dot" />
+        <span>&gt;_ guest@{PROFILE.domain}:{cwd}</span>
+        <span style={{ opacity: 0.65, fontSize: "0.7rem" }}>[Restore ↗]</span>
+      </button>
+    );
+  }
 
   return (
     <div
-      className="term-viewport"
+      className={`term-viewport ${isMaximized ? "is-maximized" : ""} ${
+        isDragging ? "is-dragging" : ""
+      } ${isResizing ? "is-resizing" : ""}`}
       data-term-theme={theme}
+      style={
+        isMaximized
+          ? undefined
+          : {
+              left: `${bounds.x}px`,
+              top: `${bounds.y}px`,
+              width: `${bounds.w}px`,
+              height: `${bounds.h}px`
+            }
+      }
       onClick={() => inputRef.current?.focus()}
+      role="dialog"
+      aria-label="Interactive Terminal Window"
     >
       {/* CRT Scanline & Vignette Effect Overlays */}
       {crtEnabled && <div className="term-crt-overlay" aria-hidden="true" />}
       {crtEnabled && <div className="term-crt-vignette" aria-hidden="true" />}
 
-      {/* Top Header Bar */}
-      <header className="term-header">
+      {/* Top Header Bar (Draggable Title Bar) */}
+      <header
+        className="term-header"
+        onPointerDown={handleHeaderPointerDown}
+        onDoubleClick={() => setIsMaximized((m) => !m)}
+      >
         <div className="term-header-left">
           <div className="term-traffic-lights">
             <button
               type="button"
               className="term-traffic-light is-red"
-              onClick={handleTrafficLightClose}
-              title="Close terminal and return to GUI"
-              aria-label="Exit to GUI"
+              onClick={onNavigateHome}
+              title="Close terminal window"
+              aria-label="Close terminal window"
             />
             <button
               type="button"
               className="term-traffic-light is-yellow"
-              onClick={handleTrafficLightMinimize}
-              title="Clear terminal screen"
-              aria-label="Clear screen"
+              onClick={() => setIsMinimized(true)}
+              title="Minimize window to corner dock"
+              aria-label="Minimize terminal window"
             />
             <button
               type="button"
               className="term-traffic-light is-green"
-              onClick={handleTrafficLightExpand}
-              title="Toggle Fullscreen"
-              aria-label="Toggle Fullscreen"
+              onClick={() => setIsMaximized((m) => !m)}
+              title={isMaximized ? "Restore window size" : "Maximize window"}
+              aria-label="Toggle Maximize"
             />
           </div>
 
           <div className="term-title-wrapper">
             <span className="term-session-badge">guest@{PROFILE.domain}</span>
             <span>:</span>
-            <span>{cwd} (bash)</span>
-            <span className="term-live-indicator">
-              <span className="term-live-dot" />
-              <span>LIVE</span>
-            </span>
+            <span>{cwd}</span>
+            <span className="term-drag-hint">· drag to move</span>
           </div>
         </div>
 
@@ -1078,11 +1216,20 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
 
           <button
             type="button"
+            className="term-btn-pill"
+            onClick={() => setIsMaximized((m) => !m)}
+            title={isMaximized ? "Restore Window" : "Maximize Window"}
+          >
+            {isMaximized ? "❐" : "□"}
+          </button>
+
+          <button
+            type="button"
             className="term-btn-pill term-btn-exit"
             onClick={onNavigateHome}
-            title="Exit terminal mode and return to GUI"
+            title="Close terminal window"
           >
-            ← GUI Site
+            ✕
           </button>
         </div>
       </header>
@@ -1133,7 +1280,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
 
       {/* Bottom Quick Command Dock */}
       <footer className="term-footer">
-        <div className="term-dock-label">QUICK CMDS:</div>
+        <div className="term-dock-label">CMDS:</div>
         <div className="term-dock-chips">
           <button
             type="button"
@@ -1249,6 +1396,16 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
             ⌫
           </button>
         </div>
+
+        {/* Corner Resize Handle */}
+        {!isMaximized && (
+          <div
+            className="term-resize-handle"
+            onPointerDown={handleResizePointerDown}
+            title="Drag to resize window"
+            aria-hidden="true"
+          />
+        )}
       </footer>
     </div>
   );
