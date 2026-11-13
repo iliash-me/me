@@ -44,10 +44,10 @@ export default function CommandPalette({
       }
     },
     {
-      id: "cmd-oklch-lab",
+      id: "cmd-palette-studio",
       group: "Tools",
-      label: "Open OKLCH Palette & Contrast Lab",
-      shortcut: "O",
+      label: "Open Palette & Contrast Studio",
+      shortcut: "P",
       action: () => {
         onClose();
         onOpenOklchLab?.();

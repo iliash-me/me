@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && mkdir -p assets tools/spring-tuner tools/oklch-lab dist/tools/spring-tuner dist/tools/oklch-lab && cp -r dist/assets/* assets/ && cp dist/index.html dist/404.html && cp dist/index.html dist/tools/spring-tuner/index.html && cp dist/index.html dist/tools/oklch-lab/index.html && cp index.html 404.html && cp index.html tools/spring-tuner/index.html && cp index.html tools/oklch-lab/index.html && cp public/zoho-domain-verification.html ./",
+    "build": "vite build && mkdir -p assets tools/spring-tuner tools/palette-studio tools/oklch-lab dist/tools/spring-tuner dist/tools/palette-studio dist/tools/oklch-lab && cp -r dist/assets/* assets/ && cp dist/index.html dist/404.html && cp dist/index.html dist/tools/spring-tuner/index.html && cp dist/index.html dist/tools/palette-studio/index.html && cp dist/index.html dist/tools/oklch-lab/index.html && cp index.html 404.html && cp index.html tools/spring-tuner/index.html && cp index.html tools/palette-studio/index.html && cp index.html tools/oklch-lab/index.html && cp public/zoho-domain-verification.html ./",
     "lint": "oxlint",
     "preview": "vite preview"
   },

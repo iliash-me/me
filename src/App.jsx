@@ -12,8 +12,13 @@ function getNormalizedRoute() {
   if (path === "/tools/spring-tuner" || window.location.hash === "#/tools/spring-tuner") {
     return "/tools/spring-tuner";
   }
-  if (path === "/tools/oklch-lab" || window.location.hash === "#/tools/oklch-lab") {
-    return "/tools/oklch-lab";
+  if (
+    path === "/tools/palette-studio" ||
+    path === "/tools/oklch-lab" ||
+    window.location.hash === "#/tools/palette-studio" ||
+    window.location.hash === "#/tools/oklch-lab"
+  ) {
+    return "/tools/palette-studio";
   }
   return "/";
 }
@@ -61,7 +66,7 @@ export default function App() {
     if (metaTheme) {
       if (route === "/tools/spring-tuner") {
         metaTheme.setAttribute("content", "#f5f5f3");
-      } else if (route === "/tools/oklch-lab") {
+      } else if (route === "/tools/palette-studio") {
         metaTheme.setAttribute("content", "#f6f6f4");
       } else {
         metaTheme.setAttribute("content", theme === "dark" ? "#0B0D11" : "#F6F4EF");
@@ -112,7 +117,7 @@ export default function App() {
   if (route === "/tools/spring-tuner") {
     return <SpringTunerApp onNavigateHome={() => navigateTo("/")} />;
   }
-  if (route === "/tools/oklch-lab") {
+  if (route === "/tools/palette-studio") {
     return <OklchLabApp onNavigateHome={() => navigateTo("/")} />;
   }
 
@@ -135,7 +140,7 @@ export default function App() {
   const openOklchRoute = () => {
     setToolsMenuOpen(false);
     setContactOpen(false);
-    navigateTo("/tools/oklch-lab");
+    navigateTo("/tools/palette-studio");
   };
 
   const openContact = () => {
@@ -268,8 +273,8 @@ export default function App() {
                   </a>
 
                   <a
-                    href="/tools/oklch-lab"
-                    id="dropdown-oklch-lab-link"
+                    href="/tools/palette-studio"
+                    id="dropdown-palette-studio-link"
                     role="menuitem"
                     className="tools-dropdown-item"
                     onClick={(e) => {
@@ -278,8 +283,8 @@ export default function App() {
                     }}
                   >
                     <div className="tools-dropdown-item-text">
-                      <span className="tools-dropdown-item-title">OKLCH Palette & Contrast Lab</span>
-                      <span className="tools-dropdown-item-sub">Perceptual 50–950 scale & WCAG/APCA studio</span>
+                      <span className="tools-dropdown-item-title">Palette & Contrast Studio</span>
+                      <span className="tools-dropdown-item-sub">Color scale generator & WCAG/APCA contrast lab</span>
                     </div>
                     <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
                   </a>

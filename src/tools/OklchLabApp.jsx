@@ -20,8 +20,8 @@ const CURVE_MODES = [
 ];
 
 const EXPORT_FORMATS = [
-  { id: "oklch-css", label: "CSS OKLCH" },
-  { id: "hex-css", label: "CSS HEX" },
+  { id: "oklch-css", label: "CSS (OKLCH)" },
+  { id: "hex-css", label: "CSS (HEX)" },
   { id: "tailwind", label: "Tailwind" },
   { id: "json", label: "JSON Tokens" }
 ];
@@ -544,7 +544,7 @@ export default function OklchLabApp({ onNavigateHome }) {
 
                     <p className="preview-card-body">
                       All color surfaces, borders, badges, and buttons are bound live to your{" "}
-                      <code>50–950</code> OKLCH scale.
+                      <code>50–950</code> color scale.
                     </p>
 
                     {/* Progress bar */}
@@ -563,9 +563,9 @@ export default function OklchLabApp({ onNavigateHome }) {
                       <input
                         type="text"
                         readOnly
-                        value={`oklch(${(scaleMap[500].L * 100).toFixed(0)}% ${scaleMap[500].C.toFixed(2)} ${hue})`}
+                        value={`--color-${paletteName}-500: ${scaleMap[500].hex}`}
                         className="preview-input"
-                        aria-label="Live OKLCH token"
+                        aria-label="Live color token"
                       />
                       <button type="button" className="preview-btn-solid">
                         Deploy
