@@ -53,6 +53,8 @@ export default function App() {
   const toolsDropdownRef = useRef(null);
   const [gamesMenuOpen, setGamesMenuOpen] = useState(false);
   const gamesDropdownRef = useRef(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const topbarRef = useRef(null);
   const [localTime, setLocalTime] = useState("");
   const [selectedTopic, setSelectedTopic] = useState(INQUIRY_TOPICS[0]);
   const [senderName, setSenderName] = useState("");
@@ -65,6 +67,7 @@ export default function App() {
     window.history.pushState({}, "", targetPath);
     setRoute(targetPath);
     setTerminalOpen(false);
+    setMobileMenuOpen(false);
     window.scrollTo(0, 0);
   };
 
@@ -76,6 +79,7 @@ export default function App() {
     const handlePopState = () => {
       setRoute(getNormalizedRoute());
       setTerminalOpen(false);
+      setMobileMenuOpen(false);
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -126,12 +130,14 @@ export default function App() {
         e.preventDefault();
         setToolsMenuOpen(false);
         setGamesMenuOpen(false);
+        setMobileMenuOpen(false);
         setContactOpen(false);
         setTerminalOpen((prev) => !prev);
       } else if (e.key === "Escape") {
         if (contactOpen) setContactOpen(false);
         if (toolsMenuOpen) setToolsMenuOpen(false);
         if (gamesMenuOpen) setGamesMenuOpen(false);
+        if (mobileMenuOpen) setMobileMenuOpen(false);
       }
     };
     const handleClickOutside = (e) => {
@@ -141,6 +147,9 @@ export default function App() {
       if (gamesDropdownRef.current && !gamesDropdownRef.current.contains(e.target)) {
         setGamesMenuOpen(false);
       }
+      if (topbarRef.current && !topbarRef.current.contains(e.target)) {
+        setMobileMenuOpen(false);
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     document.addEventListener("mousedown", handleClickOutside);
@@ -148,7 +157,7 @@ export default function App() {
       window.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [contactOpen, toolsMenuOpen, gamesMenuOpen, route]);
+  }, [contactOpen, toolsMenuOpen, gamesMenuOpen, mobileMenuOpen, route]);
 
   // Render standalone tools and games with their own dedicated vibes, plus global terminal overlay
   if (
@@ -198,6 +207,7 @@ export default function App() {
   const openTerminalRoute = () => {
     setToolsMenuOpen(false);
     setGamesMenuOpen(false);
+    setMobileMenuOpen(false);
     setContactOpen(false);
     setTerminalOpen(true);
   };
@@ -240,6 +250,7 @@ export default function App() {
   const openContact = () => {
     setToolsMenuOpen(false);
     setGamesMenuOpen(false);
+    setMobileMenuOpen(false);
     setContactOpen(true);
   };
 
@@ -322,7 +333,7 @@ export default function App() {
   return (
     <div className="site-wrapper minimal-shell">
       {/* Minimal Top Bar */}
-      <header className="topbar" role="banner">
+      <header className="topbar" ref={topbarRef} role="banner">
         <div className="page-shell topbar-inner">
           <a href="#top" id="brand-home-link" className="brand-identity">
             <span className="brand-monogram">IH</span>
@@ -335,159 +346,161 @@ export default function App() {
           </a>
 
           <div className="topbar-actions">
-            {/* Tools Dropdown */}
-            <div className="tools-dropdown-wrap" ref={toolsDropdownRef}>
+            <div className="topbar-desktop-nav">
+              {/* Tools Dropdown */}
+              <div className="tools-dropdown-wrap" ref={toolsDropdownRef}>
+                <button
+                  type="button"
+                  id="nav-tools-dropdown-btn"
+                  className={`action-chip tools-dropdown-trigger ${toolsMenuOpen ? "is-open" : ""}`}
+                  aria-expanded={toolsMenuOpen}
+                  aria-haspopup="menu"
+                  onClick={() => {
+                    setToolsMenuOpen((prev) => !prev);
+                    setGamesMenuOpen(false);
+                  }}
+                >
+                  <span>Tools</span>
+                  <span className="tools-caret" aria-hidden="true">▾</span>
+                </button>
+
+                {toolsMenuOpen && (
+                  <div className="tools-dropdown-menu" role="menu" aria-label="Developer tools">
+                    <a
+                      href="/tools/spring-tuner"
+                      id="dropdown-spring-tuner-link"
+                      role="menuitem"
+                      className="tools-dropdown-item"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openTunerRoute();
+                      }}
+                    >
+                      <div className="tools-dropdown-item-text">
+                        <span className="tools-dropdown-item-title">Spring & Easing Tuner</span>
+                        <span className="tools-dropdown-item-sub">Interactive curve & UI motion studio</span>
+                      </div>
+                      <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                    </a>
+
+                    <a
+                      href="/tools/palette-studio"
+                      id="dropdown-palette-studio-link"
+                      role="menuitem"
+                      className="tools-dropdown-item"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openOklchRoute();
+                      }}
+                    >
+                      <div className="tools-dropdown-item-text">
+                        <span className="tools-dropdown-item-title">Palette & Contrast Studio</span>
+                        <span className="tools-dropdown-item-sub">Color scale generator & WCAG/APCA contrast lab</span>
+                      </div>
+                      <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* Games Dropdown */}
+              <div className="tools-dropdown-wrap" ref={gamesDropdownRef}>
+                <button
+                  type="button"
+                  id="nav-games-dropdown-btn"
+                  className={`action-chip tools-dropdown-trigger ${gamesMenuOpen ? "is-open" : ""}`}
+                  aria-expanded={gamesMenuOpen}
+                  aria-haspopup="menu"
+                  onClick={() => {
+                    setGamesMenuOpen((prev) => !prev);
+                    setToolsMenuOpen(false);
+                  }}
+                >
+                  <span>Games</span>
+                  <span className="tools-caret" aria-hidden="true">▾</span>
+                </button>
+
+                {gamesMenuOpen && (
+                  <div className="tools-dropdown-menu" role="menu" aria-label="Games">
+                    <a
+                      href="/games/hexa-merge"
+                      id="dropdown-hexa-merge-link"
+                      role="menuitem"
+                      className="tools-dropdown-item"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openHexaMergeRoute();
+                      }}
+                    >
+                      <div className="tools-dropdown-item-text">
+                        <span className="tools-dropdown-item-title">Hexa Merge</span>
+                        <span className="tools-dropdown-item-sub">Tactile hexagonal merge & combo puzzle</span>
+                      </div>
+                      <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                    </a>
+
+                    <a
+                      href="/games/kinetic-stack"
+                      id="dropdown-kinetic-stack-link"
+                      role="menuitem"
+                      className="tools-dropdown-item"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openKineticStackRoute();
+                      }}
+                    >
+                      <div className="tools-dropdown-item-text">
+                        <span className="tools-dropdown-item-title">Kinetic Stack</span>
+                        <span className="tools-dropdown-item-sub">3D isometric slice & chord progression tower</span>
+                      </div>
+                      <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                    </a>
+
+                    <a
+                      href="/games/orbit-dash"
+                      id="dropdown-orbit-dash-link"
+                      role="menuitem"
+                      className="tools-dropdown-item"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openOrbitDashRoute();
+                      }}
+                    >
+                      <div className="tools-dropdown-item-text">
+                        <span className="tools-dropdown-item-title">Orbit Dash (Arcade Game)</span>
+                        <span className="tools-dropdown-item-sub">One-button rhythm & dual-ring orbit dodge</span>
+                      </div>
+                      <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                    </a>
+                  </div>
+                )}
+              </div>
+
               <button
                 type="button"
-                id="nav-tools-dropdown-btn"
-                className={`action-chip tools-dropdown-trigger ${toolsMenuOpen ? "is-open" : ""}`}
-                aria-expanded={toolsMenuOpen}
-                aria-haspopup="menu"
-                onClick={() => {
-                  setToolsMenuOpen((prev) => !prev);
-                  setGamesMenuOpen(false);
-                }}
+                id="nav-open-contact-btn"
+                className="action-chip"
+                onClick={openContact}
               >
-                <span>Tools</span>
-                <span className="tools-caret" aria-hidden="true">▾</span>
+                <span>Contact</span>
               </button>
 
-              {toolsMenuOpen && (
-                <div className="tools-dropdown-menu" role="menu" aria-label="Developer tools">
-                  <a
-                    href="/tools/spring-tuner"
-                    id="dropdown-spring-tuner-link"
-                    role="menuitem"
-                    className="tools-dropdown-item"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      openTunerRoute();
-                    }}
-                  >
-                    <div className="tools-dropdown-item-text">
-                      <span className="tools-dropdown-item-title">Spring & Easing Tuner</span>
-                      <span className="tools-dropdown-item-sub">Interactive curve & UI motion studio</span>
-                    </div>
-                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
-                  </a>
-
-                  <a
-                    href="/tools/palette-studio"
-                    id="dropdown-palette-studio-link"
-                    role="menuitem"
-                    className="tools-dropdown-item"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      openOklchRoute();
-                    }}
-                  >
-                    <div className="tools-dropdown-item-text">
-                      <span className="tools-dropdown-item-title">Palette & Contrast Studio</span>
-                      <span className="tools-dropdown-item-sub">Color scale generator & WCAG/APCA contrast lab</span>
-                    </div>
-                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
-                  </a>
-                </div>
-              )}
-            </div>
-
-            {/* Games Dropdown */}
-            <div className="tools-dropdown-wrap" ref={gamesDropdownRef}>
               <button
                 type="button"
-                id="nav-games-dropdown-btn"
-                className={`action-chip tools-dropdown-trigger ${gamesMenuOpen ? "is-open" : ""}`}
-                aria-expanded={gamesMenuOpen}
-                aria-haspopup="menu"
+                id="open-command-palette-btn"
+                className={`action-chip ${terminalOpen ? "tools-dropdown-trigger is-open" : ""}`}
                 onClick={() => {
-                  setGamesMenuOpen((prev) => !prev);
-                  setToolsMenuOpen(false);
+                  if (terminalOpen) {
+                    closeTerminal();
+                  } else {
+                    openTerminalRoute();
+                  }
                 }}
+                title="Toggle Terminal Window (⌘K)"
               >
-                <span>Games</span>
-                <span className="tools-caret" aria-hidden="true">▾</span>
+                <kbd>⌘K</kbd>
               </button>
-
-              {gamesMenuOpen && (
-                <div className="tools-dropdown-menu" role="menu" aria-label="Games">
-                  <a
-                    href="/games/hexa-merge"
-                    id="dropdown-hexa-merge-link"
-                    role="menuitem"
-                    className="tools-dropdown-item"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      openHexaMergeRoute();
-                    }}
-                  >
-                    <div className="tools-dropdown-item-text">
-                      <span className="tools-dropdown-item-title">Hexa Merge</span>
-                      <span className="tools-dropdown-item-sub">Tactile hexagonal merge & combo puzzle</span>
-                    </div>
-                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
-                  </a>
-
-                  <a
-                    href="/games/kinetic-stack"
-                    id="dropdown-kinetic-stack-link"
-                    role="menuitem"
-                    className="tools-dropdown-item"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      openKineticStackRoute();
-                    }}
-                  >
-                    <div className="tools-dropdown-item-text">
-                      <span className="tools-dropdown-item-title">Kinetic Stack</span>
-                      <span className="tools-dropdown-item-sub">3D isometric slice & chord progression tower</span>
-                    </div>
-                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
-                  </a>
-
-                  <a
-                    href="/games/orbit-dash"
-                    id="dropdown-orbit-dash-link"
-                    role="menuitem"
-                    className="tools-dropdown-item"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      openOrbitDashRoute();
-                    }}
-                  >
-                    <div className="tools-dropdown-item-text">
-                      <span className="tools-dropdown-item-title">Orbit Dash (Arcade Game)</span>
-                      <span className="tools-dropdown-item-sub">One-button rhythm & dual-ring orbit dodge</span>
-                    </div>
-                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
-                  </a>
-                </div>
-              )}
             </div>
-
-            <button
-              type="button"
-              id="nav-open-contact-btn"
-              className="action-chip"
-              onClick={openContact}
-            >
-              <span>Contact</span>
-            </button>
-
-            <button
-              type="button"
-              id="open-command-palette-btn"
-              className={`action-chip ${terminalOpen ? "tools-dropdown-trigger is-open" : ""}`}
-              onClick={() => {
-                if (terminalOpen) {
-                  closeTerminal();
-                } else {
-                  openTerminalRoute();
-                }
-              }}
-              title="Toggle Terminal Window (⌘K)"
-            >
-              <kbd>⌘K</kbd>
-            </button>
 
             <button
               type="button"
@@ -537,8 +550,175 @@ export default function App() {
                 </svg>
               )}
             </button>
+
+            <button
+              type="button"
+              id="mobile-menu-toggle-btn"
+              className={`action-chip mobile-menu-btn ${mobileMenuOpen ? "is-open" : ""}`}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-nav-menu"
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              onClick={() => {
+                setToolsMenuOpen(false);
+                setGamesMenuOpen(false);
+                setMobileMenuOpen((prev) => !prev);
+              }}
+            >
+              {mobileMenuOpen ? (
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg>
+              ) : (
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <line x1="4" x2="20" y1="7" y2="7" />
+                  <line x1="4" x2="20" y1="12" y2="12" />
+                  <line x1="4" x2="20" y1="17" y2="17" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
+
+        {mobileMenuOpen && (
+          <nav id="mobile-nav-menu" className="mobile-nav-drawer" aria-label="Mobile navigation">
+            <div className="page-shell mobile-nav-inner">
+              <div className="mobile-nav-actions-row">
+                <button
+                  type="button"
+                  id="mobile-nav-contact-btn"
+                  className="action-chip mobile-nav-action-btn"
+                  onClick={openContact}
+                >
+                  <span>Contact</span>
+                </button>
+                <button
+                  type="button"
+                  id="mobile-nav-terminal-btn"
+                  className={`action-chip mobile-nav-action-btn ${terminalOpen ? "tools-dropdown-trigger is-open" : ""}`}
+                  onClick={() => {
+                    if (terminalOpen) {
+                      closeTerminal();
+                      setMobileMenuOpen(false);
+                    } else {
+                      openTerminalRoute();
+                    }
+                  }}
+                >
+                  <span>Terminal</span>
+                  <kbd>⌘K</kbd>
+                </button>
+              </div>
+
+              <div className="mobile-nav-group">
+                <div className="mobile-nav-label">Tools</div>
+                <div className="mobile-nav-links">
+                  <a
+                    href="/tools/spring-tuner"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openTunerRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Spring & Easing Tuner</span>
+                      <span className="tools-dropdown-item-sub">Interactive curve & UI motion studio</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a
+                    href="/tools/palette-studio"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openOklchRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Palette & Contrast Studio</span>
+                      <span className="tools-dropdown-item-sub">Color scale generator & WCAG/APCA contrast lab</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                </div>
+              </div>
+
+              <div className="mobile-nav-group">
+                <div className="mobile-nav-label">Games</div>
+                <div className="mobile-nav-links">
+                  <a
+                    href="/games/hexa-merge"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openHexaMergeRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Hexa Merge</span>
+                      <span className="tools-dropdown-item-sub">Tactile hexagonal merge & combo puzzle</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a
+                    href="/games/kinetic-stack"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openKineticStackRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Kinetic Stack</span>
+                      <span className="tools-dropdown-item-sub">3D isometric slice & chord progression tower</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a
+                    href="/games/orbit-dash"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openOrbitDashRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Orbit Dash (Arcade Game)</span>
+                      <span className="tools-dropdown-item-sub">One-button rhythm & dual-ring orbit dodge</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                </div>
+              </div>
+
+              <div className="mobile-nav-meta">
+                <span>Dhaka, Bangladesh</span>
+                <span>{localTime ? `${localTime} · GMT+6` : "GMT+6"}</span>
+              </div>
+            </div>
+          </nav>
+        )}
       </header>
 
       {/* Minimal Centered Main Stage */}
