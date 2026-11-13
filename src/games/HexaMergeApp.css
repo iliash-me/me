@@ -147,7 +147,7 @@
   position: relative;
   width: 100%;
   max-width: 580px;
-  height: min(68vh, 560px);
+  height: min(70vh, 580px);
   background-color: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.07);
   border-radius: 24px;
@@ -357,49 +357,6 @@
   transform: translateY(-1px);
 }
 
-/* Directional Touch / Dial Controller */
-.hexa-controls-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
-
-.hexa-dial-pad {
-  display: grid;
-  grid-template-columns: repeat(3, 40px);
-  grid-template-rows: repeat(2, 40px);
-  gap: 6px;
-}
-
-.hexa-dial-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background-color: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  color: #52525b;
-  font-size: 0.9rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.12s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.hexa-dial-btn:hover {
-  background-color: #111315;
-  color: #ffffff;
-  border-color: #111315;
-  transform: scale(1.05);
-}
-
-.hexa-dial-btn:active {
-  transform: scale(0.95);
-}
-
 /* Bottom Instruction Hint */
 .hexa-hint-bar {
   margin-top: 0.75rem;
@@ -433,7 +390,7 @@
     padding: 0.25rem 0.75rem 1.25rem;
   }
   .hexa-board-card {
-    height: min(65vh, 520px);
+    height: min(72vh, 560px);
     border-radius: 20px;
   }
   .hexa-hud-top {

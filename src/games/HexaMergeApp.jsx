@@ -971,74 +971,7 @@ export default function HexaMergeApp({ onNavigateHome }) {
           <canvas ref={canvasRef} className="hexa-canvas" />
         </div>
 
-        {/* Tactile Directional Dial Controller */}
-        <div className="hexa-controls-row">
-          <div className="hexa-dial-pad" aria-label="6-Directional Hex Controls">
-            <button
-              type="button"
-              id="dir-btn-nw"
-              className="hexa-dial-btn"
-              onClick={() => move(HEX_DIRECTIONS[4])}
-              title="North-West (W)"
-              aria-label="North-West"
-            >
-              ↖
-            </button>
-            <div />
-            <button
-              type="button"
-              id="dir-btn-ne"
-              className="hexa-dial-btn"
-              onClick={() => move(HEX_DIRECTIONS[5])}
-              title="North-East (E)"
-              aria-label="North-East"
-            >
-              ↗
-            </button>
-            <button
-              type="button"
-              id="dir-btn-w"
-              className="hexa-dial-btn"
-              onClick={() => move(HEX_DIRECTIONS[3])}
-              title="West (A / Left)"
-              aria-label="West"
-            >
-              ←
-            </button>
-            <div />
-            <button
-              type="button"
-              id="dir-btn-e"
-              className="hexa-dial-btn"
-              onClick={() => move(HEX_DIRECTIONS[0])}
-              title="East (D / Right)"
-              aria-label="East"
-            >
-              →
-            </button>
-            <button
-              type="button"
-              id="dir-btn-sw"
-              className="hexa-dial-btn"
-              onClick={() => move(HEX_DIRECTIONS[2])}
-              title="South-West (Z)"
-              aria-label="South-West"
-            >
-              ↙
-            </button>
-            <div />
-            <button
-              type="button"
-              id="dir-btn-se"
-              className="hexa-dial-btn"
-              onClick={() => move(HEX_DIRECTIONS[1])}
-              title="South-East (X)"
-              aria-label="South-East"
-            >
-              ↘
-            </button>
-          </div>
-        </div>
+
 
         <div className="hexa-hint-bar" aria-hidden="true">
           <span><kbd>Swipe</kbd> or <kbd>W E A D Z X</kbd> / <kbd>Arrows</kbd> to slide</span>
