@@ -9,7 +9,8 @@ export default function CommandPalette({
   onCopyEmail,
   onOpenContactSheet,
   onOpenTunerSheet,
-  onOpenOklchLab
+  onOpenOklchLab,
+  onOpenOrbitDash
 }) {
   const [query, setQuery] = useState("");
 
@@ -33,6 +34,16 @@ export default function CommandPalette({
   if (!isOpen) return null;
 
   const actions = [
+    {
+      id: "cmd-orbit-dash",
+      group: "Games",
+      label: "Play Orbit Dash (One-Button Arcade)",
+      shortcut: "G",
+      action: () => {
+        onClose();
+        onOpenOrbitDash?.();
+      }
+    },
     {
       id: "cmd-easing-tuner",
       group: "Tools",

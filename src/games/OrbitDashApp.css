@@ -1,0 +1,350 @@
+/* ==========================================================================
+   STANDALONE GAME ROUTE (/games/orbit-dash)
+   VIBE: MINIMAL DAYLIGHT ARCADE (Matches Spring & Palette Header Structure)
+   ========================================================================== */
+
+.orbit-minimal-app {
+  min-height: 100vh;
+  background-color: #f5f5f3;
+  color: #111315;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+/* ==========================================================================
+   MINIMAL HEADER (3-Part Structure)
+   ========================================================================== */
+
+.orbit-nav {
+  max-width: 920px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.orbit-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.orbit-back-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  color: #52525b;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.orbit-back-link:hover {
+  color: #111315;
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+.orbit-nav-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.orbit-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  background-color: #ebebea;
+  padding: 3px;
+  border-radius: 999px;
+}
+
+.orbit-preset-pill {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  color: #52525b;
+  transition: all 0.15s ease;
+}
+
+.orbit-preset-pill:hover {
+  color: #111315;
+}
+
+.orbit-preset-pill.is-active {
+  background-color: #ffffff;
+  color: #111315;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.orbit-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.orbit-best-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  padding: 0.32rem 0.72rem;
+  border-radius: 999px;
+  background-color: #ebebea;
+  color: #52525b;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.orbit-best-pill strong {
+  color: #111315;
+  font-weight: 700;
+}
+
+.orbit-sound-pill {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.32rem 0.72rem;
+  border-radius: 999px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #52525b;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.15s ease;
+}
+
+.orbit-sound-pill.is-active {
+  border-color: #111315;
+  color: #111315;
+}
+
+.sound-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #a1a1aa;
+}
+
+.orbit-sound-pill.is-active .sound-dot {
+  background-color: #ff4f18;
+}
+
+/* ==========================================================================
+   MAIN GAME CARD & STAGE
+   ========================================================================== */
+
+.orbit-main {
+  flex: 1;
+  max-width: 920px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.orbit-stage-card {
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 16px;
+  padding: 1.15rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.orbit-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.orbit-telemetry-pills {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.orbit-stat-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: #6b7280;
+  background-color: #f4f4f2;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.orbit-stat-pill strong {
+  color: #111315;
+  font-weight: 700;
+}
+
+.orbit-stat-pill.is-combo strong {
+  color: #ff4f18;
+}
+
+.orbit-action-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.36rem 0.85rem;
+  border-radius: 999px;
+  background-color: #111315;
+  color: #ffffff;
+  transition: opacity 0.15s ease;
+}
+
+.orbit-action-btn:hover {
+  opacity: 0.88;
+}
+
+/* Canvas Stage */
+.orbit-canvas-wrap {
+  position: relative;
+  height: 400px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background-color: #fafaf9;
+  overflow: hidden;
+  cursor: pointer;
+  outline: none;
+}
+
+.orbit-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.orbit-overlay-banner {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  padding: 0.42rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.08);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.orbit-overlay-banner.is-gameover {
+  border-color: rgba(255, 79, 24, 0.35);
+}
+
+.overlay-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #ff4f18;
+  background-color: rgba(255, 79, 24, 0.1);
+  padding: 0.16rem 0.48rem;
+  border-radius: 999px;
+}
+
+.overlay-instruction {
+  font-size: 0.76rem;
+  color: #374151;
+}
+
+.overlay-instruction kbd,
+.orbit-controls-hint kbd {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  padding: 0.1rem 0.36rem;
+  border-radius: 4px;
+  background-color: #f3f3f1;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #111315;
+}
+
+/* Footer Legend */
+.orbit-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding-top: 0.15rem;
+}
+
+.orbit-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  font-size: 0.72rem;
+  color: #6b7280;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  display: inline-block;
+}
+
+.legend-dot.is-player {
+  border-radius: 50%;
+  background-color: #ff4f18;
+}
+
+.legend-dot.is-spike {
+  background-color: #111315;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.legend-dot.is-node {
+  background-color: #ff4f18;
+  transform: rotate(45deg);
+}
+
+.legend-dot.is-lap {
+  border-radius: 50%;
+  border: 2px solid #111315;
+}
+
+.orbit-controls-hint {
+  font-size: 0.72rem;
+  color: #6b7280;
+}
+
+@media (max-width: 680px) {
+  .orbit-overlay-banner {
+    white-space: normal;
+    width: calc(100% - 2rem);
+    border-radius: 12px;
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: center;
+  }
+}

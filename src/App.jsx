@@ -4,6 +4,7 @@ import { PROFILE } from "./data/portfolioData";
 import CommandPalette from "./components/CommandPalette";
 import SpringTunerApp from "./tools/SpringTunerApp";
 import OklchLabApp from "./tools/OklchLabApp";
+import OrbitDashApp from "./games/OrbitDashApp";
 
 const INQUIRY_TOPICS = ["Web App / UI", "Design System", "3D / Creative", "General Inquiry"];
 
@@ -19,6 +20,9 @@ function getNormalizedRoute() {
     window.location.hash === "#/tools/oklch-lab"
   ) {
     return "/tools/palette-studio";
+  }
+  if (path === "/games/orbit-dash" || window.location.hash === "#/games/orbit-dash") {
+    return "/games/orbit-dash";
   }
   return "/";
 }
@@ -64,7 +68,7 @@ export default function App() {
     localStorage.setItem("iliash-theme", theme);
     const metaTheme = document.querySelector('meta[name="theme-color"]');
     if (metaTheme) {
-      if (route === "/tools/spring-tuner") {
+      if (route === "/tools/spring-tuner" || route === "/games/orbit-dash") {
         metaTheme.setAttribute("content", "#f5f5f3");
       } else if (route === "/tools/palette-studio") {
         metaTheme.setAttribute("content", "#f6f6f4");
@@ -113,12 +117,15 @@ export default function App() {
     };
   }, [contactOpen, toolsMenuOpen]);
 
-  // Render standalone tools with their own dedicated vibes
+  // Render standalone tools and games with their own dedicated vibes
   if (route === "/tools/spring-tuner") {
     return <SpringTunerApp onNavigateHome={() => navigateTo("/")} />;
   }
   if (route === "/tools/palette-studio") {
     return <OklchLabApp onNavigateHome={() => navigateTo("/")} />;
+  }
+  if (route === "/games/orbit-dash") {
+    return <OrbitDashApp onNavigateHome={() => navigateTo("/")} />;
   }
 
   const handleToggleTheme = () => {
@@ -141,6 +148,12 @@ export default function App() {
     setToolsMenuOpen(false);
     setContactOpen(false);
     navigateTo("/tools/palette-studio");
+  };
+
+  const openOrbitDashRoute = () => {
+    setToolsMenuOpen(false);
+    setContactOpen(false);
+    navigateTo("/games/orbit-dash");
   };
 
   const openContact = () => {
@@ -285,6 +298,23 @@ export default function App() {
                     <div className="tools-dropdown-item-text">
                       <span className="tools-dropdown-item-title">Palette & Contrast Studio</span>
                       <span className="tools-dropdown-item-sub">Color scale generator & WCAG/APCA contrast lab</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+
+                  <a
+                    href="/games/orbit-dash"
+                    id="dropdown-orbit-dash-link"
+                    role="menuitem"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openOrbitDashRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Orbit Dash (Arcade Game)</span>
+                      <span className="tools-dropdown-item-sub">One-button rhythm & dual-ring orbit dodge</span>
                     </div>
                     <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
                   </a>
@@ -620,6 +650,7 @@ export default function App() {
         onOpenContactSheet={openContact}
         onOpenTunerSheet={openTunerRoute}
         onOpenOklchLab={openOklchRoute}
+        onOpenOrbitDash={openOrbitDashRoute}
       />
     </div>
   );
