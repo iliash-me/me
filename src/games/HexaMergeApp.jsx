@@ -265,12 +265,62 @@ export default function HexaMergeApp({ onNavigateHome }) {
 
   // Tile structure: { id, q, r, value, currentX, currentY, targetX, targetY, scale: 0..1, isNew, isMerged }
   const gameRef = useRef({
-    tiles: savedInit ? savedInit.tiles : createInitialHexaTiles(radius),
+    tiles: savedInit
+      ? savedInit.tiles.map((t) => ({ id: t.id, q: t.q, r: t.r, value: t.value, scale: 1, isNew: false }))
+      : createInitialHexaTiles(radius),
     history: savedInit?.history || null,
     nextTileId: savedInit ? Math.max(...savedInit.tiles.map((t) => t.id || 0), 1) + 1 : 3,
     dragStart: null,
     lastTime: 0
   });
+
+  // Handle continuing to play beyond 2048 milestone
+  const handleContinuePlaying = useCallback(() => {
+    setGameState("playing");
+    saveHexaProgress(mode, {
+      tiles: gameRef.current.tiles.map((t) => ({ id: t.id, q: t.q, r: t.r, value: t.value })),
+      score,
+      combo,
+      canUndo,
+      history: gameRef.current.history,
+      gameState: "playing"
+    });
+  }, [mode, score, combo, canUndo]);
+
+  // Ensure initial fresh board is saved on mount and auto-save on page unload/unmount
+  useEffect(() => {
+    const existing = loadHexaProgress(mode);
+    if (!existing) {
+      saveHexaProgress(mode, {
+        tiles: gameRef.current.tiles.map((t) => ({ id: t.id, q: t.q, r: t.r, value: t.value })),
+        score,
+        combo,
+        canUndo,
+        history: gameRef.current.history,
+        gameState
+      });
+    }
+
+    const handleBeforeUnload = () => {
+      const g = gameRef.current;
+      if (g?.tiles?.length) {
+        saveHexaProgress(mode, {
+          tiles: g.tiles.map((t) => ({ id: t.id, q: t.q, r: t.r, value: t.value })),
+          score,
+          combo,
+          canUndo,
+          history: g.history,
+          gameState
+        });
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      handleBeforeUnload();
+    };
+  }, [mode, score, combo, canUndo, gameState]);
 
   // Spawn random tile (2 with 90% probability, 4 with 10%)
   const spawnTile = useCallback((tilesList, boardRadius) => {
@@ -500,20 +550,17 @@ export default function HexaMergeApp({ onNavigateHome }) {
         playHexaSound("gameover", 0, 0, sfxEnabled);
         nextGameState = "gameover";
         setGameState("gameover");
-        saveHexaProgress(mode, null); // Clear saved in-progress board on game over
       }
 
-      // Persist active in-progress board if still playing or won
-      if (nextGameState !== "gameover") {
-        saveHexaProgress(mode, {
-          tiles: nextTiles.map((t) => ({ id: t.id, q: t.q, r: t.r, value: t.value })),
-          score: newScore,
-          combo: nextCombo,
-          canUndo: true,
-          history: previousState,
-          gameState: nextGameState
-        });
-      }
+      // Persist active board state (persists high score and final board even on game over)
+      saveHexaProgress(mode, {
+        tiles: nextTiles.map((t) => ({ id: t.id, q: t.q, r: t.r, value: t.value })),
+        score: newScore,
+        combo: nextCombo,
+        canUndo: nextGameState === "playing",
+        history: previousState,
+        gameState: nextGameState
+      });
     },
     [gameState, score, combo, radius, sfxEnabled, mode, spawnTile]
   );
@@ -649,6 +696,12 @@ export default function HexaMergeApp({ onNavigateHome }) {
       ctx.scale(dpr, dpr);
       const cw = rect.width;
       const ch = rect.height;
+
+      if (cw <= 0 || ch <= 0) {
+        ctx.restore();
+        animId = requestAnimationFrame(render);
+        return;
+      }
 
       // Clear canvas
       ctx.fillStyle = "#ffffff";
@@ -871,9 +924,15 @@ export default function HexaMergeApp({ onNavigateHome }) {
         >
           {/* Top HUD */}
           <div className="hexa-hud-top">
-            <div className="hexa-hud-score-col">
-              <span className="hexa-hud-score-label">Score</span>
-              <span className="hexa-hud-score-val">{score}</span>
+            <div className="hexa-hud-scores-group">
+              <div className="hexa-hud-score-col">
+                <span className="hexa-hud-score-label">Score</span>
+                <span className="hexa-hud-score-val">{score}</span>
+              </div>
+              <div className={`hexa-hud-score-col is-best ${score >= bestScore && score > 0 ? "is-new-high" : ""}`}>
+                <span className="hexa-hud-score-label">Best</span>
+                <span className="hexa-hud-score-val">{bestScore}</span>
+              </div>
             </div>
 
             <div className="hexa-hud-actions">
@@ -882,7 +941,7 @@ export default function HexaMergeApp({ onNavigateHome }) {
                 id="hexa-undo-btn"
                 className="hexa-hud-btn"
                 onClick={handleUndo}
-                disabled={!canUndo}
+                disabled={!canUndo || gameState !== "playing"}
                 title="Undo last move (⌘Z)"
               >
                 ↶ Undo
@@ -960,9 +1019,15 @@ export default function HexaMergeApp({ onNavigateHome }) {
                   type="button"
                   id="hexa-play-again-btn"
                   className="hexa-restart-btn"
-                  onClick={() => resetGame()}
+                  onClick={() => {
+                    if (gameState === "won") {
+                      handleContinuePlaying();
+                    } else {
+                      resetGame();
+                    }
+                  }}
                 >
-                  {gameState === "won" ? "Continue Playing (R)" : "Try Again (R)"}
+                  {gameState === "won" ? "Continue Playing" : "Try Again (R)"}
                 </button>
               </div>
             </div>

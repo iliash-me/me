@@ -184,6 +184,12 @@
   pointer-events: none;
 }
 
+.hexa-hud-scores-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
 .hexa-hud-score-col {
   display: flex;
   flex-direction: column;
@@ -204,6 +210,10 @@
   font-weight: 700;
   color: #111315;
   line-height: 1;
+}
+
+.hexa-hud-score-col.is-best .hexa-hud-score-val {
+  color: #ff4f18;
 }
 
 .hexa-hud-actions {
@@ -400,6 +410,9 @@
   }
   .hexa-hud-score-val {
     font-size: 1.65rem;
+  }
+  .hexa-hud-scores-group {
+    gap: 1rem;
   }
   .hexa-hint-bar {
     display: none;
