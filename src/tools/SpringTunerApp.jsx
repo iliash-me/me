@@ -35,7 +35,7 @@ export default function SpringTunerApp({ onNavigateHome }) {
 
   const [activeScene, setActiveScene] = useState("toast");
   const [isEntered, setIsEntered] = useState(true);
-  const [autoLoop, setAutoLoop] = useState(false);
+  const [autoLoop, setAutoLoop] = useState(true);
   const [tabIdx, setTabIdx] = useState(0);
   const [switchOn, setSwitchOn] = useState(true);
 
