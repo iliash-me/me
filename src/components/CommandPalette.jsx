@@ -10,7 +10,8 @@ export default function CommandPalette({
   onOpenContactSheet,
   onOpenTunerSheet,
   onOpenOklchLab,
-  onOpenOrbitDash
+  onOpenOrbitDash,
+  onOpenKineticStack
 }) {
   const [query, setQuery] = useState("");
 
@@ -34,6 +35,16 @@ export default function CommandPalette({
   if (!isOpen) return null;
 
   const actions = [
+    {
+      id: "cmd-kinetic-stack",
+      group: "Games",
+      label: "Play Kinetic Stack (3D Isometric Tower)",
+      shortcut: "K",
+      action: () => {
+        onClose();
+        onOpenKineticStack?.();
+      }
+    },
     {
       id: "cmd-orbit-dash",
       group: "Games",

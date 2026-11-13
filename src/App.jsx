@@ -5,6 +5,7 @@ import CommandPalette from "./components/CommandPalette";
 import SpringTunerApp from "./tools/SpringTunerApp";
 import OklchLabApp from "./tools/OklchLabApp";
 import OrbitDashApp from "./games/OrbitDashApp";
+import KineticStackApp from "./games/KineticStackApp";
 
 const INQUIRY_TOPICS = ["Web App / UI", "Design System", "3D / Creative", "General Inquiry"];
 
@@ -23,6 +24,9 @@ function getNormalizedRoute() {
   }
   if (path === "/games/orbit-dash" || window.location.hash === "#/games/orbit-dash") {
     return "/games/orbit-dash";
+  }
+  if (path === "/games/kinetic-stack" || window.location.hash === "#/games/kinetic-stack") {
+    return "/games/kinetic-stack";
   }
   return "/";
 }
@@ -70,7 +74,11 @@ export default function App() {
     localStorage.setItem("iliash-theme", theme);
     const metaTheme = document.querySelector('meta[name="theme-color"]');
     if (metaTheme) {
-      if (route === "/tools/spring-tuner" || route === "/games/orbit-dash") {
+      if (
+        route === "/tools/spring-tuner" ||
+        route === "/games/orbit-dash" ||
+        route === "/games/kinetic-stack"
+      ) {
         metaTheme.setAttribute("content", "#f5f5f3");
       } else if (route === "/tools/palette-studio") {
         metaTheme.setAttribute("content", "#f6f6f4");
@@ -133,6 +141,9 @@ export default function App() {
   if (route === "/games/orbit-dash") {
     return <OrbitDashApp onNavigateHome={() => navigateTo("/")} />;
   }
+  if (route === "/games/kinetic-stack") {
+    return <KineticStackApp onNavigateHome={() => navigateTo("/")} />;
+  }
 
   const handleToggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
@@ -163,6 +174,13 @@ export default function App() {
     setGamesMenuOpen(false);
     setContactOpen(false);
     navigateTo("/games/orbit-dash");
+  };
+
+  const openKineticStackRoute = () => {
+    setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
+    setContactOpen(false);
+    navigateTo("/games/kinetic-stack");
   };
 
   const openContact = () => {
@@ -338,6 +356,23 @@ export default function App() {
 
               {gamesMenuOpen && (
                 <div className="tools-dropdown-menu" role="menu" aria-label="Games">
+                  <a
+                    href="/games/kinetic-stack"
+                    id="dropdown-kinetic-stack-link"
+                    role="menuitem"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openKineticStackRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Kinetic Stack</span>
+                      <span className="tools-dropdown-item-sub">3D isometric slice & chord progression tower</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+
                   <a
                     href="/games/orbit-dash"
                     id="dropdown-orbit-dash-link"
@@ -725,6 +760,7 @@ export default function App() {
         onOpenTunerSheet={openTunerRoute}
         onOpenOklchLab={openOklchRoute}
         onOpenOrbitDash={openOrbitDashRoute}
+        onOpenKineticStack={openKineticStackRoute}
       />
     </div>
   );

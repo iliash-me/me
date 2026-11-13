@@ -1,0 +1,390 @@
+/* ==========================================================================
+   STANDALONE GAME ROUTE (/games/kinetic-stack)
+   VIBE: MINIMAL DAYLIGHT ISOMETRIC STACK (3-Column Minimal Header)
+   ========================================================================== */
+
+.stack-minimal-app {
+  min-height: 100vh;
+  background-color: #f5f5f3;
+  color: #111315;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   MINIMAL 3-COLUMN HEADER
+   ========================================================================== */
+
+.stack-nav {
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  z-index: 10;
+}
+
+.stack-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stack-back-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  color: #52525b;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.stack-back-link:hover {
+  color: #111315;
+  border-color: rgba(0, 0, 0, 0.18);
+  transform: translateX(-1px);
+}
+
+.stack-nav-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.stack-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  background-color: #ebebea;
+  padding: 3px;
+  border-radius: 999px;
+}
+
+.stack-preset-pill {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  color: #52525b;
+  transition: all 0.15s ease;
+}
+
+.stack-preset-pill:hover {
+  color: #111315;
+}
+
+.stack-preset-pill.is-active {
+  background-color: #ffffff;
+  color: #111315;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.stack-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.stack-best-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  padding: 0.32rem 0.72rem;
+  border-radius: 999px;
+  background-color: #ebebea;
+  color: #52525b;
+}
+
+.stack-best-pill strong {
+  color: #ff4f18;
+  font-weight: 600;
+  margin-left: 0.25rem;
+}
+
+.stack-audio-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  padding: 0.32rem 0.65rem;
+  border-radius: 999px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #52525b;
+  transition: all 0.15s ease;
+}
+
+.stack-audio-btn:hover {
+  color: #111315;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   GAME STAGE & CANVAS
+   ========================================================================== */
+
+.stack-stage-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0.5rem 1.25rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.stack-canvas-card {
+  position: relative;
+  width: 100%;
+  height: min(72vh, 640px);
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.02);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.stack-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Background Score Watermark */
+.stack-bg-watermark {
+  position: absolute;
+  top: 15%;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(4.5rem, 14vw, 8rem);
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.035);
+  pointer-events: none;
+  line-height: 1;
+  z-index: 1;
+}
+
+/* Current Score HUD */
+.stack-hud-top {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.stack-hud-score-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #71717a;
+}
+
+.stack-hud-score-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111315;
+  line-height: 1;
+}
+
+.stack-hud-combo-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background-color: rgba(255, 79, 24, 0.09);
+  color: #ff4f18;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  animation: stackComboPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes stackComboPop {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Idle Prompt Overlay */
+.stack-prompt-overlay {
+  position: absolute;
+  bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(17, 19, 21, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+  animation: stackFloat 2s ease-in-out infinite;
+  z-index: 5;
+}
+
+.stack-prompt-overlay kbd {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+}
+
+@keyframes stackFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Game Over Modal Sheet */
+.stack-gameover-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(245, 245, 243, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  animation: stackFadeIn 0.2s ease;
+}
+
+@keyframes stackFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.stack-gameover-card {
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 340px;
+  width: 90%;
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+}
+
+.stack-gameover-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #111315;
+  margin: 0;
+}
+
+.stack-gameover-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.stack-gameover-metric-item {
+  background-color: #f6f6f4;
+  border-radius: 10px;
+  padding: 0.75rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.stack-gameover-metric-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: #71717a;
+  text-transform: uppercase;
+}
+
+.stack-gameover-metric-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111315;
+}
+
+.stack-gameover-metric-val.is-best {
+  color: #ff4f18;
+}
+
+.stack-gameover-actions {
+  display: flex;
+  gap: 0.65rem;
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
+.stack-restart-btn {
+  flex: 1;
+  background-color: #ff4f18;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.stack-restart-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+/* Bottom Hint bar */
+.stack-hint-bar {
+  margin-top: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: #71717a;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.stack-hint-bar kbd {
+  background-color: #ebebea;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  color: #111315;
+  font-size: 0.68rem;
+}
+
+@media (max-width: 640px) {
+  .stack-nav {
+    padding: 0.85rem 1rem 0.35rem;
+  }
+  .stack-canvas-card {
+    height: 65vh;
+    border-radius: 16px;
+  }
+  .stack-hint-bar {
+    display: none;
+  }
+}
