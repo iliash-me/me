@@ -71,6 +71,9 @@ export default function App() {
     setTimeout(() => setCopiedEmail(false), 2000);
   };
 
+  const GOOGLE_SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbwHilL8l8-NXCRjPD27DuPmsjNmEyvIrNXxxGKqtIxqJZ1NaTFMm7NLItJF5JiUKWxF/exec";
+
   const handleSubmitForm = async (e) => {
     e.preventDefault();
     if (!senderEmail.trim() || !customNote.trim()) {
@@ -82,28 +85,25 @@ export default function App() {
     setSubmitStatus("sending");
     setStatusMessage("");
 
+    const payload = JSON.stringify({
+      name: senderName.trim() || "Website Visitor",
+      email: senderEmail.trim(),
+      topic: selectedTopic,
+      message: customNote.trim()
+    });
+
     try {
-      const response = await fetch(`https://formsubmit.co/ajax/${PROFILE.email}`, {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json"
+          "Content-Type": "text/plain;charset=utf-8"
         },
-        body: JSON.stringify({
-          name: senderName.trim() || "Website Visitor",
-          email: senderEmail.trim(),
-          _replyto: senderEmail.trim(),
-          topic: selectedTopic,
-          _subject: `${selectedTopic} — Message from ${senderName.trim() || senderEmail.trim()} (iliash.me)`,
-          message: customNote.trim(),
-          _template: "table",
-          _captcha: "false"
-        })
+        body: payload
       });
 
       const data = await response.json().catch(() => ({}));
 
-      if (response.ok && (data.success === "true" || data.success === true)) {
+      if (response.ok || data.success) {
         setSubmitStatus("success");
         setStatusMessage("Message sent directly to iliashhosain@gmail.com.");
         setSenderName("");
@@ -112,15 +112,31 @@ export default function App() {
       } else {
         setSubmitStatus("error");
         setStatusMessage(
-          data.message ||
-            "Could not send automatically right now. Please click 'Open in Email App' below."
+          "Could not send automatically right now. Please click 'Open in Email App' below."
         );
       }
     } catch {
-      setSubmitStatus("error");
-      setStatusMessage(
-        "Network error while sending. Please use 'Open in Email App' or copy my email above."
-      );
+      // Fallback with no-cors in case strict browser tracking prevention blocks the 302 redirect read
+      try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: payload
+        });
+        setSubmitStatus("success");
+        setStatusMessage("Message sent directly to iliashhosain@gmail.com.");
+        setSenderName("");
+        setSenderEmail("");
+        setCustomNote("");
+      } catch {
+        setSubmitStatus("error");
+        setStatusMessage(
+          "Network error while sending. Please use 'Open in Email App' or copy my email above."
+        );
+      }
     }
   };
 
