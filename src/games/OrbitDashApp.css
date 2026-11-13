@@ -353,6 +353,18 @@
   .orbit-fullscreen-pill {
     padding: 0.32rem 0.45rem;
   }
+  .orbit-card-expand-label {
+    display: none;
+  }
+  .orbit-card-expand-btn {
+    padding: 0.35rem;
+    min-width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
 }
 
 /* ==========================================================================

@@ -1001,8 +1001,10 @@ export default function HexaMergeApp({ onNavigateHome }) {
                 onClick={handleUndo}
                 disabled={!canUndo || gameState !== "playing"}
                 title="Undo last move (⌘Z)"
+                aria-label="Undo"
               >
-                ↶ Undo
+                <span className="hexa-btn-icon" aria-hidden="true">↶</span>
+                <span className="hexa-hud-btn-label">Undo</span>
               </button>
               <button
                 type="button"
@@ -1010,8 +1012,10 @@ export default function HexaMergeApp({ onNavigateHome }) {
                 className="hexa-hud-btn"
                 onClick={() => resetGame()}
                 title="New Game (R)"
+                aria-label="Restart game"
               >
-                ↻ Restart
+                <span className="hexa-btn-icon" aria-hidden="true">↻</span>
+                <span className="hexa-hud-btn-label">Restart</span>
               </button>
               <button
                 type="button"
@@ -1021,7 +1025,8 @@ export default function HexaMergeApp({ onNavigateHome }) {
                 title={isFullscreen ? "Exit Fullscreen (F)" : "Expand to Fullscreen (F)"}
                 aria-label={isFullscreen ? "Exit Fullscreen" : "Expand to Fullscreen"}
               >
-                {isFullscreen ? "⤓ Exit" : "⛶ Expand"}
+                <span className="hexa-btn-icon" aria-hidden="true">{isFullscreen ? "⤓" : "⛶"}</span>
+                <span className="hexa-hud-btn-label">{isFullscreen ? "Exit" : "Expand"}</span>
               </button>
             </div>
           </div>

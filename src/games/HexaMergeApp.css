@@ -231,7 +231,20 @@
   background-color: #f6f6f4;
   border: 1px solid rgba(0, 0, 0, 0.07);
   color: #52525b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
   transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.hexa-btn-icon {
+  font-size: 0.85rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hexa-hud-btn:hover:not(:disabled) {
@@ -484,6 +497,19 @@
   }
   .hexa-hint-bar {
     display: none;
+  }
+  .hexa-hud-btn-label {
+    display: none;
+  }
+  .hexa-hud-actions {
+    gap: 0.35rem;
+  }
+  .hexa-hud-btn {
+    padding: 0.35rem;
+    min-width: 32px;
+    height: 32px;
+    font-size: 0.95rem;
+    border-radius: 50%;
   }
   .hexa-fullscreen-btn span {
     display: none;

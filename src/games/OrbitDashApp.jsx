@@ -818,7 +818,8 @@ export default function OrbitDashApp({ onNavigateHome }) {
                 title={isFullscreen ? "Exit Fullscreen (F)" : "Expand to Fullscreen (F)"}
                 aria-label={isFullscreen ? "Exit Fullscreen" : "Expand to Fullscreen"}
               >
-                {isFullscreen ? "⤓ Exit" : "⛶ Expand"}
+                <span className="orbit-btn-icon" aria-hidden="true">{isFullscreen ? "⤓" : "⛶"}</span>
+                <span className="orbit-card-expand-label">{isFullscreen ? "Exit" : "Expand"}</span>
               </button>
             </div>
           </div>
