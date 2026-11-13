@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PROFILE, PROJECTS } from "../data/portfolioData";
+import { PROFILE } from "../data/portfolioData";
 
 export default function CommandPalette({ isOpen, onClose, theme, onToggleTheme, onCopyEmail }) {
   const [query, setQuery] = useState("");
@@ -25,30 +25,10 @@ export default function CommandPalette({ isOpen, onClose, theme, onToggleTheme, 
 
   const actions = [
     {
-      id: "cmd-work",
-      group: "Navigation",
-      label: "Jump to Selected Works",
-      shortcut: "02",
-      action: () => {
-        document.getElementById("work")?.scrollIntoView({ behavior: "smooth" });
-        onClose();
-      }
-    },
-    {
-      id: "cmd-craft",
-      group: "Navigation",
-      label: "Open Interactive Interface Lab",
-      shortcut: "03",
-      action: () => {
-        document.getElementById("craft")?.scrollIntoView({ behavior: "smooth" });
-        onClose();
-      }
-    },
-    {
       id: "cmd-disciplines",
       group: "Navigation",
       label: "View Engineering Disciplines",
-      shortcut: "04",
+      shortcut: "02",
       action: () => {
         document.getElementById("disciplines")?.scrollIntoView({ behavior: "smooth" });
         onClose();
@@ -58,7 +38,7 @@ export default function CommandPalette({ isOpen, onClose, theme, onToggleTheme, 
       id: "cmd-contact",
       group: "Navigation",
       label: "Initiate Dialogue / Contact",
-      shortcut: "05",
+      shortcut: "03",
       action: () => {
         document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
         onClose();
@@ -84,16 +64,16 @@ export default function CommandPalette({ isOpen, onClose, theme, onToggleTheme, 
         onClose();
       }
     },
-    ...PROJECTS.map((p) => ({
-      id: `cmd-proj-${p.id}`,
-      group: "Projects",
-      label: `${p.title} — ${p.subtitle}`,
+    {
+      id: "cmd-github",
+      group: "Profile",
+      label: "Open GitHub (@iliash-me)",
       shortcut: "↗",
       action: () => {
-        window.open(p.liveUrl, "_blank", "noopener,noreferrer");
+        window.open("https://github.com/iliash-me", "_blank", "noopener,noreferrer");
         onClose();
       }
-    }))
+    }
   ];
 
   const filtered = actions.filter(
@@ -117,7 +97,7 @@ export default function CommandPalette({ isOpen, onClose, theme, onToggleTheme, 
             id="command-palette-search"
             type="text"
             className="cmd-input"
-            placeholder="Type a command, section, or project name..."
+            placeholder="Type a command or section..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus

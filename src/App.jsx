@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { PROFILE, PROJECTS, DISCIPLINES } from "./data/portfolioData";
-import InteractiveProjectPreview from "./components/InteractiveProjectPreview";
-import CraftLabSection from "./components/CraftLabSection";
+import { PROFILE, DISCIPLINES } from "./data/portfolioData";
 import CommandPalette from "./components/CommandPalette";
 
-const CATEGORIES = ["All", "3D & Creative", "Design Systems", "Developer Tools"];
 const INQUIRY_TOPICS = [
   "Design System & UI Architecture",
   "Interactive 3D / Three.js Web Experience",
@@ -20,7 +17,6 @@ export default function App() {
     return window.matchMedia?.("(prefers-color-scheme: light)").matches ? "light" : "dark";
   });
 
-  const [activeCategory, setActiveCategory] = useState("All");
   const [inspectMode, setInspectMode] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
@@ -75,11 +71,6 @@ export default function App() {
     setTimeout(() => setCopiedBrief(false), 2200);
   };
 
-  const filteredProjects =
-    activeCategory === "All"
-      ? PROJECTS
-      : PROJECTS.filter((project) => project.category === activeCategory);
-
   const mailtoHref = `mailto:${PROFILE.email}?subject=${encodeURIComponent(
     `${selectedTopic} — via iliash.me`
   )}&body=${encodeURIComponent(
@@ -104,17 +95,11 @@ export default function App() {
           </a>
 
           <nav className="primary-nav" aria-label="Primary Navigation">
-            <a href="#work" id="nav-link-work" className="nav-item">
-              <span className="nav-num">02</span> Work
-            </a>
-            <a href="#craft" id="nav-link-craft" className="nav-item">
-              <span className="nav-num">03</span> Lab
-            </a>
             <a href="#disciplines" id="nav-link-disciplines" className="nav-item">
-              <span className="nav-num">04</span> Disciplines
+              <span className="nav-num">02</span> Disciplines
             </a>
             <a href="#contact" id="nav-link-contact" className="nav-item">
-              <span className="nav-num">05</span> Contact
+              <span className="nav-num">03</span> Contact
             </a>
           </nav>
 
@@ -163,8 +148,8 @@ export default function App() {
               <p className="hero-lead">{PROFILE.summary}</p>
 
               <div className="hero-cta-row">
-                <a href="#work" id="hero-explore-work-btn" className="btn-primary">
-                  <span>Explore Selected Work</span>
+                <a href="#contact" id="hero-initiate-dialogue-btn" className="btn-primary">
+                  <span>Initiate Dialogue</span>
                   <span aria-hidden="true">↓</span>
                 </a>
 
@@ -269,110 +254,12 @@ export default function App() {
           </div>
         </section>
 
-        {/* 02 // SELECTED WORKS SECTION */}
-        <section id="work" className="section-block" aria-labelledby="work-heading">
-          <div className="section-meta-row">
-            <div>
-              <div className="section-index">
-                <span className="index-num">02</span>
-                <span>// SELECTED WORKS & OPEN SOURCE</span>
-              </div>
-              <h2 id="work-heading" className="section-heading">
-                Production systems & <span className="serif-italic">interactive artifacts</span>
-              </h2>
-            </div>
-
-            <div className="filter-pill-bar" role="tablist" aria-label="Filter projects by category">
-              {CATEGORIES.map((category) => (
-                <button
-                  key={category}
-                  type="button"
-                  role="tab"
-                  id={`filter-tab-${category.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
-                  aria-selected={activeCategory === category}
-                  className={`filter-tab-btn ${activeCategory === category ? "is-active" : ""}`}
-                  onClick={() => setActiveCategory(category)}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="projects-ledger">
-            {filteredProjects.map((project) => (
-              <article key={project.id} className="project-entry">
-                <div className="project-info-col">
-                  <div className="project-meta-strip">
-                    <span className="project-index-code">{project.index}</span>
-                    <span className="project-meta-divider">/</span>
-                    <span className="project-category-label">{project.category}</span>
-                    <span className="project-meta-divider">·</span>
-                    <span className="project-year-label">{project.year}</span>
-                  </div>
-
-                  <h3 className="project-title">{project.title}</h3>
-                  <p className="project-subtitle">{project.subtitle}</p>
-                  <p className="project-description">{project.description}</p>
-
-                  <ul className="project-highlights">
-                    {project.highlights.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-
-                  <div className="project-stack-row" aria-label="Technologies used">
-                    {project.stack.map((tech) => (
-                      <span key={tech} className="stack-tag">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="project-links-row">
-                    <a
-                      href={project.liveUrl}
-                      id={`project-live-link-${project.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="project-action-link is-primary"
-                    >
-                      <span>Launch Live Project</span>
-                      <span aria-hidden="true">↗</span>
-                    </a>
-                    <a
-                      href={project.repoUrl}
-                      id={`project-repo-link-${project.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="project-action-link"
-                    >
-                      <span>Inspect Repository</span>
-                      <span aria-hidden="true">↗</span>
-                    </a>
-                  </div>
-                </div>
-
-                <div className="project-preview-col">
-                  <InteractiveProjectPreview
-                    previewType={project.previewType}
-                    projectId={project.id}
-                  />
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        {/* 03 // INTERACTIVE CRAFT LAB */}
-        <CraftLabSection />
-
-        {/* 04 // ENGINEERING DISCIPLINES */}
+        {/* 02 // ENGINEERING DISCIPLINES */}
         <section id="disciplines" className="section-block" aria-labelledby="disciplines-heading">
           <div className="section-meta-row">
             <div>
               <div className="section-index">
-                <span className="index-num">04</span>
+                <span className="index-num">02</span>
                 <span>// ARCHITECTURAL DISCIPLINES</span>
               </div>
               <h2 id="disciplines-heading" className="section-heading">
@@ -404,12 +291,12 @@ export default function App() {
           </div>
         </section>
 
-        {/* 05 // INITIATE DIALOGUE / CONTACT */}
+        {/* 03 // INITIATE DIALOGUE / CONTACT */}
         <section id="contact" className="section-block contact-section" aria-labelledby="contact-heading">
           <div className="contact-grid">
             <div className="contact-left-col">
               <div className="section-index">
-                <span className="index-num">05</span>
+                <span className="index-num">03</span>
                 <span>// INITIATE DIALOGUE</span>
               </div>
               <h2 id="contact-heading" className="contact-headline">
