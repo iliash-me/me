@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && mkdir -p assets && cp -r dist/assets/* assets/ && cp public/zoho-domain-verification.html ./",
+    "build": "vite build && mkdir -p assets tools/spring-tuner dist/tools/spring-tuner && cp -r dist/assets/* assets/ && cp dist/index.html dist/404.html && cp dist/index.html dist/tools/spring-tuner/index.html && cp index.html 404.html && cp index.html tools/spring-tuner/index.html && cp public/zoho-domain-verification.html ./",
     "lint": "oxlint",
     "preview": "vite preview"
   },

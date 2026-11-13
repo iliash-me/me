@@ -2,11 +2,21 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { PROFILE } from "./data/portfolioData";
 import CommandPalette from "./components/CommandPalette";
-import SpringEasingTunerSheet from "./components/SpringEasingTunerSheet";
+import SpringTunerApp from "./tools/SpringTunerApp";
 
 const INQUIRY_TOPICS = ["Web App / UI", "Design System", "3D / Creative", "General Inquiry"];
 
+function getNormalizedRoute() {
+  const path = window.location.pathname.replace(/\/+$/, "") || "/";
+  if (path === "/tools/spring-tuner" || window.location.hash === "#/tools/spring-tuner") {
+    return "/tools/spring-tuner";
+  }
+  return "/";
+}
+
 export default function App() {
+  const [route, setRoute] = useState(getNormalizedRoute);
+
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem("iliash-theme");
     if (saved === "light" || saved === "dark") return saved;
@@ -16,9 +26,6 @@ export default function App() {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
-  const [tunerOpen, setTunerOpen] = useState(() => {
-    return window.location.hash === "#easing" || window.location.hash === "#tools";
-  });
   const [localTime, setLocalTime] = useState("");
   const [selectedTopic, setSelectedTopic] = useState(INQUIRY_TOPICS[0]);
   const [senderName, setSenderName] = useState("");
@@ -27,14 +34,32 @@ export default function App() {
   const [submitStatus, setSubmitStatus] = useState("idle");
   const [statusMessage, setStatusMessage] = useState("");
 
+  const navigateTo = (targetPath) => {
+    window.history.pushState({}, "", targetPath);
+    setRoute(targetPath);
+    window.scrollTo(0, 0);
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setRoute(getNormalizedRoute());
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("iliash-theme", theme);
     const metaTheme = document.querySelector('meta[name="theme-color"]');
     if (metaTheme) {
-      metaTheme.setAttribute("content", theme === "dark" ? "#0B0D11" : "#F6F4EF");
+      if (route === "/tools/spring-tuner") {
+        metaTheme.setAttribute("content", "#15171b");
+      } else {
+        metaTheme.setAttribute("content", theme === "dark" ? "#0B0D11" : "#F6F4EF");
+      }
     }
-  }, [theme]);
+  }, [theme, route]);
 
   useEffect(() => {
     const updateClock = () => {
@@ -57,14 +82,18 @@ export default function App() {
 
   useEffect(() => {
     const handleEsc = (e) => {
-      if (e.key === "Escape") {
-        if (contactOpen) setContactOpen(false);
-        if (tunerOpen) setTunerOpen(false);
+      if (e.key === "Escape" && contactOpen) {
+        setContactOpen(false);
       }
     };
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [contactOpen, tunerOpen]);
+  }, [contactOpen]);
+
+  // If on /tools/spring-tuner route, render standalone tool with its own Hardware Synth vibe
+  if (route === "/tools/spring-tuner") {
+    return <SpringTunerApp onNavigateHome={() => navigateTo("/")} />;
+  }
 
   const handleToggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
@@ -76,13 +105,12 @@ export default function App() {
     setTimeout(() => setCopiedEmail(false), 2000);
   };
 
-  const openTuner = () => {
+  const openTunerRoute = () => {
     setContactOpen(false);
-    setTunerOpen(true);
+    navigateTo("/tools/spring-tuner");
   };
 
   const openContact = () => {
-    setTunerOpen(false);
     setContactOpen(true);
   };
 
@@ -178,14 +206,17 @@ export default function App() {
           </a>
 
           <div className="topbar-actions">
-            <button
-              type="button"
+            <a
+              href="/tools/spring-tuner"
               id="nav-open-tuner-btn"
               className="action-chip"
-              onClick={openTuner}
+              onClick={(e) => {
+                e.preventDefault();
+                openTunerRoute();
+              }}
             >
-              <span>Easing Tuner</span>
-            </button>
+              <span>Spring Tuner ↗</span>
+            </a>
 
             <button
               type="button"
@@ -268,30 +299,30 @@ export default function App() {
                 </a>
               </div>
 
-              {/* Minimal Interactive Micro-Tool Launcher Strip */}
-              <div className="micro-tool-launcher" onClick={openTuner}>
+              {/* Minimal Interactive Micro-Tool Route Card */}
+              <a
+                href="/tools/spring-tuner"
+                id="launch-tuner-strip-link"
+                className="micro-tool-launcher"
+                onClick={(e) => {
+                  e.preventDefault();
+                  openTunerRoute();
+                }}
+              >
                 <div className="micro-tool-left">
                   <span className="micro-tool-tag">TOOL 01</span>
                   <div>
-                    <div className="micro-tool-name">CSS Spring & Easing Tuner</div>
+                    <div className="micro-tool-name">CSS Spring & Easing Synthesizer</div>
                     <div className="micro-tool-desc">
-                      Test <code>cubic-bezier()</code> curves on realistic Toast, Modal, Dropdown & Tab UI components
+                      Standalone oscilloscope & realistic UI test bench at <code>/tools/spring-tuner</code>
                     </div>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  id="launch-tuner-strip-btn"
-                  className="micro-tool-open-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openTuner();
-                  }}
-                >
-                  <span>Launch Tool</span>
-                  <span aria-hidden="true">↑</span>
-                </button>
-              </div>
+                <span className="micro-tool-open-btn">
+                  <span>Open Tool</span>
+                  <span aria-hidden="true">→</span>
+                </span>
+              </a>
             </div>
 
             {/* Minimal Profile Card */}
@@ -530,12 +561,6 @@ export default function App() {
         </aside>
       </div>
 
-      {/* Bottom Slide-Up CSS Spring & Easing Tuner Sheet */}
-      <SpringEasingTunerSheet
-        isOpen={tunerOpen}
-        onClose={() => setTunerOpen(false)}
-      />
-
       {/* Keyboard-Accessible Command Palette Modal */}
       <CommandPalette
         isOpen={cmdOpen}
@@ -544,7 +569,7 @@ export default function App() {
         onToggleTheme={handleToggleTheme}
         onCopyEmail={handleCopyEmail}
         onOpenContactSheet={openContact}
-        onOpenTunerSheet={openTuner}
+        onOpenTunerSheet={openTunerRoute}
       />
     </div>
   );
