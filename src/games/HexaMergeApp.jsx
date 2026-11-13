@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./HexaMergeApp.css";
+import { useGameFullscreen } from "./useGameFullscreen";
 
 const MODES = [
   { id: "compact", name: "Compact", radius: 1, label: "7 cells — quick & intense" },
@@ -171,6 +172,8 @@ export default function HexaMergeApp({ onNavigateHome }) {
 
   const canvasRef = useRef(null);
   const boardCardRef = useRef(null);
+  const appRef = useRef(null);
+  const { isFullscreen, toggleFullscreen } = useGameFullscreen(appRef);
 
   const currentConfig = MODES.find((m) => m.id === mode) || MODES[1];
   const radius = currentConfig.radius;
@@ -626,7 +629,7 @@ export default function HexaMergeApp({ onNavigateHome }) {
   }, [radius]);
 
   return (
-    <div className="hexa-minimal-app">
+    <div ref={appRef} className={`hexa-minimal-app ${isFullscreen ? "is-fullscreen" : ""}`}>
       {/* Unified 3-Column Minimal Header */}
       <header className="hexa-nav" role="banner">
         <div className="hexa-nav-left">
@@ -634,7 +637,16 @@ export default function HexaMergeApp({ onNavigateHome }) {
             type="button"
             id="back-to-portfolio-btn"
             className="hexa-back-link"
-            onClick={onNavigateHome}
+            onClick={() => {
+              if (document.fullscreenElement) {
+                try {
+                  document.exitFullscreen();
+                } catch {
+                  // ignore
+                }
+              }
+              onNavigateHome?.();
+            }}
           >
             ← iliash.me
           </button>
@@ -671,6 +683,30 @@ export default function HexaMergeApp({ onNavigateHome }) {
             aria-label={sfxEnabled ? "Mute sound effects" : "Enable sound effects"}
           >
             {sfxEnabled ? "SFX On" : "Muted"}
+          </button>
+          <button
+            type="button"
+            id="toggle-fullscreen-btn"
+            className={`hexa-fullscreen-btn ${isFullscreen ? "is-active" : ""}`}
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit Fullscreen (F)" : "Expand to Fullscreen (F)"}
+            aria-label={isFullscreen ? "Exit Fullscreen" : "Expand to Fullscreen"}
+          >
+            {isFullscreen ? (
+              <>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+                </svg>
+                <span>Exit</span>
+              </>
+            ) : (
+              <>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                </svg>
+                <span>Fullscreen</span>
+              </>
+            )}
           </button>
         </div>
       </header>
@@ -713,6 +749,16 @@ export default function HexaMergeApp({ onNavigateHome }) {
                 title="New Game (R)"
               >
                 ↻ Restart
+              </button>
+              <button
+                type="button"
+                id="hexa-fullscreen-hud-btn"
+                className="hexa-hud-btn"
+                onClick={toggleFullscreen}
+                title={isFullscreen ? "Exit Fullscreen (F)" : "Expand to Fullscreen (F)"}
+                aria-label={isFullscreen ? "Exit Fullscreen" : "Expand to Fullscreen"}
+              >
+                {isFullscreen ? "⤓ Exit" : "⛶ Expand"}
               </button>
             </div>
           </div>

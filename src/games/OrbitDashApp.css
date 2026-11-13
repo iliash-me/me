@@ -347,4 +347,104 @@
     gap: 0.25rem;
     text-align: center;
   }
+  .orbit-fullscreen-pill span {
+    display: none;
+  }
+  .orbit-fullscreen-pill {
+    padding: 0.32rem 0.45rem;
+  }
+}
+
+/* ==========================================================================
+   FULLSCREEN TOGGLE BUTTON & EXPANDED STAGE
+   ========================================================================== */
+
+.orbit-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.orbit-card-expand-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background-color: #f4f4f2;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #52525b;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.orbit-card-expand-btn:hover {
+  background-color: #ebebea;
+  color: #111315;
+}
+
+.orbit-fullscreen-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  padding: 0.32rem 0.65rem;
+  border-radius: 999px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #52525b;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.15s ease;
+}
+
+.orbit-fullscreen-pill:hover {
+  color: #111315;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.orbit-fullscreen-pill.is-active {
+  background-color: #111315;
+  color: #ffffff;
+  border-color: #111315;
+}
+
+.orbit-minimal-app.is-fullscreen,
+.orbit-minimal-app:fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999;
+  background-color: #f5f5f3;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.orbit-minimal-app.is-fullscreen .orbit-main,
+.orbit-minimal-app:fullscreen .orbit-main {
+  max-width: 100%;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  padding: 0.35rem 1rem 1rem;
+  justify-content: stretch;
+}
+
+.orbit-minimal-app.is-fullscreen .orbit-stage-card,
+.orbit-minimal-app:fullscreen .orbit-stage-card {
+  max-width: 100%;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+}
+
+.orbit-minimal-app.is-fullscreen .orbit-canvas-wrap,
+.orbit-minimal-app:fullscreen .orbit-canvas-wrap {
+  height: 100%;
+  flex: 1;
+  min-height: 480px;
 }

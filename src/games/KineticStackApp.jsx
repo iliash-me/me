@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./KineticStackApp.css";
+import { useGameFullscreen } from "./useGameFullscreen";
 
 const MODES = [
   { id: "zen", name: "Zen", speed: 1.45, tolerance: 3.5, label: "Gentle speed & relaxed slice" },
@@ -166,6 +167,8 @@ export default function KineticStackApp({ onNavigateHome }) {
   });
 
   const canvasRef = useRef(null);
+  const appRef = useRef(null);
+  const { isFullscreen, toggleFullscreen } = useGameFullscreen(appRef);
   const gameRef = useRef(createInitialGameState());
 
   const handleSelectMode = (newMode) => {
@@ -635,7 +638,7 @@ export default function KineticStackApp({ onNavigateHome }) {
   }, [mode, gameState]);
 
   return (
-    <div className="stack-minimal-app">
+    <div ref={appRef} className={`stack-minimal-app ${isFullscreen ? "is-fullscreen" : ""}`}>
       {/* Unified 3-Column Minimal Header */}
       <header className="stack-nav" role="banner">
         <div className="stack-nav-left">
@@ -643,7 +646,16 @@ export default function KineticStackApp({ onNavigateHome }) {
             type="button"
             id="back-to-portfolio-btn"
             className="stack-back-link"
-            onClick={onNavigateHome}
+            onClick={() => {
+              if (document.fullscreenElement) {
+                try {
+                  document.exitFullscreen();
+                } catch {
+                  // ignore
+                }
+              }
+              onNavigateHome?.();
+            }}
           >
             ← iliash.me
           </button>
@@ -681,6 +693,30 @@ export default function KineticStackApp({ onNavigateHome }) {
           >
             {sfxEnabled ? "SFX On" : "Muted"}
           </button>
+          <button
+            type="button"
+            id="toggle-fullscreen-btn"
+            className={`stack-fullscreen-btn ${isFullscreen ? "is-active" : ""}`}
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit Fullscreen (F)" : "Expand to Fullscreen (F)"}
+            aria-label={isFullscreen ? "Exit Fullscreen" : "Expand to Fullscreen"}
+          >
+            {isFullscreen ? (
+              <>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+                </svg>
+                <span>Exit</span>
+              </>
+            ) : (
+              <>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                </svg>
+                <span>Fullscreen</span>
+              </>
+            )}
+          </button>
         </div>
       </header>
 
@@ -692,6 +728,21 @@ export default function KineticStackApp({ onNavigateHome }) {
           role="region"
           aria-label="Kinetic Stack play field"
         >
+          {/* Card Top Expand Button */}
+          <button
+            type="button"
+            id="stack-card-fs-btn"
+            className="stack-card-expand-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleFullscreen();
+            }}
+            title={isFullscreen ? "Exit Fullscreen (F)" : "Expand to Fullscreen (F)"}
+            aria-label={isFullscreen ? "Exit Fullscreen" : "Expand to Fullscreen"}
+          >
+            {isFullscreen ? "⤓ Exit" : "⛶ Expand"}
+          </button>
+
           {/* Background Score Watermark */}
           <div className="stack-bg-watermark" aria-hidden="true">
             {score}

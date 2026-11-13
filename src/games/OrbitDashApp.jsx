@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./OrbitDashApp.css";
+import { useGameFullscreen } from "./useGameFullscreen";
 
 const MODES = [
   { id: "chill", name: "Chill", baseSpeed: 1.65, spawnGap: 1.15, accel: 0.04 },
@@ -89,6 +90,8 @@ export default function OrbitDashApp({ onNavigateHome }) {
   });
 
   const canvasRef = useRef(null);
+  const appRef = useRef(null);
+  const { isFullscreen, toggleFullscreen } = useGameFullscreen(appRef);
   const stateRef = useRef({
     status: "ready",
     mode: MODES[1],
@@ -630,7 +633,7 @@ export default function OrbitDashApp({ onNavigateHome }) {
   };
 
   return (
-    <div className="orbit-minimal-app">
+    <div ref={appRef} className={`orbit-minimal-app ${isFullscreen ? "is-fullscreen" : ""}`}>
       {/* Minimal Header (Matches Spring & Easing + Palette Studio Header Structure) */}
       <header className="orbit-nav">
         <div className="orbit-nav-left">
@@ -638,7 +641,16 @@ export default function OrbitDashApp({ onNavigateHome }) {
             type="button"
             id="orbit-back-btn"
             className="orbit-back-link"
-            onClick={onNavigateHome}
+            onClick={() => {
+              if (document.fullscreenElement) {
+                try {
+                  document.exitFullscreen();
+                } catch {
+                  // ignore
+                }
+              }
+              onNavigateHome?.();
+            }}
           >
             ← iliash.me
           </button>
@@ -674,6 +686,31 @@ export default function OrbitDashApp({ onNavigateHome }) {
             <span className="sound-dot" />
             <span>{soundOn ? "SFX On" : "Muted"}</span>
           </button>
+
+          <button
+            type="button"
+            id="orbit-fullscreen-btn"
+            className={`orbit-fullscreen-pill ${isFullscreen ? "is-active" : ""}`}
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit Fullscreen (F)" : "Expand to Fullscreen (F)"}
+            aria-label={isFullscreen ? "Exit Fullscreen" : "Expand to Fullscreen"}
+          >
+            {isFullscreen ? (
+              <>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+                </svg>
+                <span>Exit</span>
+              </>
+            ) : (
+              <>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                </svg>
+                <span>Fullscreen</span>
+              </>
+            )}
+          </button>
         </div>
       </header>
 
@@ -693,13 +730,29 @@ export default function OrbitDashApp({ onNavigateHome }) {
               </span>
             </div>
 
-            <button
-              type="button"
-              className="orbit-action-btn"
-              onClick={handleAction}
-            >
-              {gameState === "playing" ? "Flip Track (Space)" : gameState === "gameover" ? "Play Again ↻" : "Start Game →"}
-            </button>
+            <div className="orbit-head-actions">
+              <button
+                type="button"
+                className="orbit-action-btn"
+                onClick={handleAction}
+              >
+                {gameState === "playing" ? "Flip Track (Space)" : gameState === "gameover" ? "Play Again ↻" : "Start Game →"}
+              </button>
+
+              <button
+                type="button"
+                id="orbit-card-fs-btn"
+                className="orbit-card-expand-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleFullscreen();
+                }}
+                title={isFullscreen ? "Exit Fullscreen (F)" : "Expand to Fullscreen (F)"}
+                aria-label={isFullscreen ? "Exit Fullscreen" : "Expand to Fullscreen"}
+              >
+                {isFullscreen ? "⤓ Exit" : "⛶ Expand"}
+              </button>
+            </div>
           </div>
 
           {/* Interactive Canvas Stage */}
