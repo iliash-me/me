@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { PROFILE } from "./data/portfolioData";
-import CommandPalette from "./components/CommandPalette";
 import SpringTunerApp from "./tools/SpringTunerApp";
 import OklchLabApp from "./tools/OklchLabApp";
 import OrbitDashApp from "./games/OrbitDashApp";
@@ -53,7 +52,6 @@ export default function App() {
   });
 
   const [copiedEmail, setCopiedEmail] = useState(false);
-  const [cmdOpen, setCmdOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
   const toolsDropdownRef = useRef(null);
@@ -122,8 +120,18 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape") {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setToolsMenuOpen(false);
+        setGamesMenuOpen(false);
+        setContactOpen(false);
+        setRoute((prev) => {
+          const next = prev === "/t" ? "/" : "/t";
+          window.history.pushState({}, "", next);
+          return next;
+        });
+      } else if (e.key === "Escape") {
         if (contactOpen) setContactOpen(false);
         if (toolsMenuOpen) setToolsMenuOpen(false);
         if (gamesMenuOpen) setGamesMenuOpen(false);
@@ -137,10 +145,10 @@ export default function App() {
         setGamesMenuOpen(false);
       }
     };
-    window.addEventListener("keydown", handleEsc);
+    window.addEventListener("keydown", handleKeyDown);
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      window.removeEventListener("keydown", handleEsc);
+      window.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [contactOpen, toolsMenuOpen, gamesMenuOpen]);
@@ -414,23 +422,6 @@ export default function App() {
               )}
             </div>
 
-            <a
-              href={route === "/t" ? "/" : "/t"}
-              id="nav-terminal-btn"
-              className={`action-chip ${route === "/t" ? "tools-dropdown-trigger is-open" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                if (route === "/t") {
-                  navigateTo("/");
-                } else {
-                  openTerminalRoute();
-                }
-              }}
-              title="Toggle Draggable Terminal Window (/t)"
-            >
-              <span>&gt;_ /t</span>
-            </a>
-
             <button
               type="button"
               id="nav-open-contact-btn"
@@ -440,15 +431,22 @@ export default function App() {
               <span>Contact</span>
             </button>
 
-            <button
-              type="button"
+            <a
+              href={route === "/t" ? "/" : "/t"}
               id="open-command-palette-btn"
-              className="action-chip"
-              onClick={() => setCmdOpen(true)}
-              title="Command Palette (⌘K)"
+              className={`action-chip ${route === "/t" ? "tools-dropdown-trigger is-open" : ""}`}
+              onClick={(e) => {
+                e.preventDefault();
+                if (route === "/t") {
+                  navigateTo("/");
+                } else {
+                  openTerminalRoute();
+                }
+              }}
+              title="Toggle Terminal Window (⌘K)"
             >
               <kbd>⌘K</kbd>
-            </button>
+            </a>
 
             <button
               type="button"
@@ -787,28 +785,13 @@ export default function App() {
         </aside>
       </div>
 
-      {/* Draggable Floating Terminal Window (/t) */}
+      {/* Draggable Floating Terminal Window (/t or ⌘K) */}
       {route === "/t" && (
         <TerminalApp
           onNavigateHome={() => navigateTo("/")}
           onNavigateTo={navigateTo}
         />
       )}
-
-      {/* Keyboard-Accessible Command Palette Modal */}
-      <CommandPalette
-        isOpen={cmdOpen}
-        onClose={(arg) => setCmdOpen(arg === "open")}
-        theme={theme}
-        onToggleTheme={handleToggleTheme}
-        onCopyEmail={handleCopyEmail}
-        onOpenContactSheet={openContact}
-        onOpenTunerSheet={openTunerRoute}
-        onOpenOklchLab={openOklchRoute}
-        onOpenOrbitDash={openOrbitDashRoute}
-        onOpenKineticStack={openKineticStackRoute}
-        onOpenTerminal={openTerminalRoute}
-      />
     </div>
   );
 }
