@@ -505,11 +505,20 @@ export default function HexaMergeApp({ onNavigateHome }) {
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, cw, ch);
 
-      const centerX = cw / 2;
-      const centerY = ch / 2;
+      // Responsive horizontal and vertical margins to ensure the hex grid never touches or clips borders
+      const padX = cw < 480 ? 32 : 56;
+      const topOffset = cw < 480 ? 76 : 84;
+      const bottomPad = cw < 480 ? 24 : 32;
 
-      // Calculate hex tile radius according to board radius
-      const hexRadius = Math.min(cw, ch) / (2 * radius + 2.2);
+      // In pointy-topped axial coordinates:
+      // Total board width  = sqrt(3) * (2 * radius + 1) * hexRadius
+      // Total board height = (3 * radius + 2) * hexRadius
+      const maxRFromWidth = (cw - padX) / (Math.sqrt(3) * (2 * radius + 1));
+      const maxRFromHeight = (ch - (topOffset + bottomPad)) / (3 * radius + 2);
+      const hexRadius = Math.max(16, Math.min(maxRFromWidth, maxRFromHeight));
+
+      const centerX = cw / 2;
+      const centerY = topOffset + (ch - topOffset - bottomPad) / 2;
 
       // Helper: converts (q, r) to pixel coordinates
       const hexToPixel = (q, r) => ({

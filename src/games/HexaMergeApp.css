@@ -421,11 +421,28 @@
 
 @media (max-width: 640px) {
   .hexa-nav {
-    padding: 0.85rem 1rem 0.35rem;
+    padding: 0.85rem 0.85rem 0.35rem;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+  .hexa-preset-pill {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.72rem;
+  }
+  .hexa-stage-wrapper {
+    padding: 0.25rem 0.75rem 1.25rem;
   }
   .hexa-board-card {
-    height: 60vh;
+    height: min(65vh, 520px);
     border-radius: 20px;
+  }
+  .hexa-hud-top {
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+  }
+  .hexa-hud-score-val {
+    font-size: 1.65rem;
   }
   .hexa-hint-bar {
     display: none;
