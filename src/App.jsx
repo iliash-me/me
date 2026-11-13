@@ -18,8 +18,10 @@ export default function App() {
   const [localTime, setLocalTime] = useState("");
   const [selectedTopic, setSelectedTopic] = useState(INQUIRY_TOPICS[0]);
   const [senderName, setSenderName] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
   const [customNote, setCustomNote] = useState("");
-  const [copiedBrief, setCopiedBrief] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState("idle"); // "idle" | "sending" | "success" | "error"
+  const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -69,18 +71,64 @@ export default function App() {
     setTimeout(() => setCopiedEmail(false), 2000);
   };
 
-  const handleCopyBrief = () => {
-    const brief = `To: ${PROFILE.email}\nSubject: ${selectedTopic}${senderName ? ` — from ${senderName}` : ""}\n\n${customNote || `Hi Iliash, I'd like to connect regarding ${selectedTopic}.`}`;
-    navigator.clipboard?.writeText(brief);
-    setCopiedBrief(true);
-    setTimeout(() => setCopiedBrief(false), 2000);
+  const handleSubmitForm = async (e) => {
+    e.preventDefault();
+    if (!senderEmail.trim() || !customNote.trim()) {
+      setSubmitStatus("error");
+      setStatusMessage("Please enter your email address and a message.");
+      return;
+    }
+
+    setSubmitStatus("sending");
+    setStatusMessage("");
+
+    try {
+      const response = await fetch(`https://formsubmit.co/ajax/${PROFILE.email}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+        body: JSON.stringify({
+          name: senderName.trim() || "Website Visitor",
+          email: senderEmail.trim(),
+          _replyto: senderEmail.trim(),
+          topic: selectedTopic,
+          _subject: `${selectedTopic} — Message from ${senderName.trim() || senderEmail.trim()} (iliash.me)`,
+          message: customNote.trim(),
+          _template: "table",
+          _captcha: "false"
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (response.ok && (data.success === "true" || data.success === true)) {
+        setSubmitStatus("success");
+        setStatusMessage("Message sent directly to iliashhosain@gmail.com.");
+        setSenderName("");
+        setSenderEmail("");
+        setCustomNote("");
+      } else {
+        setSubmitStatus("error");
+        setStatusMessage(
+          data.message ||
+            "Could not send automatically right now. Please click 'Open in Email App' below."
+        );
+      }
+    } catch {
+      setSubmitStatus("error");
+      setStatusMessage(
+        "Network error while sending. Please use 'Open in Email App' or copy my email above."
+      );
+    }
   };
 
   const mailtoHref = `mailto:${PROFILE.email}?subject=${encodeURIComponent(
     `${selectedTopic}${senderName ? ` — from ${senderName}` : ""}`
   )}&body=${encodeURIComponent(
     `${customNote ? `${customNote}\n\n` : `Hi Iliash,\n\nI'd love to connect regarding ${selectedTopic}.\n\n`}${
-      senderName ? `— ${senderName}` : ""
+      senderName || senderEmail ? `— ${senderName} ${senderEmail ? `<${senderEmail}>` : ""}` : ""
     }`
   )}`;
 
@@ -308,73 +356,113 @@ export default function App() {
             </div>
           </div>
 
-          <div className="sheet-body">
-            <div className="sheet-grid">
-              <div className="sheet-col-left">
-                <div className="composer-field">
-                  <span className="composer-label">Topic</span>
-                  <div className="composer-topic-list">
-                    {INQUIRY_TOPICS.map((topic, idx) => (
-                      <button
-                        key={topic}
-                        type="button"
-                        id={`sheet-topic-btn-${idx}`}
-                        className={`composer-topic-btn ${selectedTopic === topic ? "is-selected" : ""}`}
-                        onClick={() => setSelectedTopic(topic)}
-                      >
-                        {topic}
-                      </button>
-                    ))}
+          <form className="sheet-form" onSubmit={handleSubmitForm}>
+            <div className="sheet-body">
+              <div className="sheet-grid">
+                <div className="sheet-col-left">
+                  <div className="composer-field">
+                    <span className="composer-label">Topic</span>
+                    <div className="composer-topic-list">
+                      {INQUIRY_TOPICS.map((topic, idx) => (
+                        <button
+                          key={topic}
+                          type="button"
+                          id={`sheet-topic-btn-${idx}`}
+                          className={`composer-topic-btn ${selectedTopic === topic ? "is-selected" : ""}`}
+                          onClick={() => setSelectedTopic(topic)}
+                        >
+                          {topic}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="sheet-input-row">
+                    <div className="composer-field">
+                      <label htmlFor="sheet-sender-name" className="composer-label">
+                        Your Name
+                      </label>
+                      <input
+                        id="sheet-sender-name"
+                        name="name"
+                        type="text"
+                        className="composer-input"
+                        placeholder="Jane Doe"
+                        value={senderName}
+                        onChange={(e) => setSenderName(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="composer-field">
+                      <label htmlFor="sheet-sender-email" className="composer-label">
+                        Your Email *
+                      </label>
+                      <input
+                        id="sheet-sender-email"
+                        name="email"
+                        type="email"
+                        required
+                        className="composer-input"
+                        placeholder="jane@example.com"
+                        value={senderEmail}
+                        onChange={(e) => setSenderEmail(e.target.value)}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="composer-field">
-                  <label htmlFor="sheet-sender-name" className="composer-label">
-                    Your Name (Optional)
-                  </label>
-                  <input
-                    id="sheet-sender-name"
-                    type="text"
-                    className="composer-input"
-                    placeholder="Jane Doe"
-                    value={senderName}
-                    onChange={(e) => setSenderName(e.target.value)}
-                  />
+                <div className="sheet-col-right">
+                  <div className="composer-field sheet-message-field">
+                    <label htmlFor="sheet-custom-note" className="composer-label">
+                      Message *
+                    </label>
+                    <textarea
+                      id="sheet-custom-note"
+                      name="message"
+                      rows="4"
+                      required
+                      className="composer-textarea"
+                      placeholder="Tell me briefly about what you're building..."
+                      value={customNote}
+                      onChange={(e) => setCustomNote(e.target.value)}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="sheet-col-right">
-                <div className="composer-field sheet-message-field">
-                  <label htmlFor="sheet-custom-note" className="composer-label">
-                    Message
-                  </label>
-                  <textarea
-                    id="sheet-custom-note"
-                    rows="4"
-                    className="composer-textarea"
-                    placeholder="Tell me briefly about what you're building..."
-                    value={customNote}
-                    onChange={(e) => setCustomNote(e.target.value)}
-                  />
+              {statusMessage && (
+                <div
+                  className={`sheet-status-banner ${
+                    submitStatus === "success" ? "is-success" : "is-error"
+                  }`}
+                  role="status"
+                >
+                  <span>{statusMessage}</span>
                 </div>
-              </div>
+              )}
             </div>
-          </div>
 
-          <div className="sheet-footer">
-            <a href={mailtoHref} id="sheet-send-email-btn" className="btn-primary sheet-primary-btn">
-              <span>Send via Email App</span>
-              <span aria-hidden="true">↗</span>
-            </a>
-            <button
-              type="button"
-              id="sheet-copy-brief-btn"
-              className="btn-secondary"
-              onClick={handleCopyBrief}
-            >
-              {copiedBrief ? "Copied ✓" : "Copy Text"}
-            </button>
-          </div>
+            <div className="sheet-footer">
+              <a href={mailtoHref} id="sheet-mailto-fallback-btn" className="btn-ghost">
+                <span>Open in Email App ↗</span>
+              </a>
+              <button
+                type="submit"
+                id="sheet-submit-btn"
+                className="btn-primary sheet-primary-btn"
+                disabled={submitStatus === "sending"}
+              >
+                <span>
+                  {submitStatus === "sending"
+                    ? "Sending..."
+                    : submitStatus === "success"
+                    ? "Sent ✓"
+                    : "Send Message"}
+                </span>
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </form>
         </aside>
       </div>
 
