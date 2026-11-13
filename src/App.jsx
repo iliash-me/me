@@ -62,7 +62,7 @@ export default function App() {
       if (route === "/tools/spring-tuner") {
         metaTheme.setAttribute("content", "#f5f5f3");
       } else if (route === "/tools/oklch-lab") {
-        metaTheme.setAttribute("content", "#0e0f12");
+        metaTheme.setAttribute("content", "#f6f6f4");
       } else {
         metaTheme.setAttribute("content", theme === "dark" ? "#0B0D11" : "#F6F4EF");
       }
