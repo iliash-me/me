@@ -982,15 +982,9 @@ export default function HexaMergeApp({ onNavigateHome }) {
         >
           {/* Top HUD */}
           <div className="hexa-hud-top">
-            <div className="hexa-hud-scores-group">
-              <div className="hexa-hud-score-col">
-                <span className="hexa-hud-score-label">Score</span>
-                <span className="hexa-hud-score-val">{score}</span>
-              </div>
-              <div className={`hexa-hud-score-col is-best ${score >= bestScore && score > 0 ? "is-new-high" : ""}`}>
-                <span className="hexa-hud-score-label">Best</span>
-                <span className="hexa-hud-score-val">{bestScore}</span>
-              </div>
+            <div className="hexa-hud-score-col">
+              <span className="hexa-hud-score-label">Score</span>
+              <span className="hexa-hud-score-val">{score}</span>
             </div>
 
             <div className="hexa-hud-actions">
