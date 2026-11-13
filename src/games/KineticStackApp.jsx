@@ -132,7 +132,7 @@ function createInitialGameState() {
     width: INITIAL_SIZE,
     depth: INITIAL_SIZE,
     y: 1,
-    hue: (startHue + 5) % 360
+    hue: (startHue + 32) % 360
   };
   return {
     blocks: [baseBlock],
@@ -364,6 +364,7 @@ export default function KineticStackApp({ onNavigateHome }) {
         width: placedBlock.width,
         depth: placedBlock.depth,
         y: placedBlock.y,
+        hue: placedBlock.hue,
         radius: 0,
         maxRadius: 28,
         opacity: 0.85
@@ -389,7 +390,7 @@ export default function KineticStackApp({ onNavigateHome }) {
     // Prepare next moving layer
     const nextY = newScore + 1;
     const nextAxis = axis === "x" ? "z" : "x";
-    const nextHue = (g.baseHue + nextY * 4.2) % 360;
+    const nextHue = (g.baseHue + nextY * 32) % 360;
 
     g.active = {
       x: nextAxis === "x" ? -SWEEP_BOUND : placedBlock.x,
@@ -506,16 +507,13 @@ export default function KineticStackApp({ onNavigateHome }) {
         }
       }
 
-      // Helper to draw an isometric 3D block
+      // Helper to draw an isometric 3D block with multicolored gradient facets
       const drawBlock = (b, opacity = 1) => {
         const { x, z, width, depth, y, hue } = b;
         if (width <= 0 || depth <= 0) return;
 
-        // Colors for 3 faces with clean daylight lighting model
-        const topFill = `hsla(${hue}, 70%, 75%, ${opacity})`;
-        const leftFill = `hsla(${hue}, 64%, 58%, ${opacity})`;
-        const rightFill = `hsla(${hue}, 58%, 46%, ${opacity})`;
-        const strokeColor = `rgba(0, 0, 0, ${0.08 * opacity})`;
+        const hue1 = hue;
+        const hue2 = (hue + 28) % 360;
 
         // 8 vertices in 3D world space
         const _p000 = toIso(x, y, z, originX, originY, TILE_W, TILE_D, BLOCK_HEIGHT);
@@ -528,6 +526,23 @@ export default function KineticStackApp({ onNavigateHome }) {
         const p111 = toIso(x + width, y + 1, z + depth, originX, originY, TILE_W, TILE_D, BLOCK_HEIGHT);
         const p011 = toIso(x, y + 1, z + depth, originX, originY, TILE_W, TILE_D, BLOCK_HEIGHT);
 
+        // Multicolored dynamic gradients for each facet
+        // Top Face: Vibrant smooth blend between hue1 and hue2
+        const topGrad = ctx.createLinearGradient(p010.px, p010.py, p111.px, p111.py);
+        topGrad.addColorStop(0, `hsla(${hue1}, 85%, 74%, ${opacity})`);
+        topGrad.addColorStop(1, `hsla(${hue2}, 85%, 68%, ${opacity})`);
+
+        // Left / Front Face
+        const leftGrad = ctx.createLinearGradient(p011.px, p011.py, p101.px, p101.py);
+        leftGrad.addColorStop(0, `hsla(${hue1}, 80%, 58%, ${opacity})`);
+        leftGrad.addColorStop(1, `hsla(${hue2}, 80%, 50%, ${opacity})`);
+
+        // Right / Side Face
+        const rightGrad = ctx.createLinearGradient(p110.px, p110.py, p101.px, p101.py);
+        rightGrad.addColorStop(0, `hsla(${hue2}, 76%, 48%, ${opacity})`);
+        rightGrad.addColorStop(1, `hsla(${hue1}, 76%, 38%, ${opacity})`);
+
+        const strokeColor = `rgba(0, 0, 0, ${0.09 * opacity})`;
         ctx.lineWidth = 0.75;
         ctx.strokeStyle = strokeColor;
 
@@ -538,7 +553,7 @@ export default function KineticStackApp({ onNavigateHome }) {
         ctx.lineTo(p101.px, p101.py);
         ctx.lineTo(p001.px, p001.py);
         ctx.closePath();
-        ctx.fillStyle = leftFill;
+        ctx.fillStyle = leftGrad;
         ctx.fill();
         ctx.stroke();
 
@@ -549,7 +564,7 @@ export default function KineticStackApp({ onNavigateHome }) {
         ctx.lineTo(p101.px, p101.py);
         ctx.lineTo(p100.px, p100.py);
         ctx.closePath();
-        ctx.fillStyle = rightFill;
+        ctx.fillStyle = rightGrad;
         ctx.fill();
         ctx.stroke();
 
@@ -560,8 +575,17 @@ export default function KineticStackApp({ onNavigateHome }) {
         ctx.lineTo(p111.px, p111.py);
         ctx.lineTo(p011.px, p011.py);
         ctx.closePath();
-        ctx.fillStyle = topFill;
+        ctx.fillStyle = topGrad;
         ctx.fill();
+        ctx.stroke();
+
+        // Subtle inner rim highlight on top face for crisp tactile depth
+        ctx.beginPath();
+        ctx.moveTo(p011.px, p011.py);
+        ctx.lineTo(p010.px, p010.py);
+        ctx.lineTo(p110.px, p110.py);
+        ctx.strokeStyle = `rgba(255, 255, 255, ${0.4 * opacity})`;
+        ctx.lineWidth = 1;
         ctx.stroke();
       };
 
@@ -585,7 +609,8 @@ export default function KineticStackApp({ onNavigateHome }) {
         );
         ctx.beginPath();
         ctx.ellipse(center.px, center.py, eff.radius * 1.6, eff.radius * 0.85, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(255, 79, 24, ${eff.opacity})`;
+        const haloHue = eff.hue !== undefined ? eff.hue : 18;
+        ctx.strokeStyle = `hsla(${haloHue}, 90%, 55%, ${eff.opacity})`;
         ctx.lineWidth = 2.5;
         ctx.stroke();
         ctx.restore();
