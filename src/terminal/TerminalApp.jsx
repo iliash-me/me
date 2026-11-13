@@ -1,17 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./TerminalApp.css";
-import { DISCIPLINES, PROFILE, PROJECTS } from "../data/portfolioData";
+import { PROFILE } from "../data/portfolioData";
 
 const THEMES = ["dark", "matrix", "amber", "cyberpunk", "nord", "paper"];
 
 const VIRTUAL_FS = {
   "~": {
     type: "dir",
-    children: ["about.txt", "skills.txt", "contact.txt", "resume.txt", "socials.txt", "projects", "tools", "games"]
-  },
-  "~/projects": {
-    type: "dir",
-    children: PROJECTS.map((p) => `${p.id}.md`)
+    children: ["about.txt", "contact.txt", "socials.txt", "tools", "games"]
   },
   "~/tools": {
     type: "dir",
@@ -22,15 +18,6 @@ const VIRTUAL_FS = {
     children: ["kinetic-stack.exe", "orbit-dash.exe"]
   }
 };
-
-const QUOTES = [
-  "“Simplicity is prerequisite for reliability.” — Edsger W. Dijkstra",
-  "“Make it work, make it right, make it fast.” — Kent Beck",
-  "“Good design is as little design as possible.” — Dieter Rams",
-  "“First, solve the problem. Then, write the code.” — John Johnson",
-  "“The details are not the details. They make the design.” — Charles Eames",
-  "“Any fool can write code that a computer can understand. Good programmers write code that humans can understand.” — Martin Fowler"
-];
 
 // Tactile Web Audio Synthesizer for Mechanical Keyboard & Terminal Sounds
 function playTerminalSound(type, enabled) {
@@ -87,7 +74,6 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
     return localStorage.getItem("iliash-term-crt") !== "false";
   });
   const [soundEnabled, setSoundEnabled] = useState(false);
-  const [matrixRain, setMatrixRain] = useState(false);
 
   const [cwd, setCwd] = useState("~");
   const [inputVal, setInputVal] = useState("");
@@ -97,7 +83,6 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
 
   const inputRef = useRef(null);
   const bodyRef = useRef(null);
-  const canvasRef = useRef(null);
   const executeCommandRef = useRef(null);
 
   // Initial welcome message banner
@@ -117,18 +102,17 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
           <div className="term-output-block">
             <strong>iliash-sh (x86_64-pc-web) v2.4.0-release</strong>
             <br />
-            Welcome to the interactive terminal portfolio of{" "}
-            <span style={{ color: "var(--t-prompt)", fontWeight: 600 }}>{PROFILE.name}</span>.
+            Welcome to the interactive terminal of{" "}
+            <span style={{ color: "var(--t-prompt)", fontWeight: 600 }}>{PROFILE.name}</span> ({PROFILE.role}).
             <br />
             Type <span style={{ color: "var(--t-prompt)", fontWeight: 600 }}>help</span> to view available commands, or{" "}
-            <span style={{ color: "var(--t-prompt)", fontWeight: 600 }}>neofetch</span> for system summary.
+            <span style={{ color: "var(--t-prompt)", fontWeight: 600 }}>neofetch</span> for profile overview.
             <br />
             Explore: <span style={{ color: "var(--t-prompt)" }}>about</span> ·{" "}
-            <span style={{ color: "var(--t-prompt)" }}>projects</span> ·{" "}
-            <span style={{ color: "var(--t-prompt)" }}>skills</span> ·{" "}
             <span style={{ color: "var(--t-prompt)" }}>tools</span> ·{" "}
             <span style={{ color: "var(--t-prompt)" }}>games</span> ·{" "}
-            <span style={{ color: "var(--t-prompt)" }}>contact</span>
+            <span style={{ color: "var(--t-prompt)" }}>contact</span> ·{" "}
+            <span style={{ color: "var(--t-prompt)" }}>socials</span>
             <br />
             Switch back anytime with <span style={{ color: "var(--t-prompt)" }}>gui</span> or{" "}
             <span style={{ color: "var(--t-prompt)" }}>exit</span>.
@@ -158,53 +142,6 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
       bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
     }
   }, [logs, inputVal]);
-
-  // Matrix falling rain animation on canvas
-  useEffect(() => {
-    if (!matrixRain) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    let animationId;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const characters = "0123456789ABCDEFアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
-    const fontSize = 14;
-    const columns = Math.floor(canvas.width / fontSize);
-    const drops = Array(columns).fill(1);
-
-    const draw = () => {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = theme === "amber" ? "#ffb000" : "#00ff66";
-      ctx.font = `${fontSize}px monospace`;
-
-      for (let i = 0; i < drops.length; i++) {
-        const text = characters.charAt(Math.floor(Math.random() * characters.length));
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-        drops[i]++;
-      }
-      animationId = requestAnimationFrame(draw);
-    };
-
-    draw();
-
-    return () => {
-      window.removeEventListener("resize", resize);
-      cancelAnimationFrame(animationId);
-    };
-  }, [matrixRain, theme]);
 
   const getDhakaTime = () => {
     try {
@@ -263,24 +200,12 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
         case "?": {
           outputContent = (
             <div className="term-output-block">
-              <div className="term-category-kicker">// PORTFOLIO & WORK</div>
+              <div className="term-category-kicker">// SITE SECTIONS & APPS</div>
               <table className="term-table">
                 <tbody>
                   <tr>
-                    <td className="term-cmd-col">about / bio</td>
-                    <td className="term-desc-col">Background, engineering philosophy, and bio</td>
-                  </tr>
-                  <tr>
-                    <td className="term-cmd-col">projects</td>
-                    <td className="term-desc-col">List all production projects and interactive work</td>
-                  </tr>
-                  <tr>
-                    <td className="term-cmd-col">project &lt;id&gt;</td>
-                    <td className="term-desc-col">Deep-dive into architecture, highlights & stack</td>
-                  </tr>
-                  <tr>
-                    <td className="term-cmd-col">skills / tech</td>
-                    <td className="term-desc-col">Core frontend engineering disciplines & technologies</td>
+                    <td className="term-cmd-col">about / whoami</td>
+                    <td className="term-desc-col">Profile overview, role, and core metrics</td>
                   </tr>
                   <tr>
                     <td className="term-cmd-col">tools</td>
@@ -288,15 +213,19 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                   </tr>
                   <tr>
                     <td className="term-cmd-col">games</td>
-                    <td className="term-desc-col">Playable WebGL/Canvas games (Kinetic Stack, Orbit Dash)</td>
+                    <td className="term-desc-col">Playable arcade games (Kinetic Stack, Orbit Dash)</td>
                   </tr>
                   <tr>
                     <td className="term-cmd-col">contact</td>
-                    <td className="term-desc-col">Direct email address, socials, and contact channels</td>
+                    <td className="term-desc-col">Direct email address & copy email command</td>
                   </tr>
                   <tr>
-                    <td className="term-cmd-col">resume</td>
-                    <td className="term-desc-col">Experience highlights, qualifications, and focus</td>
+                    <td className="term-cmd-col">socials</td>
+                    <td className="term-desc-col">GitHub, Facebook, and Email links</td>
+                  </tr>
+                  <tr>
+                    <td className="term-cmd-col">copy</td>
+                    <td className="term-desc-col">Copy {PROFILE.email} to clipboard</td>
                   </tr>
                 </tbody>
               </table>
@@ -306,31 +235,35 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                 <tbody>
                   <tr>
                     <td className="term-cmd-col">gui / exit</td>
-                    <td className="term-desc-col">Return to the standard graphic portfolio at /</td>
+                    <td className="term-desc-col">Return to the standard graphic site at /</td>
                   </tr>
                   <tr>
                     <td className="term-cmd-col">open &lt;app&gt;</td>
-                    <td className="term-desc-col">Launch tool/game (tuner, palette, kinetic, orbit)</td>
-                  </tr>
-                  <tr>
-                    <td className="term-cmd-col">ls [dir]</td>
-                    <td className="term-desc-col">List simulated files and subdirectories</td>
-                  </tr>
-                  <tr>
-                    <td className="term-cmd-col">cd &lt;dir&gt;</td>
-                    <td className="term-desc-col">Change directory (e.g. cd projects, cd ..)</td>
-                  </tr>
-                  <tr>
-                    <td className="term-cmd-col">cat &lt;file&gt;</td>
-                    <td className="term-desc-col">Display file contents (e.g. cat about.txt)</td>
-                  </tr>
-                  <tr>
-                    <td className="term-cmd-col">pwd</td>
-                    <td className="term-desc-col">Print current working directory path</td>
+                    <td className="term-desc-col">Launch tool/game (tuner, palette, kinetic, orbit, github)</td>
                   </tr>
                   <tr>
                     <td className="term-cmd-col">neofetch</td>
-                    <td className="term-desc-col">System info card with ASCII logo and specs</td>
+                    <td className="term-desc-col">Profile dossier card with ASCII monogram</td>
+                  </tr>
+                  <tr>
+                    <td className="term-cmd-col">ls [dir]</td>
+                    <td className="term-desc-col">List directory contents</td>
+                  </tr>
+                  <tr>
+                    <td className="term-cmd-col">cd &lt;dir&gt;</td>
+                    <td className="term-desc-col">Change directory (tools, games, ..)</td>
+                  </tr>
+                  <tr>
+                    <td className="term-cmd-col">cat &lt;file&gt;</td>
+                    <td className="term-desc-col">Read file contents (about.txt, contact.txt, socials.txt)</td>
+                  </tr>
+                  <tr>
+                    <td className="term-cmd-col">pwd</td>
+                    <td className="term-desc-col">Print working directory</td>
+                  </tr>
+                  <tr>
+                    <td className="term-cmd-col">time / date</td>
+                    <td className="term-desc-col">Local time in {PROFILE.timezone} (GMT+6)</td>
                   </tr>
                   <tr>
                     <td className="term-cmd-col">theme [name]</td>
@@ -338,45 +271,19 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                   </tr>
                   <tr>
                     <td className="term-cmd-col">crt [on|off]</td>
-                    <td className="term-desc-col">Toggle CRT scanline raster and vignette effect</td>
+                    <td className="term-desc-col">Toggle CRT scanline overlay</td>
                   </tr>
                   <tr>
                     <td className="term-cmd-col">sound [on|off]</td>
-                    <td className="term-desc-col">Toggle mechanical keyboard audio synthesizer</td>
+                    <td className="term-desc-col">Toggle mechanical keyboard sound effects</td>
                   </tr>
                   <tr>
                     <td className="term-cmd-col">history</td>
-                    <td className="term-desc-col">Display session command history</td>
+                    <td className="term-desc-col">Display command history</td>
                   </tr>
                   <tr>
                     <td className="term-cmd-col">clear</td>
                     <td className="term-desc-col">Clear terminal screen (or Ctrl+L)</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <div className="term-category-kicker">// EXTRAS & FUN</div>
-              <table className="term-table">
-                <tbody>
-                  <tr>
-                    <td className="term-cmd-col">matrix</td>
-                    <td className="term-desc-col">Toggle falling digital rain canvas overlay</td>
-                  </tr>
-                  <tr>
-                    <td className="term-cmd-col">time / date</td>
-                    <td className="term-desc-col">Current time in Asia/Dhaka and local machine</td>
-                  </tr>
-                  <tr>
-                    <td className="term-cmd-col">weather</td>
-                    <td className="term-desc-col">Dhaka atmospheric report</td>
-                  </tr>
-                  <tr>
-                    <td className="term-cmd-col">quote</td>
-                    <td className="term-desc-col">Engineering or design philosophy quote</td>
-                  </tr>
-                  <tr>
-                    <td className="term-cmd-col">sudo &lt;cmd&gt;</td>
-                    <td className="term-desc-col">Root privilege request</td>
                   </tr>
                 </tbody>
               </table>
@@ -410,48 +317,38 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
               </pre>
               <div className="term-neofetch-info">
                 <div className="term-neofetch-title">
-                  guest@{PROFILE.domain}
+                  {PROFILE.name} (@{PROFILE.handle})
                 </div>
                 <div className="term-neofetch-divider">
                   ---------------------------------
                 </div>
                 <div className="term-neofetch-row">
-                  <span className="term-neofetch-label">OS</span>
-                  <span className="term-neofetch-val">React 19 / Vite / WebGL Engine</span>
-                </div>
-                <div className="term-neofetch-row">
-                  <span className="term-neofetch-label">Host</span>
-                  <span className="term-neofetch-val">{PROFILE.domain} ({PROFILE.name})</span>
-                </div>
-                <div className="term-neofetch-row">
-                  <span className="term-neofetch-label">Uptime</span>
-                  <span className="term-neofetch-val">{uptimeStr}</span>
-                </div>
-                <div className="term-neofetch-row">
-                  <span className="term-neofetch-label">Shell</span>
-                  <span className="term-neofetch-val">iliash-sh v2.4 (x86_64)</span>
+                  <span className="term-neofetch-label">Domain</span>
+                  <span className="term-neofetch-val">{PROFILE.domain}</span>
                 </div>
                 <div className="term-neofetch-row">
                   <span className="term-neofetch-label">Role</span>
                   <span className="term-neofetch-val">{PROFILE.role}</span>
                 </div>
-                <div className="term-neofetch-row">
-                  <span className="term-neofetch-label">Stack</span>
-                  <span className="term-neofetch-val">React · TypeScript · Three.js · CSS</span>
-                </div>
+                {PROFILE.metrics.map((m) => (
+                  <div key={m.label} className="term-neofetch-row">
+                    <span className="term-neofetch-label">{m.label}</span>
+                    <span className="term-neofetch-val">{m.value}</span>
+                  </div>
+                ))}
                 <div className="term-neofetch-row">
                   <span className="term-neofetch-label">Timezone</span>
                   <span className="term-neofetch-val">{PROFILE.timezone} ({PROFILE.timezoneLabel})</span>
                 </div>
                 <div className="term-neofetch-row">
-                  <span className="term-neofetch-label">Lighthouse</span>
+                  <span className="term-neofetch-label">Status</span>
                   <span className="term-neofetch-val" style={{ color: "var(--t-success)" }}>
-                    100 / 100 Performance
+                    AVAILABLE FOR PROJECTS
                   </span>
                 </div>
                 <div className="term-neofetch-row">
-                  <span className="term-neofetch-label">Theme</span>
-                  <span className="term-neofetch-val">{theme.toUpperCase()}</span>
+                  <span className="term-neofetch-label">Uptime</span>
+                  <span className="term-neofetch-val">{uptimeStr}</span>
                 </div>
                 <div className="term-ansi-swatches">
                   {ansiColors.map((c) => (
@@ -470,190 +367,23 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
           outputContent = (
             <div className="term-output-block">
               <div style={{ color: "var(--t-prompt)", fontWeight: 700, fontSize: "1rem" }}>
-                {PROFILE.name} — {PROFILE.role}
+                Hi, I’m Iliash. {PROFILE.tagline}
               </div>
-              <div style={{ margin: "0.4rem 0", color: "var(--t-highlight)" }}>
-                "{PROFILE.tagline}"
+              <div style={{ color: "var(--t-muted)", margin: "0.2rem 0" }}>
+                // {PROFILE.role.toUpperCase()} · @{PROFILE.handle}
               </div>
-              <p style={{ margin: "0.4rem 0" }}>{PROFILE.summary}</p>
+              <p style={{ margin: "0.45rem 0" }}>{PROFILE.summary}</p>
               <div style={{ marginTop: "0.6rem" }}>
                 {PROFILE.metrics.map((m) => (
-                  <div key={m.label} style={{ display: "flex", gap: "0.5rem", fontSize: "0.82rem" }}>
-                    <span style={{ color: "var(--t-muted)", minWidth: "150px" }}>• {m.label}:</span>
+                  <div key={m.label} style={{ display: "flex", gap: "0.5rem", fontSize: "0.84rem" }}>
+                    <span style={{ color: "var(--t-muted)", minWidth: "165px" }}>• {m.label}:</span>
                     <span>{m.value}</span>
                   </div>
                 ))}
               </div>
-              <div style={{ marginTop: "0.6rem", color: "var(--t-muted)" }}>
-                💡 Tip: Type <span style={{ color: "var(--t-prompt)" }}>projects</span> to view featured builds, or <span style={{ color: "var(--t-prompt)" }}>contact</span> to reach out.
+              <div style={{ marginTop: "0.6rem", color: "var(--t-success)" }}>
+                ● AVAILABLE FOR PROJECTS
               </div>
-            </div>
-          );
-          break;
-        }
-
-        case "projects": {
-          outputContent = (
-            <div className="term-output-block">
-              <div style={{ color: "var(--t-prompt)", fontWeight: 700, marginBottom: "0.4rem" }}>
-                FEATURED PRODUCTION PROJECTS ({PROJECTS.length})
-              </div>
-              {PROJECTS.map((p) => (
-                <div key={p.id} className="term-card">
-                  <div className="term-card-header">
-                    <div>
-                      <span style={{ color: "var(--t-muted)", marginRight: "0.5rem" }}>
-                        [{p.index}]
-                      </span>
-                      <strong className="term-card-title">{p.title}</strong>
-                      <span style={{ color: "var(--t-muted)", marginLeft: "0.5rem" }}>
-                        — {p.subtitle}
-                      </span>
-                    </div>
-                    <span className="term-card-badge">{p.year} · {p.category}</span>
-                  </div>
-                  <div className="term-card-desc">{p.description}</div>
-                  <div className="term-tag-list">
-                    {p.stack.map((s) => (
-                      <span key={s} className="term-tag">{s}</span>
-                    ))}
-                  </div>
-                  <div className="term-link-row">
-                    {p.liveUrl && (
-                      <a
-                        href={p.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="term-interactive-link"
-                      >
-                        [Live Demo ↗]
-                      </a>
-                    )}
-                    {p.repoUrl && (
-                      <a
-                        href={p.repoUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="term-interactive-link"
-                      >
-                        [Source Code ↗]
-                      </a>
-                    )}
-                    <button
-                      type="button"
-                      className="term-interactive-link"
-                      onClick={() => executeCommandRef.current?.(`project ${p.id}`)}
-                    >
-                      [Details: project {p.id}]
-                    </button>
-                  </div>
-                </div>
-              ))}
-              <div style={{ marginTop: "0.5rem", color: "var(--t-muted)" }}>
-                Type <span style={{ color: "var(--t-prompt)" }}>project &lt;id&gt;</span> (e.g. <code>project img2threejs</code>) for architectural highlights.
-              </div>
-            </div>
-          );
-          break;
-        }
-
-        case "project": {
-          const targetId = args[0]?.toLowerCase();
-          if (!targetId) {
-            outputContent = (
-              <div style={{ color: "var(--t-error)" }}>
-                Usage: project &lt;id&gt; (Available: {PROJECTS.map((p) => p.id).join(", ")})
-              </div>
-            );
-            break;
-          }
-          const found = PROJECTS.find((p) => p.id.toLowerCase() === targetId);
-          if (!found) {
-            outputContent = (
-              <div style={{ color: "var(--t-error)" }}>
-                Project '{targetId}' not found. Available: {PROJECTS.map((p) => p.id).join(", ")}
-              </div>
-            );
-            break;
-          }
-          outputContent = (
-            <div className="term-card">
-              <div className="term-card-header">
-                <div>
-                  <span style={{ color: "var(--t-prompt)", fontWeight: 700, fontSize: "1.1rem" }}>
-                    {found.title}
-                  </span>
-                  <div style={{ color: "var(--t-muted)", fontSize: "0.85rem" }}>
-                    {found.subtitle}
-                  </div>
-                </div>
-                <span className="term-card-badge">{found.year} · {found.category}</span>
-              </div>
-              <p style={{ margin: "0.5rem 0" }}>{found.description}</p>
-              <div style={{ margin: "0.4rem 0" }}>
-                <strong style={{ color: "var(--t-highlight)" }}>Key Highlights:</strong>
-                <ul style={{ paddingLeft: "1.2rem", marginTop: "0.2rem" }}>
-                  {found.highlights.map((h, i) => (
-                    <li key={i}>{h}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="term-tag-list">
-                {found.stack.map((s) => (
-                  <span key={s} className="term-tag">{s}</span>
-                ))}
-              </div>
-              <div className="term-link-row">
-                {found.liveUrl && (
-                  <a
-                    href={found.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="term-interactive-link"
-                  >
-                    Launch Live Demo ↗
-                  </a>
-                )}
-                {found.repoUrl && (
-                  <a
-                    href={found.repoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="term-interactive-link"
-                  >
-                    View GitHub Repo ↗
-                  </a>
-                )}
-              </div>
-            </div>
-          );
-          break;
-        }
-
-        case "skills":
-        case "tech":
-        case "disciplines":
-        case "stack": {
-          outputContent = (
-            <div className="term-output-block">
-              <div style={{ color: "var(--t-prompt)", fontWeight: 700, marginBottom: "0.4rem" }}>
-                CORE DISCIPLINES & TECHNICAL EXPERTISE
-              </div>
-              {DISCIPLINES.map((d) => (
-                <div key={d.number} className="term-card">
-                  <div className="term-card-header">
-                    <span style={{ color: "var(--t-prompt)", fontWeight: 600 }}>
-                      [{d.number}] {d.title}
-                    </span>
-                  </div>
-                  <div className="term-card-desc">{d.summary}</div>
-                  <div className="term-tag-list">
-                    {d.tags.map((t) => (
-                      <span key={t} className="term-tag">{t}</span>
-                    ))}
-                  </div>
-                </div>
-              ))}
             </div>
           );
           break;
@@ -663,7 +393,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
           outputContent = (
             <div className="term-output-block">
               <div style={{ color: "var(--t-prompt)", fontWeight: 700, marginBottom: "0.4rem" }}>
-                DEVELOPER TOOLS BUILT BY ILIASH
+                DEVELOPER TOOLS
               </div>
               <div className="term-card">
                 <div className="term-card-header">
@@ -671,7 +401,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                   <span className="term-card-badge">/tools/spring-tuner</span>
                 </div>
                 <div className="term-card-desc">
-                  Interactive physics-based spring simulator, cubic-bezier visualizer, and UI motion lab.
+                  Interactive curve & UI motion studio
                 </div>
                 <div className="term-link-row">
                   <button
@@ -682,7 +412,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                       else window.location.href = "/tools/spring-tuner";
                     }}
                   >
-                    [Launch Spring Tuner ↗]
+                    [Launch Spring & Easing Tuner ↗]
                   </button>
                 </div>
               </div>
@@ -693,7 +423,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                   <span className="term-card-badge">/tools/palette-studio</span>
                 </div>
                 <div className="term-card-desc">
-                  OKLCH color scale generator with WCAG 2.1 & APCA accessible contrast testing lab.
+                  Color scale generator & WCAG/APCA contrast lab
                 </div>
                 <div className="term-link-row">
                   <button
@@ -704,7 +434,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                       else window.location.href = "/tools/palette-studio";
                     }}
                   >
-                    [Launch Palette Studio ↗]
+                    [Launch Palette & Contrast Studio ↗]
                   </button>
                 </div>
               </div>
@@ -717,7 +447,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
           outputContent = (
             <div className="term-output-block">
               <div style={{ color: "var(--t-prompt)", fontWeight: 700, marginBottom: "0.4rem" }}>
-                INTERACTIVE BROWSER GAMES BUILT BY ILIASH
+                GAMES
               </div>
               <div className="term-card">
                 <div className="term-card-header">
@@ -725,7 +455,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                   <span className="term-card-badge">/games/kinetic-stack</span>
                 </div>
                 <div className="term-card-desc">
-                  3D isometric slice & chord progression tower builder with Web Audio chime harmony.
+                  3D isometric slice & chord progression tower
                 </div>
                 <div className="term-link-row">
                   <button
@@ -743,11 +473,11 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
 
               <div className="term-card">
                 <div className="term-card-header">
-                  <strong className="term-card-title">Orbit Dash</strong>
+                  <strong className="term-card-title">Orbit Dash (Arcade Game)</strong>
                   <span className="term-card-badge">/games/orbit-dash</span>
                 </div>
                 <div className="term-card-desc">
-                  One-button rhythm arcade game featuring dual concentric orbits and obstacle dodging.
+                  One-button rhythm & dual-ring orbit dodge
                 </div>
                 <div className="term-link-row">
                   <button
@@ -772,7 +502,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
           outputContent = (
             <div className="term-card">
               <div className="term-card-header">
-                <span style={{ color: "var(--t-prompt)", fontWeight: 700 }}>DIRECT CONTACT</span>
+                <span style={{ color: "var(--t-prompt)", fontWeight: 700 }}>// DIRECT MESSAGE</span>
                 <span className="term-card-badge">Available for Projects</span>
               </div>
               <div style={{ margin: "0.4rem 0" }}>
@@ -790,28 +520,32 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
               </div>
               <div className="term-link-row">
                 <a
-                  href={`mailto:${PROFILE.email}?subject=Project%20Inquiry%20via%20Terminal`}
+                  href={`mailto:${PROFILE.email}`}
                   className="term-interactive-link"
                 >
-                  [Open in Mail Client ↗]
+                  [Open in Email App ↗]
                 </a>
-                <a
-                  href="https://github.com/iliash-me"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
                   className="term-interactive-link"
+                  onClick={() => {
+                    navigator.clipboard?.writeText(PROFILE.email);
+                    executeCommandRef.current?.("copy");
+                  }}
                 >
-                  [GitHub ↗]
-                </a>
-                <a
-                  href="https://www.facebook.com/iliashhosain"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="term-interactive-link"
-                >
-                  [Facebook ↗]
-                </a>
+                  [Copy Email]
+                </button>
               </div>
+            </div>
+          );
+          break;
+        }
+
+        case "copy": {
+          navigator.clipboard?.writeText(PROFILE.email);
+          outputContent = (
+            <div style={{ color: "var(--t-success)" }}>
+              ✓ Copied {PROFILE.email} to clipboard.
             </div>
           );
           break;
@@ -822,7 +556,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
           outputContent = (
             <div className="term-output-block">
               <div style={{ color: "var(--t-prompt)", fontWeight: 700, marginBottom: "0.4rem" }}>
-                VERIFIED SOCIAL PROFILES
+                SOCIAL LINKS
               </div>
               {PROFILE.socials.map((s) => (
                 <div key={s.id} style={{ margin: "0.25rem 0" }}>
@@ -831,40 +565,14 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                   </span>
                   <a
                     href={s.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target={s.url.startsWith("http") ? "_blank" : undefined}
+                    rel={s.url.startsWith("http") ? "noopener noreferrer" : undefined}
                     className="term-interactive-link"
                   >
-                    {s.handle} ({s.url}) ↗
+                    {s.handle} ↗
                   </a>
                 </div>
               ))}
-            </div>
-          );
-          break;
-        }
-
-        case "resume": {
-          outputContent = (
-            <div className="term-output-block">
-              <div style={{ color: "var(--t-prompt)", fontWeight: 700 }}>
-                RESUME SUMMARY — {PROFILE.name}
-              </div>
-              <div style={{ color: "var(--t-highlight)", margin: "0.2rem 0" }}>
-                {PROFILE.role} · {PROFILE.domain}
-              </div>
-              <p style={{ margin: "0.4rem 0" }}>
-                Specialized in architecting high-performance React applications, zero-dependency design token systems, and interactive 3D WebGL scenes.
-              </p>
-              <div style={{ margin: "0.4rem 0" }}>
-                <strong>Key Focus Areas:</strong>
-                <div>• Modern Web Standards: React 19, TypeScript, Vanilla CSS Tokens</div>
-                <div>• 3D & Graphics: Three.js, Canvas 2D, GLSL Shaders, Physics Engines</div>
-                <div>• Performance & Auditing: 100/100 Core Web Vitals, ARIA Keyboard Accessibility</div>
-              </div>
-              <div style={{ marginTop: "0.4rem" }}>
-                Type <span style={{ color: "var(--t-prompt)" }}>contact</span> to discuss open opportunities or contract work.
-              </div>
             </div>
           );
           break;
@@ -941,17 +649,6 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
           break;
         }
 
-        case "matrix": {
-          const next = !matrixRain;
-          setMatrixRain(next);
-          outputContent = (
-            <div style={{ color: "var(--t-prompt)" }}>
-              {next ? "Digital rain matrix sequence ACTIVATED." : "Matrix simulation TERMINATED."}
-            </div>
-          );
-          break;
-        }
-
         case "open":
         case "goto": {
           const target = args[0]?.toLowerCase();
@@ -963,24 +660,24 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
             );
             break;
           }
-          if (target === "tuner" || target === "spring-tuner") {
+          if (target === "tuner" || target === "spring-tuner" || target === "spring-tuner.sh") {
             outputContent = <div>Opening Spring & Easing Tuner...</div>;
             if (onNavigateTo) onNavigateTo("/tools/spring-tuner");
             else window.location.href = "/tools/spring-tuner";
-          } else if (target === "palette" || target === "palette-studio" || target === "oklch") {
+          } else if (target === "palette" || target === "palette-studio" || target === "palette-studio.sh") {
             outputContent = <div>Opening Palette & Contrast Studio...</div>;
             if (onNavigateTo) onNavigateTo("/tools/palette-studio");
             else window.location.href = "/tools/palette-studio";
-          } else if (target === "kinetic" || target === "kinetic-stack") {
+          } else if (target === "kinetic" || target === "kinetic-stack" || target === "kinetic-stack.exe") {
             outputContent = <div>Launching Kinetic Stack...</div>;
             if (onNavigateTo) onNavigateTo("/games/kinetic-stack");
             else window.location.href = "/games/kinetic-stack";
-          } else if (target === "orbit" || target === "orbit-dash") {
+          } else if (target === "orbit" || target === "orbit-dash" || target === "orbit-dash.exe") {
             outputContent = <div>Launching Orbit Dash...</div>;
             if (onNavigateTo) onNavigateTo("/games/orbit-dash");
             else window.location.href = "/games/orbit-dash";
-          } else if (target === "gui" || target === "portfolio" || target === "home") {
-            outputContent = <div>Returning to GUI portfolio...</div>;
+          } else if (target === "gui" || target === "home") {
+            outputContent = <div>Returning to GUI site...</div>;
             onNavigateHome?.();
           } else if (target === "github") {
             window.open("https://github.com/iliash-me", "_blank", "noopener,noreferrer");
@@ -998,7 +695,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
         case "gui":
         case "exit":
         case "quit": {
-          outputContent = <div>Navigating to graphic portfolio...</div>;
+          outputContent = <div>Navigating to main site...</div>;
           onNavigateHome?.();
           break;
         }
@@ -1007,7 +704,6 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
         case "dir": {
           const targetDir = args[0] || cwd;
           let normalized = targetDir === "." ? cwd : targetDir;
-          if (normalized === "projects") normalized = "~/projects";
           if (normalized === "tools") normalized = "~/tools";
           if (normalized === "games") normalized = "~/games";
 
@@ -1043,14 +739,8 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
 
         case "cd": {
           const target = args[0] || "~";
-          if (target === "~" || target === "") {
+          if (target === "~" || target === "" || target === "..") {
             setCwd("~");
-            outputContent = null;
-          } else if (target === "..") {
-            setCwd("~");
-            outputContent = null;
-          } else if (target === "projects" || target === "~/projects") {
-            setCwd("~/projects");
             outputContent = null;
           } else if (target === "tools" || target === "~/tools") {
             setCwd("~/tools");
@@ -1084,27 +774,12 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
             executeCommandRef.current?.("about");
             return;
           }
-          if (file === "skills.txt") {
-            executeCommandRef.current?.("skills");
-            return;
-          }
           if (file === "contact.txt") {
             executeCommandRef.current?.("contact");
             return;
           }
-          if (file === "resume.txt") {
-            executeCommandRef.current?.("resume");
-            return;
-          }
           if (file === "socials.txt") {
             executeCommandRef.current?.("socials");
-            return;
-          }
-          // Check if project markdown file
-          const cleanId = file.replace(/\.md$/, "");
-          const p = PROJECTS.find((proj) => proj.id === cleanId);
-          if (p) {
-            executeCommandRef.current?.(`project ${p.id}`);
             return;
           }
           outputContent = (
@@ -1126,27 +801,6 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
           break;
         }
 
-        case "weather": {
-          outputContent = (
-            <div className="term-output-block">
-              <pre className="term-ascii" style={{ color: "var(--t-warning)" }}>
-{`   \\  /       Dhaka, Bangladesh
- _ /""\\ _     Condition: Clear & Humid
-   \\__/       Temperature: 28°C / 82°F
-   /  \\       Wind: 6 km/h SSW · Humidity: 65%`}
-              </pre>
-            </div>
-          );
-          break;
-        }
-
-        case "quote":
-        case "fortune": {
-          const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-          outputContent = <div style={{ fontStyle: "italic", color: "var(--t-highlight)" }}>{q}</div>;
-          break;
-        }
-
         case "echo": {
           outputContent = <div>{args.join(" ")}</div>;
           break;
@@ -1161,48 +815,6 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                   <span>{h}</span>
                 </div>
               ))}
-            </div>
-          );
-          break;
-        }
-
-        case "sudo": {
-          playTerminalSound("bell", soundEnabled);
-          outputContent = (
-            <div style={{ color: "var(--t-error)" }}>
-              guest is not in the sudoers file. This incident will be reported to santa.
-            </div>
-          );
-          break;
-        }
-
-        case "ping": {
-          const host = args[0] || PROFILE.domain;
-          outputContent = (
-            <div className="term-output-block">
-              <div>PING {host} (104.21.78.11): 56 data bytes</div>
-              <div>64 bytes from 104.21.78.11: icmp_seq=0 ttl=58 time=14.2 ms</div>
-              <div>64 bytes from 104.21.78.11: icmp_seq=1 ttl=58 time=12.8 ms</div>
-              <div>64 bytes from 104.21.78.11: icmp_seq=2 ttl=58 time=13.1 ms</div>
-              <div style={{ color: "var(--t-success)", marginTop: "0.2rem" }}>
-                --- {host} ping statistics: 3 packets transmitted, 3 received, 0% packet loss ---
-              </div>
-            </div>
-          );
-          break;
-        }
-
-        case "curl": {
-          const url = args[0] || `https://${PROFILE.domain}`;
-          outputContent = (
-            <div className="term-output-block">
-              <div>HTTP/2 200 OK</div>
-              <div>server: cloudflare</div>
-              <div>content-type: text/html; charset=utf-8</div>
-              <div>cache-control: public, max-age=3600</div>
-              <div style={{ color: "var(--t-success)", marginTop: "0.2rem" }}>
-                ✓ Connected to {url} (status: 200 OK, latency: 18ms)
-              </div>
             </div>
           );
           break;
@@ -1230,7 +842,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
         }
       ]);
     },
-    [cwd, soundEnabled, history, theme, crtEnabled, matrixRain, onNavigateHome, onNavigateTo, startTime]
+    [cwd, soundEnabled, history, theme, crtEnabled, onNavigateHome, onNavigateTo, startTime]
   );
 
   useEffect(() => {
@@ -1247,28 +859,20 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
       "about",
       "bio",
       "whoami",
-      "projects",
-      "project",
-      "skills",
-      "tech",
-      "stack",
-      "disciplines",
       "tools",
       "games",
       "contact",
       "email",
+      "copy",
       "socials",
-      "resume",
+      "links",
       "neofetch",
       "fetch",
       "theme",
       "crt",
       "sound",
-      "matrix",
-      "weather",
       "time",
       "date",
-      "quote",
       "open",
       "goto",
       "gui",
@@ -1279,10 +883,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
       "pwd",
       "history",
       "clear",
-      "echo",
-      "sudo",
-      "ping",
-      "curl"
+      "echo"
     ];
 
     if (parts.length === 1) {
@@ -1314,9 +915,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
       const arg = parts[1].toLowerCase();
 
       let candidateList = [];
-      if (sub === "project") {
-        candidateList = PROJECTS.map((p) => p.id);
-      } else if (sub === "theme") {
+      if (sub === "theme") {
         candidateList = THEMES;
       } else if (sub === "open") {
         candidateList = ["tuner", "palette", "kinetic", "orbit", "gui", "github"];
@@ -1411,9 +1010,6 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
       {crtEnabled && <div className="term-crt-overlay" aria-hidden="true" />}
       {crtEnabled && <div className="term-crt-vignette" aria-hidden="true" />}
 
-      {/* Falling Matrix Rain Canvas */}
-      {matrixRain && <canvas ref={canvasRef} className="term-matrix-canvas" />}
-
       {/* Top Header Bar */}
       <header className="term-header">
         <div className="term-header-left">
@@ -1486,7 +1082,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
             onClick={onNavigateHome}
             title="Exit terminal mode and return to GUI"
           >
-            ← GUI Portfolio
+            ← GUI Site
           </button>
         </div>
       </header>
@@ -1563,20 +1159,6 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
           <button
             type="button"
             className="term-dock-chip"
-            onClick={() => executeCommand("projects")}
-          >
-            projects
-          </button>
-          <button
-            type="button"
-            className="term-dock-chip"
-            onClick={() => executeCommand("skills")}
-          >
-            skills
-          </button>
-          <button
-            type="button"
-            className="term-dock-chip"
             onClick={() => executeCommand("tools")}
           >
             tools
@@ -1598,9 +1180,9 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
           <button
             type="button"
             className="term-dock-chip"
-            onClick={() => executeCommand("matrix")}
+            onClick={() => executeCommand("socials")}
           >
-            matrix
+            socials
           </button>
           <button
             type="button"
