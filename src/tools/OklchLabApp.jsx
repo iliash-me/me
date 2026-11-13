@@ -111,6 +111,69 @@ function getApcaLc(textLum, bgLum) {
   return Math.round(Math.abs(raw));
 }
 
+// Convert #RRGGBB or #RGB to OKLCH { L, C, H }
+function hexToOklch(hexStr) {
+  const clean = hexStr.trim().replace(/^#/, "");
+  let fullHex = clean;
+  if (clean.length === 3) {
+    fullHex = clean
+      .split("")
+      .map((ch) => ch + ch)
+      .join("");
+  }
+  if (!/^[0-9a-fA-F]{6}$/.test(fullHex)) return null;
+
+  const r8 = parseInt(fullHex.slice(0, 2), 16) / 255;
+  const g8 = parseInt(fullHex.slice(2, 4), 16) / 255;
+  const b8 = parseInt(fullHex.slice(4, 6), 16) / 255;
+
+  const toLinear = (c) => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+  const r = toLinear(r8);
+  const g = toLinear(g8);
+  const b = toLinear(b8);
+
+  const l = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b;
+  const m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b;
+  const s = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b;
+
+  const l_ = Math.cbrt(l);
+  const m_ = Math.cbrt(m);
+  const s_ = Math.cbrt(s);
+
+  const L = 0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_;
+  const a = 1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_;
+  const bOk = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_;
+
+  const C = Math.sqrt(a * a + bOk * bOk);
+  const H = ((Math.atan2(bOk, a) * 180) / Math.PI + 360) % 360;
+
+  return {
+    L: Math.max(0.05, Math.min(0.99, L)),
+    C: Math.max(0, Math.min(0.32, C)),
+    H: Math.round(H),
+    hex: `#${fullHex.toUpperCase()}`
+  };
+}
+
+const DEFAULT_LIGHTNESS_MAP = {
+  standard: [0.975, 0.94, 0.88, 0.8, 0.71, 0.62, 0.53, 0.44, 0.35, 0.25, 0.17],
+  high: [0.985, 0.95, 0.89, 0.81, 0.72, 0.62, 0.52, 0.42, 0.32, 0.22, 0.13],
+  soft: [0.96, 0.92, 0.86, 0.78, 0.7, 0.62, 0.54, 0.46, 0.38, 0.3, 0.22]
+};
+
+function getChromaFactor(t, curveMode) {
+  if (curveMode === "parabolic") {
+    return Math.sin(Math.PI * Math.pow(t, 0.88)) * 0.92 + 0.08;
+  }
+  if (curveMode === "vivid") {
+    return Math.sin(Math.PI * t) * 0.78 + 0.28;
+  }
+  if (curveMode === "pastel") {
+    return (Math.sin(Math.PI * t) * 0.6 + 0.15) * 0.65;
+  }
+  return 0.75;
+}
+
 export default function OklchLabApp({ onNavigateHome }) {
   const [paletteName, setPaletteName] = useState("cobalt");
   const [hue, setHue] = useState(258);
@@ -118,6 +181,11 @@ export default function OklchLabApp({ onNavigateHome }) {
   const [hueShift, setHueShift] = useState(-6);
   const [curveMode, setCurveMode] = useState("parabolic");
   const [contrastSpan, setContrastSpan] = useState("standard");
+
+  // Base color + anchor stop state
+  const [baseStop, setBaseStop] = useState(500);
+  const [anchorL, setAnchorL] = useState(null); // When set, pins baseStop lightness to anchorL
+  const [hexInput, setHexInput] = useState(() => oklchToSrgb(0.62, 0.19, 258).hex);
 
   const [selectedStep, setSelectedStep] = useState(500);
   const [compareBgStep, setCompareBgStep] = useState(50);
@@ -134,32 +202,88 @@ export default function OklchLabApp({ onNavigateHome }) {
     setPeakChroma(preset.chroma);
     setHueShift(preset.shift);
     setCurveMode(preset.curve);
+    setBaseStop(500);
+    setAnchorL(null);
+    setSelectedStep(500);
+    setHexInput(oklchToSrgb(0.62, preset.chroma, preset.hue).hex);
+  };
+
+  // Apply a user-entered Base Color and anchor it to targetStop
+  const applyBaseColorHex = (rawHex, targetStop = baseStop) => {
+    setHexInput(rawHex);
+    const parsed = hexToOklch(rawHex);
+    if (!parsed) return;
+
+    const stopIdx = SCALE_STEPS.indexOf(targetStop);
+    const tAnchor = stopIdx >= 0 ? stopIdx / (SCALE_STEPS.length - 1) : 0.5;
+    const factorAtAnchor = Math.max(0.12, getChromaFactor(tAnchor, curveMode));
+
+    setPaletteName("custom");
+    setHue(parsed.H);
+    setPeakChroma(Math.min(0.32, parsed.C / factorAtAnchor));
+    setAnchorL(parsed.L);
+    setSelectedStep(targetStop);
+  };
+
+  const handleBaseStopChange = (newStop) => {
+    const numericStop = Number(newStop);
+    setBaseStop(numericStop);
+    setSelectedStep(numericStop);
+    const parsed = hexToOklch(hexInput);
+    if (parsed) {
+      const stopIdx = SCALE_STEPS.indexOf(numericStop);
+      const tAnchor = stopIdx >= 0 ? stopIdx / (SCALE_STEPS.length - 1) : 0.5;
+      const factorAtAnchor = Math.max(0.12, getChromaFactor(tAnchor, curveMode));
+      setPeakChroma(Math.min(0.32, parsed.C / factorAtAnchor));
+      setAnchorL(parsed.L);
+    }
+  };
+
+  const handleAutoDetectStop = () => {
+    const parsed = hexToOklch(hexInput);
+    if (!parsed) return;
+    const refLightness = DEFAULT_LIGHTNESS_MAP[contrastSpan];
+    let bestIdx = 5;
+    let minDiff = Infinity;
+    refLightness.forEach((lVal, idx) => {
+      const diff = Math.abs(lVal - parsed.L);
+      if (diff < minDiff) {
+        minDiff = diff;
+        bestIdx = idx;
+      }
+    });
+    const bestStop = SCALE_STEPS[bestIdx];
+    setBaseStop(bestStop);
+    applyBaseColorHex(parsed.hex, bestStop);
   };
 
   const scale = useMemo(() => {
-    const baseLightness = {
-      standard: [0.975, 0.94, 0.88, 0.8, 0.71, 0.62, 0.53, 0.44, 0.35, 0.25, 0.17],
-      high: [0.985, 0.95, 0.89, 0.81, 0.72, 0.62, 0.52, 0.42, 0.32, 0.22, 0.13],
-      soft: [0.96, 0.92, 0.86, 0.78, 0.7, 0.62, 0.54, 0.46, 0.38, 0.3, 0.22]
-    }[contrastSpan];
+    const baseLightness = DEFAULT_LIGHTNESS_MAP[contrastSpan];
+    const anchorIdx = SCALE_STEPS.indexOf(baseStop);
+    const tAnchor = anchorIdx >= 0 ? anchorIdx / (SCALE_STEPS.length - 1) : 0.5;
 
     return SCALE_STEPS.map((step, idx) => {
       const t = idx / (SCALE_STEPS.length - 1);
-      const L = baseLightness[idx];
 
-      let chromaFactor = 1;
-      if (curveMode === "parabolic") {
-        chromaFactor = Math.sin(Math.PI * Math.pow(t, 0.88)) * 0.92 + 0.08;
-      } else if (curveMode === "vivid") {
-        chromaFactor = Math.sin(Math.PI * t) * 0.78 + 0.28;
-      } else if (curveMode === "pastel") {
-        chromaFactor = (Math.sin(Math.PI * t) * 0.6 + 0.15) * 0.65;
-      } else {
-        chromaFactor = 0.75;
+      // Compute lightness L, smoothly interpolated around anchorL at anchorIdx if set
+      let L = baseLightness[idx];
+      if (anchorL !== null && anchorIdx >= 0) {
+        if (idx === anchorIdx) {
+          L = anchorL;
+        } else if (idx < anchorIdx) {
+          const maxL = Math.max(baseLightness[0], Math.min(0.99, anchorL + 0.04));
+          const ratio = idx / anchorIdx;
+          L = maxL - ratio * (maxL - anchorL);
+        } else {
+          const minL = Math.min(baseLightness[SCALE_STEPS.length - 1], Math.max(0.06, anchorL - 0.04));
+          const ratio = (idx - anchorIdx) / (SCALE_STEPS.length - 1 - anchorIdx);
+          L = anchorL - ratio * (anchorL - minL);
+        }
       }
 
+      const chromaFactor = getChromaFactor(t, curveMode);
       const rawC = Math.max(0, peakChroma * chromaFactor);
-      const stepHue = (hue + (t - 0.5) * 2 * hueShift + 360) % 360;
+      const stepHue = (hue + (t - tAnchor) * 2 * hueShift + 360) % 360;
       const color = getGamutSafeOklch(L, rawC, stepHue);
       const oklchCss = `oklch(${(color.L * 100).toFixed(1)}% ${color.C.toFixed(3)} ${color.H.toFixed(1)})`;
       const rgbCss = `rgb(${color.r}, ${color.g}, ${color.b})`;
@@ -171,7 +295,7 @@ export default function OklchLabApp({ onNavigateHome }) {
         rgbCss
       };
     });
-  }, [hue, peakChroma, hueShift, curveMode, contrastSpan]);
+  }, [hue, peakChroma, hueShift, curveMode, contrastSpan, baseStop, anchorL]);
 
   const scaleMap = useMemo(() => {
     const map = {};
@@ -183,6 +307,7 @@ export default function OklchLabApp({ onNavigateHome }) {
 
   const activeStop = scaleMap[selectedStep] || scale[5];
   const bgStop = scaleMap[compareBgStep] || scale[0];
+  const currentBaseStopColor = scaleMap[baseStop] || scale[5];
 
   const activeWcag = getWcagContrast(activeStop.luminance, bgStop.luminance);
   const activeApca = getApcaLc(activeStop.luminance, bgStop.luminance);
@@ -311,6 +436,7 @@ export default function OklchLabApp({ onNavigateHome }) {
               const whiteRatio = getWcagContrast(s.luminance, 1.0);
               const darkRatio = getWcagContrast(s.luminance, scaleMap[950].luminance);
               const displayRatio = isDarkTile ? whiteRatio : darkRatio;
+              const isBaseAnchor = baseStop === s.step;
 
               return (
                 <button
@@ -324,7 +450,10 @@ export default function OklchLabApp({ onNavigateHome }) {
                   onClick={() => handleCopySwatch(s)}
                 >
                   <div className="swatch-tile-top">
-                    <span className="swatch-step-num">{s.step}</span>
+                    <span className="swatch-step-num">
+                      {s.step}
+                      {isBaseAnchor && <span className="swatch-base-pin" title="Base stop">●</span>}
+                    </span>
                     <span className="swatch-contrast-tag">{displayRatio.toFixed(1)}:1</span>
                   </div>
                   <div className="swatch-tile-bottom">
@@ -343,8 +472,67 @@ export default function OklchLabApp({ onNavigateHome }) {
 
         {/* 2. Middle Two-Column Workbench */}
         <div className="oklch-workbench-grid">
-          {/* LEFT: Scale Parameters + Selected Stop Readout */}
+          {/* LEFT: Base Color + Scale Parameters + Selected Stop Readout */}
           <section className="oklch-card oklch-controls-card" aria-label="Scale parameters">
+            {/* Base Color & Stop Generator Box */}
+            <div className="base-color-generator-box">
+              <div className="base-gen-header">
+                <span className="oklch-section-label">Base Color & Stop</span>
+                <button
+                  type="button"
+                  className="base-auto-btn"
+                  onClick={handleAutoDetectStop}
+                  title="Automatically assign this color to its closest natural lightness stop"
+                >
+                  Auto-Fit Stop
+                </button>
+              </div>
+
+              <div className="base-gen-controls">
+                <label className="base-color-picker-wrap" title="Pick base color">
+                  <input
+                    type="color"
+                    id="base-color-native-picker"
+                    value={currentBaseStopColor.hex}
+                    onChange={(e) => applyBaseColorHex(e.target.value, baseStop)}
+                    aria-label="Pick base color"
+                  />
+                  <span
+                    className="base-color-swatch-preview"
+                    style={{ backgroundColor: currentBaseStopColor.hex }}
+                  />
+                </label>
+
+                <input
+                  type="text"
+                  id="base-color-hex-input"
+                  className="base-hex-input"
+                  value={hexInput}
+                  onChange={(e) => applyBaseColorHex(e.target.value, baseStop)}
+                  placeholder="#2563EB"
+                  maxLength={7}
+                  aria-label="Base color HEX"
+                />
+
+                <div className="base-stop-select-wrap">
+                  <span className="base-stop-prefix">Stop</span>
+                  <select
+                    id="base-color-stop-select"
+                    className="base-stop-select"
+                    value={baseStop}
+                    onChange={(e) => handleBaseStopChange(e.target.value)}
+                    aria-label="Assign base color to stop"
+                  >
+                    {SCALE_STEPS.map((st) => (
+                      <option key={st} value={st}>
+                        {st}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
             <div className="oklch-card-head">
               <span className="oklch-section-label">Parameters</span>
               <div className="oklch-curve-pills">
@@ -375,8 +563,10 @@ export default function OklchLabApp({ onNavigateHome }) {
                   step="1"
                   value={hue}
                   onChange={(e) => {
+                    const nextH = Number(e.target.value);
                     setPaletteName("custom");
-                    setHue(Number(e.target.value));
+                    setHue(nextH);
+                    setHexInput(oklchToSrgb(currentBaseStopColor.L, currentBaseStopColor.C, nextH).hex);
                   }}
                 />
               </label>
@@ -393,8 +583,9 @@ export default function OklchLabApp({ onNavigateHome }) {
                   step="0.005"
                   value={peakChroma}
                   onChange={(e) => {
+                    const nextC = Number(e.target.value);
                     setPaletteName("custom");
-                    setPeakChroma(Number(e.target.value));
+                    setPeakChroma(nextC);
                   }}
                 />
               </label>

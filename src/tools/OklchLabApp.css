@@ -231,6 +231,14 @@
 .swatch-step-num {
   font-size: 0.7rem;
   font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+}
+
+.swatch-base-pin {
+  font-size: 0.5rem;
+  opacity: 0.85;
 }
 
 .swatch-contrast-tag {
@@ -272,6 +280,120 @@
   display: flex;
   flex-direction: column;
   gap: 0.95rem;
+}
+
+/* Base Color & Stop Generator */
+.base-color-generator-box {
+  background-color: #fafaf9;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.base-gen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.base-auto-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: #52525b;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  transition: all 0.15s ease;
+}
+
+.base-auto-btn:hover {
+  color: #111315;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.base-gen-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.base-color-picker-wrap {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.base-color-picker-wrap input[type="color"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.base-color-swatch-preview {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.base-hex-input {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 0 0.6rem;
+  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #111315;
+  text-transform: uppercase;
+}
+
+.base-hex-input:focus {
+  outline: none;
+  border-color: #111315;
+}
+
+.base-stop-select-wrap {
+  height: 34px;
+  padding: 0 0.55rem;
+  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.base-stop-prefix {
+  font-size: 0.7rem;
+  color: #6b7280;
+}
+
+.base-stop-select {
+  border: none;
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #111315;
+  cursor: pointer;
+  outline: none;
 }
 
 .oklch-card-head {
