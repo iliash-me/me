@@ -154,35 +154,120 @@ function createInitialHexaTiles(boardRadius) {
   }));
 }
 
+// LocalStorage Persistence Helpers for Game Progress & Lifetime Stats
+function loadHexaProgress(modeId) {
+  try {
+    const raw = localStorage.getItem(`iliash_hexa_progress_${modeId}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && Array.isArray(parsed.tiles) && parsed.tiles.length > 0) {
+      return parsed;
+    }
+  } catch {
+    // Ignore storage parse errors
+  }
+  return null;
+}
+
+function saveHexaProgress(modeId, progress) {
+  try {
+    if (!progress) {
+      localStorage.removeItem(`iliash_hexa_progress_${modeId}`);
+    } else {
+      localStorage.setItem(`iliash_hexa_progress_${modeId}`, JSON.stringify(progress));
+    }
+  } catch {
+    // Ignore storage quota errors
+  }
+}
+
+function loadHexaStats() {
+  try {
+    const raw = localStorage.getItem("iliash_hexa_stats");
+    return raw ? JSON.parse(raw) : { gamesPlayed: 0, totalMerges: 0, highestTile: 2 };
+  } catch {
+    return { gamesPlayed: 0, totalMerges: 0, highestTile: 2 };
+  }
+}
+
+function updateHexaStats(mergesDelta = 0, newTileValue = 0, gamesPlayedDelta = 0) {
+  try {
+    const stats = loadHexaStats();
+    stats.gamesPlayed = (stats.gamesPlayed || 0) + gamesPlayedDelta;
+    stats.totalMerges = (stats.totalMerges || 0) + mergesDelta;
+    if (newTileValue > (stats.highestTile || 2)) {
+      stats.highestTile = newTileValue;
+    }
+    localStorage.setItem("iliash_hexa_stats", JSON.stringify(stats));
+    return stats;
+  } catch {
+    return null;
+  }
+}
+
 export default function HexaMergeApp({ onNavigateHome }) {
-  const [mode, setMode] = useState("classic");
-  const [sfxEnabled, setSfxEnabled] = useState(true);
-  const [score, setScore] = useState(0);
+  // Restore preferred difficulty mode from localStorage
+  const [mode, setMode] = useState(() => {
+    try {
+      const saved = localStorage.getItem("iliash_hexa_mode");
+      if (saved && MODES.some((m) => m.id === saved)) return saved;
+    } catch {
+      // ignore
+    }
+    return "classic";
+  });
+
+  // Restore audio preference from localStorage
+  const [sfxEnabled, setSfxEnabled] = useState(() => {
+    try {
+      const saved = localStorage.getItem("iliash_hexa_sfx");
+      return saved !== null ? saved === "true" : true;
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleSfx = () => {
+    setSfxEnabled((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("iliash_hexa_sfx", String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
+  const currentConfig = MODES.find((m) => m.id === mode) || MODES[1];
+  const radius = currentConfig.radius;
+
+  // Restore saved in-progress board if available
+  const savedInit = loadHexaProgress(mode);
+
+  const [score, setScore] = useState(() => (savedInit ? savedInit.score || 0 : 0));
   const [bestScore, setBestScore] = useState(() => {
     try {
-      const saved = localStorage.getItem("iliash_hexa_best_classic");
+      const saved = localStorage.getItem(`iliash_hexa_best_${mode}`);
       return saved ? parseInt(saved, 10) : 0;
     } catch {
       return 0;
     }
   });
-  const [combo, setCombo] = useState(0);
-  const [gameState, setGameState] = useState("playing"); // 'playing' | 'gameover' | 'won'
-  const [canUndo, setCanUndo] = useState(false);
+  const [combo, setCombo] = useState(() => (savedInit ? savedInit.combo || 0 : 0));
+  const [gameState, setGameState] = useState(() => (savedInit ? savedInit.gameState || "playing" : "playing"));
+  const [canUndo, setCanUndo] = useState(() => Boolean(savedInit?.canUndo));
 
   const canvasRef = useRef(null);
   const boardCardRef = useRef(null);
   const appRef = useRef(null);
   const { isFullscreen, toggleFullscreen } = useGameFullscreen(appRef);
 
-  const currentConfig = MODES.find((m) => m.id === mode) || MODES[1];
-  const radius = currentConfig.radius;
-
   // Tile structure: { id, q, r, value, currentX, currentY, targetX, targetY, scale: 0..1, isNew, isMerged }
   const gameRef = useRef({
-    tiles: createInitialHexaTiles(radius),
-    history: null,
-    nextTileId: 3,
+    tiles: savedInit ? savedInit.tiles : createInitialHexaTiles(radius),
+    history: savedInit?.history || null,
+    nextTileId: savedInit ? Math.max(...savedInit.tiles.map((t) => t.id || 0), 1) + 1 : 3,
     dragStart: null,
     lastTime: 0
   });
@@ -208,9 +293,9 @@ export default function HexaMergeApp({ onNavigateHome }) {
     return tile;
   }, []);
 
-  // Initialize a fresh board
+  // Initialize a fresh board & clear in-progress storage for this mode
   const resetGame = useCallback(
-    (targetRadius = radius) => {
+    (targetRadius = radius, targetMode = mode) => {
       const initialTiles = createInitialHexaTiles(targetRadius);
       gameRef.current.nextTileId = initialTiles.length + 1;
       gameRef.current.tiles = initialTiles;
@@ -220,20 +305,46 @@ export default function HexaMergeApp({ onNavigateHome }) {
       setCombo(0);
       setGameState("playing");
       setCanUndo(false);
+
+      // Persist fresh board & record games played stat
+      saveHexaProgress(targetMode, {
+        tiles: initialTiles,
+        score: 0,
+        combo: 0,
+        canUndo: false,
+        history: null,
+        gameState: "playing"
+      });
+      updateHexaStats(0, 0, 1);
     },
-    [radius]
+    [radius, mode]
   );
 
   const handleSelectMode = (newMode) => {
     setMode(newMode);
     try {
+      localStorage.setItem("iliash_hexa_mode", newMode);
       const saved = localStorage.getItem(`iliash_hexa_best_${newMode}`);
       setBestScore(saved ? parseInt(saved, 10) : 0);
     } catch {
       setBestScore(0);
     }
+
+    // Check if player has an active in-progress board for the selected mode
+    const progress = loadHexaProgress(newMode);
     const targetConfig = MODES.find((m) => m.id === newMode) || MODES[1];
-    resetGame(targetConfig.radius);
+
+    if (progress && progress.tiles?.length > 0) {
+      gameRef.current.tiles = progress.tiles;
+      gameRef.current.history = progress.history || null;
+      gameRef.current.nextTileId = Math.max(...progress.tiles.map((t) => t.id || 0), 1) + 1;
+      setScore(progress.score || 0);
+      setCombo(progress.combo || 0);
+      setCanUndo(Boolean(progress.canUndo));
+      setGameState(progress.gameState || "playing");
+    } else {
+      resetGame(targetConfig.radius, newMode);
+    }
   };
 
   // Check if any valid move remains
@@ -373,29 +484,64 @@ export default function HexaMergeApp({ onNavigateHome }) {
         return nextBest;
       });
 
+      const nextCombo = roundMerges > 0 ? combo + roundMerges : 0;
+
+      // Update lifetime merges and highest tile reached
+      const highestInMove = Math.max(...nextTiles.map((t) => t.value));
+      updateHexaStats(roundMerges, highestInMove, 0);
+
       // Check win or game over
+      let nextGameState = gameState;
       const has2048 = nextTiles.some((t) => t.value >= 2048);
       if (has2048 && gameState !== "won") {
+        nextGameState = "won";
         setGameState("won");
       } else if (checkGameOver(nextTiles, radius)) {
         playHexaSound("gameover", 0, 0, sfxEnabled);
+        nextGameState = "gameover";
         setGameState("gameover");
+        saveHexaProgress(mode, null); // Clear saved in-progress board on game over
+      }
+
+      // Persist active in-progress board if still playing or won
+      if (nextGameState !== "gameover") {
+        saveHexaProgress(mode, {
+          tiles: nextTiles.map((t) => ({ id: t.id, q: t.q, r: t.r, value: t.value })),
+          score: newScore,
+          combo: nextCombo,
+          canUndo: true,
+          history: previousState,
+          gameState: nextGameState
+        });
       }
     },
-    [gameState, score, radius, sfxEnabled, mode, spawnTile]
+    [gameState, score, combo, radius, sfxEnabled, mode, spawnTile]
   );
 
   // Undo move
-  const handleUndo = () => {
+  const handleUndo = useCallback(() => {
     const g = gameRef.current;
     if (!g.history) return;
 
     g.tiles = g.history.tiles;
-    setScore(g.history.score);
+    const restoredScore = g.history.score;
+    const restoredCombo = g.history.combo || 0;
+    setScore(restoredScore);
+    setCombo(restoredCombo);
     g.history = null;
     setCanUndo(false);
     setGameState("playing");
-  };
+
+    // Persist undone board state to localStorage
+    saveHexaProgress(mode, {
+      tiles: g.tiles.map((t) => ({ id: t.id, q: t.q, r: t.r, value: t.value })),
+      score: restoredScore,
+      combo: restoredCombo,
+      canUndo: false,
+      history: null,
+      gameState: "playing"
+    });
+  }, [mode]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -433,7 +579,7 @@ export default function HexaMergeApp({ onNavigateHome }) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [move, resetGame]);
+  }, [move, resetGame, handleUndo]);
 
   // Touch and Mouse Drag / Swipe Handlers
   const handlePointerDown = (e) => {
@@ -679,7 +825,7 @@ export default function HexaMergeApp({ onNavigateHome }) {
             type="button"
             id="toggle-sfx-btn"
             className="hexa-audio-btn"
-            onClick={() => setSfxEnabled((prev) => !prev)}
+            onClick={toggleSfx}
             aria-label={sfxEnabled ? "Mute sound effects" : "Enable sound effects"}
           >
             {sfxEnabled ? "SFX On" : "Muted"}
@@ -795,6 +941,20 @@ export default function HexaMergeApp({ onNavigateHome }) {
                     </span>
                   </div>
                 </div>
+
+                {(() => {
+                  const st = loadHexaStats();
+                  if (st.highestTile > 2 || st.totalMerges > 0) {
+                    return (
+                      <div style={{ display: "flex", gap: "0.5rem", fontSize: "0.72rem", color: "#71717a", fontFamily: "'JetBrains Mono', monospace" }}>
+                        <span>Peak Tile: <strong style={{ color: "#111315" }}>{st.highestTile}</strong></span>
+                        <span>•</span>
+                        <span>Merges: <strong style={{ color: "#111315" }}>{st.totalMerges}</strong></span>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
 
                 <button
                   type="button"

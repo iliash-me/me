@@ -151,15 +151,72 @@ function createInitialGameState() {
   };
 }
 
+// LocalStorage Persistence Helpers for Kinetic Stack
+function loadStackStats() {
+  try {
+    const raw = localStorage.getItem("iliash_stack_stats");
+    return raw ? JSON.parse(raw) : { totalLayers: 0, totalPerfects: 0, maxCombo: 0, gamesPlayed: 0 };
+  } catch {
+    return { totalLayers: 0, totalPerfects: 0, maxCombo: 0, gamesPlayed: 0 };
+  }
+}
+
+function updateStackStats(layersDelta = 0, perfectsDelta = 0, comboReached = 0, gamesPlayedDelta = 0) {
+  try {
+    const stats = loadStackStats();
+    stats.totalLayers = (stats.totalLayers || 0) + layersDelta;
+    stats.totalPerfects = (stats.totalPerfects || 0) + perfectsDelta;
+    stats.gamesPlayed = (stats.gamesPlayed || 0) + gamesPlayedDelta;
+    if (comboReached > (stats.maxCombo || 0)) {
+      stats.maxCombo = comboReached;
+    }
+    localStorage.setItem("iliash_stack_stats", JSON.stringify(stats));
+    return stats;
+  } catch {
+    return null;
+  }
+}
+
 export default function KineticStackApp({ onNavigateHome }) {
-  const [mode, setMode] = useState("classic");
-  const [sfxEnabled, setSfxEnabled] = useState(true);
+  // Restore difficulty mode from localStorage
+  const [mode, setMode] = useState(() => {
+    try {
+      const saved = localStorage.getItem("iliash_stack_mode");
+      if (saved && MODES.some((m) => m.id === saved)) return saved;
+    } catch {
+      // ignore
+    }
+    return "classic";
+  });
+
+  // Restore audio preference from localStorage
+  const [sfxEnabled, setSfxEnabled] = useState(() => {
+    try {
+      const saved = localStorage.getItem("iliash_stack_sfx");
+      return saved !== null ? saved === "true" : true;
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleSfx = () => {
+    setSfxEnabled((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("iliash_stack_sfx", String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [gameState, setGameState] = useState("idle"); // 'idle' | 'playing' | 'gameover'
   const [bestScore, setBestScore] = useState(() => {
     try {
-      const saved = localStorage.getItem("iliash_stack_best_classic");
+      const saved = localStorage.getItem(`iliash_stack_best_${mode}`);
       return saved ? parseInt(saved, 10) : 0;
     } catch {
       return 0;
@@ -174,6 +231,7 @@ export default function KineticStackApp({ onNavigateHome }) {
   const handleSelectMode = (newMode) => {
     setMode(newMode);
     try {
+      localStorage.setItem("iliash_stack_mode", newMode);
       const saved = localStorage.getItem(`iliash_stack_best_${newMode}`);
       setBestScore(saved ? parseInt(saved, 10) : 0);
     } catch {
@@ -331,6 +389,7 @@ export default function KineticStackApp({ onNavigateHome }) {
 
         playStackSound("gameover", 0, sfxEnabled);
         setGameState("gameover");
+        updateStackStats(0, 0, 0, 1);
 
         setBestScore((prevBest) => {
           const newBest = Math.max(prevBest, g.blocks.length - 1);
@@ -386,6 +445,22 @@ export default function KineticStackApp({ onNavigateHome }) {
 
     const newScore = g.blocks.length - 1;
     setScore(newScore);
+
+    // Save best score immediately if higher
+    setBestScore((prevBest) => {
+      const nextBest = Math.max(prevBest, newScore);
+      if (nextBest > prevBest) {
+        try {
+          localStorage.setItem(`iliash_stack_best_${mode}`, String(nextBest));
+        } catch {
+          // ignore
+        }
+      }
+      return nextBest;
+    });
+
+    // Update lifetime statistics
+    updateStackStats(1, isPerfect ? 1 : 0, nextCombo, 0);
 
     // Update camera smooth tracking
     g.targetCameraY = newScore * BLOCK_HEIGHT;
@@ -688,7 +763,7 @@ export default function KineticStackApp({ onNavigateHome }) {
             type="button"
             id="toggle-sfx-btn"
             className="stack-audio-btn"
-            onClick={() => setSfxEnabled((prev) => !prev)}
+            onClick={toggleSfx}
             aria-label={sfxEnabled ? "Mute sound effects" : "Enable sound effects"}
           >
             {sfxEnabled ? "SFX On" : "Muted"}
@@ -786,6 +861,20 @@ export default function KineticStackApp({ onNavigateHome }) {
                     </span>
                   </div>
                 </div>
+
+                {(() => {
+                  const st = loadStackStats();
+                  if (st.totalLayers > 0) {
+                    return (
+                      <div style={{ display: "flex", gap: "0.5rem", fontSize: "0.72rem", color: "#71717a", fontFamily: "'JetBrains Mono', monospace", margin: "0.15rem 0" }}>
+                        <span>Peak Combo: <strong style={{ color: "#111315" }}>{st.maxCombo}</strong></span>
+                        <span>•</span>
+                        <span>Total Stacked: <strong style={{ color: "#111315" }}>{st.totalLayers}</strong></span>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
 
                 <div className="stack-gameover-actions">
                   <button

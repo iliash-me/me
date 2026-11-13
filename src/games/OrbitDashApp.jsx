@@ -73,9 +73,66 @@ function normalizeAngleDiff(a, b) {
   return diff;
 }
 
+// LocalStorage Persistence Helpers for Orbit Dash
+function loadOrbitStats() {
+  try {
+    const raw = localStorage.getItem("iliash_orbit_stats");
+    return raw ? JSON.parse(raw) : { totalLaps: 0, totalOrbs: 0, maxCombo: 1, gamesPlayed: 0 };
+  } catch {
+    return { totalLaps: 0, totalOrbs: 0, maxCombo: 1, gamesPlayed: 0 };
+  }
+}
+
+function updateOrbitStats(lapsDelta = 0, orbsDelta = 0, comboReached = 1, gamesPlayedDelta = 0) {
+  try {
+    const stats = loadOrbitStats();
+    stats.totalLaps = (stats.totalLaps || 0) + lapsDelta;
+    stats.totalOrbs = (stats.totalOrbs || 0) + orbsDelta;
+    stats.gamesPlayed = (stats.gamesPlayed || 0) + gamesPlayedDelta;
+    if (comboReached > (stats.maxCombo || 1)) {
+      stats.maxCombo = comboReached;
+    }
+    localStorage.setItem("iliash_orbit_stats", JSON.stringify(stats));
+    return stats;
+  } catch {
+    return null;
+  }
+}
+
 export default function OrbitDashApp({ onNavigateHome }) {
-  const [modeId, setModeId] = useState("arcade");
-  const [soundOn, setSoundOn] = useState(true);
+  // Restore difficulty mode preference from localStorage
+  const [modeId, setModeId] = useState(() => {
+    try {
+      const saved = localStorage.getItem("iliash_orbit_mode");
+      if (saved && MODES.some((m) => m.id === saved)) return saved;
+    } catch {
+      // ignore
+    }
+    return "arcade";
+  });
+
+  // Restore audio preference from localStorage
+  const [soundOn, setSoundOn] = useState(() => {
+    try {
+      const saved = localStorage.getItem("iliash_orbit_sound");
+      return saved !== null ? saved === "true" : true;
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleSound = () => {
+    setSoundOn((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("iliash_orbit_sound", String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
   const [gameState, setGameState] = useState("ready"); // ready | playing | gameover
   const [score, setScore] = useState(0);
   const [laps, setLaps] = useState(0);
@@ -92,15 +149,18 @@ export default function OrbitDashApp({ onNavigateHome }) {
   const canvasRef = useRef(null);
   const appRef = useRef(null);
   const { isFullscreen, toggleFullscreen } = useGameFullscreen(appRef);
+
+  const initialMode = MODES.find((m) => m.id === modeId) || MODES[1];
+
   const stateRef = useRef({
     status: "ready",
-    mode: MODES[1],
+    mode: initialMode,
     angle: -Math.PI / 2,
     totalAngle: 0,
     side: 1, // 1 = outer track, -1 = inner track
     radiusLerp: 1, // smooth spring interpolation between -1 and 1
     radiusVel: 0,
-    speed: MODES[1].baseSpeed,
+    speed: initialMode.baseSpeed,
     score: 0,
     laps: 0,
     combo: 1,
@@ -297,6 +357,7 @@ export default function OrbitDashApp({ onNavigateHome }) {
           setScore(st.score);
           saveBestScore(st.score);
           playSynthSound("lap", soundOn);
+          updateOrbitStats(1, 0, st.combo, 0);
 
           st.popups.push({
             x: 0,
@@ -343,6 +404,7 @@ export default function OrbitDashApp({ onNavigateHome }) {
               setGameState("gameover");
               saveBestScore(st.score);
               playSynthSound("crash", soundOn);
+              updateOrbitStats(0, 0, st.combo, 1);
 
               for (let k = 0; k < 26; k++) {
                 const a = Math.random() * Math.PI * 2;
@@ -401,6 +463,7 @@ export default function OrbitDashApp({ onNavigateHome }) {
               setCombo(st.combo);
               saveBestScore(st.score);
               playSynthSound("pickup", soundOn);
+              updateOrbitStats(0, 1, st.combo, 0);
 
               const orbR = ringR + orb.side * trackOffset;
               const ox = Math.cos(orb.angle) * orbR;
@@ -619,6 +682,11 @@ export default function OrbitDashApp({ onNavigateHome }) {
 
   const handleModeSwitch = (mode) => {
     setModeId(mode.id);
+    try {
+      localStorage.setItem("iliash_orbit_mode", mode.id);
+    } catch {
+      // ignore
+    }
     stateRef.current.mode = mode;
     stateRef.current.status = "ready";
     stateRef.current.score = 0;
@@ -681,7 +749,7 @@ export default function OrbitDashApp({ onNavigateHome }) {
             type="button"
             id="orbit-sound-pill"
             className={`orbit-sound-pill ${soundOn ? "is-active" : ""}`}
-            onClick={() => setSoundOn((s) => !s)}
+            onClick={toggleSound}
           >
             <span className="sound-dot" />
             <span>{soundOn ? "SFX On" : "Muted"}</span>
@@ -782,6 +850,17 @@ export default function OrbitDashApp({ onNavigateHome }) {
                 <span className="overlay-kicker">CRASHED AT LAP {laps + 1}</span>
                 <p className="overlay-instruction">
                   Final Score: <strong>{score}</strong> · Tap or press <kbd>Space</kbd> to retry
+                  {(() => {
+                    const st = loadOrbitStats();
+                    if (st.totalLaps > 0) {
+                      return (
+                        <span style={{ display: "inline-block", marginLeft: "0.5rem", color: "#6b7280" }}>
+                          (Total Laps: <strong>{st.totalLaps}</strong> · Max Combo: <strong>x{st.maxCombo}</strong>)
+                        </span>
+                      );
+                    }
+                    return null;
+                  })()}
                 </p>
               </div>
             )}
