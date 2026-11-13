@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { PROFILE } from "../data/portfolioData";
 
-export default function CommandPalette({ isOpen, onClose, theme, onToggleTheme, onCopyEmail }) {
+export default function CommandPalette({
+  isOpen,
+  onClose,
+  theme,
+  onToggleTheme,
+  onCopyEmail,
+  onOpenContactSheet
+}) {
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -25,38 +32,18 @@ export default function CommandPalette({ isOpen, onClose, theme, onToggleTheme, 
 
   const actions = [
     {
-      id: "cmd-disciplines",
-      group: "Navigation",
-      label: "View Engineering Disciplines",
-      shortcut: "02",
-      action: () => {
-        document.getElementById("disciplines")?.scrollIntoView({ behavior: "smooth" });
-        onClose();
-      }
-    },
-    {
       id: "cmd-contact",
-      group: "Navigation",
-      label: "Initiate Dialogue / Contact",
-      shortcut: "03",
+      group: "Contact",
+      label: "Open Contact Sheet",
+      shortcut: "M",
       action: () => {
-        document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
         onClose();
-      }
-    },
-    {
-      id: "cmd-theme",
-      group: "Preferences",
-      label: `Switch to ${theme === "dark" ? "Light (Warm Paper)" : "Dark (Obsidian Ink)"} Theme`,
-      shortcut: "T",
-      action: () => {
-        onToggleTheme();
-        onClose();
+        onOpenContactSheet();
       }
     },
     {
       id: "cmd-copy-email",
-      group: "Direct Action",
+      group: "Contact",
       label: `Copy Email (${PROFILE.email})`,
       shortcut: "C",
       action: () => {
@@ -65,8 +52,18 @@ export default function CommandPalette({ isOpen, onClose, theme, onToggleTheme, 
       }
     },
     {
+      id: "cmd-theme",
+      group: "Theme",
+      label: `Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`,
+      shortcut: "T",
+      action: () => {
+        onToggleTheme();
+        onClose();
+      }
+    },
+    {
       id: "cmd-github",
-      group: "Profile",
+      group: "Social",
       label: "Open GitHub (@iliash-me)",
       shortcut: "↗",
       action: () => {
@@ -88,7 +85,7 @@ export default function CommandPalette({ isOpen, onClose, theme, onToggleTheme, 
       role="dialog"
       aria-modal="true"
       aria-label="Command Palette"
-      onClick={onClose}
+      onClick={() => onClose()}
     >
       <div className="cmd-modal" onClick={(e) => e.stopPropagation()}>
         <div className="cmd-input-row">
@@ -97,7 +94,7 @@ export default function CommandPalette({ isOpen, onClose, theme, onToggleTheme, 
             id="command-palette-search"
             type="text"
             className="cmd-input"
-            placeholder="Type a command or section..."
+            placeholder="Type a command..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
