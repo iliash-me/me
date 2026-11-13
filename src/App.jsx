@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { PROFILE } from "./data/portfolioData";
 import CommandPalette from "./components/CommandPalette";
@@ -26,6 +26,8 @@ export default function App() {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
+  const toolsDropdownRef = useRef(null);
   const [localTime, setLocalTime] = useState("");
   const [selectedTopic, setSelectedTopic] = useState(INQUIRY_TOPICS[0]);
   const [senderName, setSenderName] = useState("");
@@ -54,7 +56,7 @@ export default function App() {
     const metaTheme = document.querySelector('meta[name="theme-color"]');
     if (metaTheme) {
       if (route === "/tools/spring-tuner") {
-        metaTheme.setAttribute("content", "#15171b");
+        metaTheme.setAttribute("content", "#f5f5f3");
       } else {
         metaTheme.setAttribute("content", theme === "dark" ? "#0B0D11" : "#F6F4EF");
       }
@@ -82,15 +84,25 @@ export default function App() {
 
   useEffect(() => {
     const handleEsc = (e) => {
-      if (e.key === "Escape" && contactOpen) {
-        setContactOpen(false);
+      if (e.key === "Escape") {
+        if (contactOpen) setContactOpen(false);
+        if (toolsMenuOpen) setToolsMenuOpen(false);
+      }
+    };
+    const handleClickOutside = (e) => {
+      if (toolsDropdownRef.current && !toolsDropdownRef.current.contains(e.target)) {
+        setToolsMenuOpen(false);
       }
     };
     window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, [contactOpen]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [contactOpen, toolsMenuOpen]);
 
-  // If on /tools/spring-tuner route, render standalone tool with its own Hardware Synth vibe
+  // If on /tools/spring-tuner route, render standalone tool with its own vibe
   if (route === "/tools/spring-tuner") {
     return <SpringTunerApp onNavigateHome={() => navigateTo("/")} />;
   }
@@ -106,11 +118,13 @@ export default function App() {
   };
 
   const openTunerRoute = () => {
+    setToolsMenuOpen(false);
     setContactOpen(false);
     navigateTo("/tools/spring-tuner");
   };
 
   const openContact = () => {
+    setToolsMenuOpen(false);
     setContactOpen(true);
   };
 
@@ -206,17 +220,40 @@ export default function App() {
           </a>
 
           <div className="topbar-actions">
-            <a
-              href="/tools/spring-tuner"
-              id="nav-open-tuner-btn"
-              className="action-chip"
-              onClick={(e) => {
-                e.preventDefault();
-                openTunerRoute();
-              }}
-            >
-              <span>Spring Tuner ↗</span>
-            </a>
+            <div className="tools-dropdown-wrap" ref={toolsDropdownRef}>
+              <button
+                type="button"
+                id="nav-tools-dropdown-btn"
+                className={`action-chip tools-dropdown-trigger ${toolsMenuOpen ? "is-open" : ""}`}
+                aria-expanded={toolsMenuOpen}
+                aria-haspopup="menu"
+                onClick={() => setToolsMenuOpen((prev) => !prev)}
+              >
+                <span>Tools</span>
+                <span className="tools-caret" aria-hidden="true">▾</span>
+              </button>
+
+              {toolsMenuOpen && (
+                <div className="tools-dropdown-menu" role="menu" aria-label="Developer tools">
+                  <a
+                    href="/tools/spring-tuner"
+                    id="dropdown-spring-tuner-link"
+                    role="menuitem"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openTunerRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Spring & Easing Tuner</span>
+                      <span className="tools-dropdown-item-sub">Interactive curve & UI motion studio</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                </div>
+              )}
+            </div>
 
             <button
               type="button"
@@ -298,31 +335,6 @@ export default function App() {
                   <span aria-hidden="true">↗</span>
                 </a>
               </div>
-
-              {/* Minimal Interactive Micro-Tool Route Card */}
-              <a
-                href="/tools/spring-tuner"
-                id="launch-tuner-strip-link"
-                className="micro-tool-launcher"
-                onClick={(e) => {
-                  e.preventDefault();
-                  openTunerRoute();
-                }}
-              >
-                <div className="micro-tool-left">
-                  <span className="micro-tool-tag">TOOL 01</span>
-                  <div>
-                    <div className="micro-tool-name">CSS Spring & Easing Synthesizer</div>
-                    <div className="micro-tool-desc">
-                      Standalone oscilloscope & realistic UI test bench at <code>/tools/spring-tuner</code>
-                    </div>
-                  </div>
-                </div>
-                <span className="micro-tool-open-btn">
-                  <span>Open Tool</span>
-                  <span aria-hidden="true">→</span>
-                </span>
-              </a>
             </div>
 
             {/* Minimal Profile Card */}
