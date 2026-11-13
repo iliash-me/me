@@ -1,11 +1,11 @@
 {
   "name": "me",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && mkdir -p assets && cp -r dist/assets/* assets/ && cp public/zoho-domain-verification.html ./",
     "lint": "oxlint",
     "preview": "vite preview"
   },
