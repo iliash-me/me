@@ -17,7 +17,6 @@ export default function App() {
     return window.matchMedia?.("(prefers-color-scheme: light)").matches ? "light" : "dark";
   });
 
-  const [inspectMode, setInspectMode] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [localTime, setLocalTime] = useState("");
@@ -175,73 +174,38 @@ export default function App() {
               </div>
             </div>
 
-            {/* Right Column: Interactive Architect Dossier Card */}
-            <aside className="hero-dossier-col" aria-label="Developer dossier and live specification">
+            {/* Right Column: Architect Dossier Card */}
+            <aside className="hero-dossier-col" aria-label="Developer dossier">
               <div className="dossier-card">
                 <div className="dossier-card-top">
-                  <span className="dossier-label">
-                    {inspectMode ? "SPEC // DOM & TOKEN TELEMETRY" : "DOSSIER // ARCHITECT PROFILE"}
-                  </span>
-                  <button
-                    type="button"
-                    id="toggle-dossier-inspect-btn"
-                    className="dossier-toggle-btn"
-                    onClick={() => setInspectMode((m) => !m)}
-                  >
-                    {inspectMode ? "View Profile" : "Inspect Specs"}
-                  </button>
+                  <span className="dossier-label">DOSSIER // ARCHITECT PROFILE</span>
                 </div>
 
-                {!inspectMode ? (
-                  <div className="dossier-profile-body">
-                    <div className="dossier-identity-row">
-                      <img
-                        src={PROFILE.avatar}
-                        alt="Iliash Hosain portrait"
-                        className="dossier-avatar"
-                        width="72"
-                        height="72"
-                      />
-                      <div>
-                        <div className="dossier-name">{PROFILE.name}</div>
-                        <div className="dossier-role">{PROFILE.role}</div>
-                        <div className="dossier-handle">github.com/{PROFILE.handle}</div>
-                      </div>
+                <div className="dossier-profile-body">
+                  <div className="dossier-identity-row">
+                    <img
+                      src={PROFILE.avatar}
+                      alt="Iliash Hosain portrait"
+                      className="dossier-avatar"
+                      width="72"
+                      height="72"
+                    />
+                    <div>
+                      <div className="dossier-name">{PROFILE.name}</div>
+                      <div className="dossier-role">{PROFILE.role}</div>
+                      <div className="dossier-handle">github.com/{PROFILE.handle}</div>
                     </div>
+                  </div>
 
-                    <dl className="dossier-metrics-list">
-                      {PROFILE.metrics.map((m) => (
-                        <div key={m.label} className="dossier-metric-item">
-                          <dt>{m.label}</dt>
-                          <dd>{m.value}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </div>
-                ) : (
-                  <div className="dossier-spec-body">
-                    <div className="spec-row">
-                      <span>Active Surface Palette</span>
-                      <code>{theme === "dark" ? "Obsidian Ink (#0B0D11)" : "Warm Paper (#F6F4EF)"}</code>
-                    </div>
-                    <div className="spec-row">
-                      <span>Typography System</span>
-                      <code>Plus Jakarta Sans + Instrument Serif</code>
-                    </div>
-                    <div className="spec-row">
-                      <span>Runtime Stack</span>
-                      <code>React 19 · Vite · Vanilla CSS Tokens</code>
-                    </div>
-                    <div className="spec-row">
-                      <span>Motion Curve</span>
-                      <code>cubic-bezier(0.16, 1, 0.3, 1)</code>
-                    </div>
-                    <div className="spec-row">
-                      <span>Layout Grid</span>
-                      <code>1180px Fluid Asymmetric Split</code>
-                    </div>
-                  </div>
-                )}
+                  <dl className="dossier-metrics-list">
+                    {PROFILE.metrics.map((m) => (
+                      <div key={m.label} className="dossier-metric-item">
+                        <dt>{m.label}</dt>
+                        <dd>{m.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
 
                 <div className="dossier-card-footer">
                   <span>STATUS: AVAILABLE FOR SELECT ROLES & PROJECTS</span>
