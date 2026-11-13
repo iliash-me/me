@@ -41,6 +41,8 @@ export default function App() {
   const [contactOpen, setContactOpen] = useState(false);
   const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
   const toolsDropdownRef = useRef(null);
+  const [gamesMenuOpen, setGamesMenuOpen] = useState(false);
+  const gamesDropdownRef = useRef(null);
   const [localTime, setLocalTime] = useState("");
   const [selectedTopic, setSelectedTopic] = useState(INQUIRY_TOPICS[0]);
   const [senderName, setSenderName] = useState("");
@@ -102,11 +104,15 @@ export default function App() {
       if (e.key === "Escape") {
         if (contactOpen) setContactOpen(false);
         if (toolsMenuOpen) setToolsMenuOpen(false);
+        if (gamesMenuOpen) setGamesMenuOpen(false);
       }
     };
     const handleClickOutside = (e) => {
       if (toolsDropdownRef.current && !toolsDropdownRef.current.contains(e.target)) {
         setToolsMenuOpen(false);
+      }
+      if (gamesDropdownRef.current && !gamesDropdownRef.current.contains(e.target)) {
+        setGamesMenuOpen(false);
       }
     };
     window.addEventListener("keydown", handleEsc);
@@ -115,7 +121,7 @@ export default function App() {
       window.removeEventListener("keydown", handleEsc);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [contactOpen, toolsMenuOpen]);
+  }, [contactOpen, toolsMenuOpen, gamesMenuOpen]);
 
   // Render standalone tools and games with their own dedicated vibes
   if (route === "/tools/spring-tuner") {
@@ -140,24 +146,28 @@ export default function App() {
 
   const openTunerRoute = () => {
     setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
     setContactOpen(false);
     navigateTo("/tools/spring-tuner");
   };
 
   const openOklchRoute = () => {
     setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
     setContactOpen(false);
     navigateTo("/tools/palette-studio");
   };
 
   const openOrbitDashRoute = () => {
     setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
     setContactOpen(false);
     navigateTo("/games/orbit-dash");
   };
 
   const openContact = () => {
     setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
     setContactOpen(true);
   };
 
@@ -253,6 +263,7 @@ export default function App() {
           </a>
 
           <div className="topbar-actions">
+            {/* Tools Dropdown */}
             <div className="tools-dropdown-wrap" ref={toolsDropdownRef}>
               <button
                 type="button"
@@ -260,7 +271,10 @@ export default function App() {
                 className={`action-chip tools-dropdown-trigger ${toolsMenuOpen ? "is-open" : ""}`}
                 aria-expanded={toolsMenuOpen}
                 aria-haspopup="menu"
-                onClick={() => setToolsMenuOpen((prev) => !prev)}
+                onClick={() => {
+                  setToolsMenuOpen((prev) => !prev);
+                  setGamesMenuOpen(false);
+                }}
               >
                 <span>Tools</span>
                 <span className="tools-caret" aria-hidden="true">▾</span>
@@ -301,7 +315,29 @@ export default function App() {
                     </div>
                     <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
                   </a>
+                </div>
+              )}
+            </div>
 
+            {/* Games Dropdown */}
+            <div className="tools-dropdown-wrap" ref={gamesDropdownRef}>
+              <button
+                type="button"
+                id="nav-games-dropdown-btn"
+                className={`action-chip tools-dropdown-trigger ${gamesMenuOpen ? "is-open" : ""}`}
+                aria-expanded={gamesMenuOpen}
+                aria-haspopup="menu"
+                onClick={() => {
+                  setGamesMenuOpen((prev) => !prev);
+                  setToolsMenuOpen(false);
+                }}
+              >
+                <span>Games</span>
+                <span className="tools-caret" aria-hidden="true">▾</span>
+              </button>
+
+              {gamesMenuOpen && (
+                <div className="tools-dropdown-menu" role="menu" aria-label="Games">
                   <a
                     href="/games/orbit-dash"
                     id="dropdown-orbit-dash-link"
@@ -344,12 +380,50 @@ export default function App() {
             <button
               type="button"
               id="theme-toggle-btn"
-              className="action-chip theme-switch-btn"
+              className="action-chip theme-icon-btn"
               onClick={handleToggleTheme}
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             >
-              <span className="theme-indicator-dot" />
-              <span>{theme === "dark" ? "Dark" : "Light"}</span>
+              {theme === "dark" ? (
+                <svg
+                  className="theme-svg-icon"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 2v2" />
+                  <path d="M12 20v2" />
+                  <path d="m4.93 4.93 1.41 1.41" />
+                  <path d="m17.66 17.66 1.41 1.41" />
+                  <path d="M2 12h2" />
+                  <path d="M20 12h2" />
+                  <path d="m6.34 17.66-1.41 1.41" />
+                  <path d="m19.07 4.93-1.41 1.41" />
+                </svg>
+              ) : (
+                <svg
+                  className="theme-svg-icon"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                </svg>
+              )}
             </button>
           </div>
         </div>

@@ -117,7 +117,31 @@
   background-color: var(--accent-warm);
 }
 
-/* Tools Dropdown Menu */
+.theme-icon-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.theme-icon-btn:hover {
+  color: var(--text-primary);
+}
+
+.theme-svg-icon {
+  display: block;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.2s ease;
+}
+
+.theme-icon-btn:hover .theme-svg-icon {
+  transform: rotate(18deg) scale(1.08);
+}
+
+/* Tools & Games Dropdown Menu */
 .tools-dropdown-wrap {
   position: relative;
 }
@@ -143,6 +167,7 @@
   top: calc(100% + 8px);
   right: 0;
   min-width: 240px;
+  max-width: calc(100vw - 2rem);
   background-color: var(--surface-1);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
@@ -1456,6 +1481,28 @@
   .sheet-primary-btn {
     flex: 1;
     min-width: 0;
+  }
+}
+
+@media (max-width: 580px) {
+  .brand-clock {
+    display: none;
+  }
+
+  .topbar-actions {
+    gap: 0.35rem;
+  }
+
+  .action-chip {
+    height: 32px;
+    padding: 0 0.55rem;
+    font-size: 0.74rem;
+  }
+
+  .theme-icon-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
   }
 }
 
