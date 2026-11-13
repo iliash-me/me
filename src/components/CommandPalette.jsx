@@ -7,7 +7,8 @@ export default function CommandPalette({
   theme,
   onToggleTheme,
   onCopyEmail,
-  onOpenContactSheet
+  onOpenContactSheet,
+  onOpenTunerSheet
 }) {
   const [query, setQuery] = useState("");
 
@@ -31,6 +32,16 @@ export default function CommandPalette({
   if (!isOpen) return null;
 
   const actions = [
+    {
+      id: "cmd-easing-tuner",
+      group: "Tools",
+      label: "Open CSS Spring & Easing Tuner",
+      shortcut: "E",
+      action: () => {
+        onClose();
+        onOpenTunerSheet();
+      }
+    },
     {
       id: "cmd-contact",
       group: "Contact",
@@ -94,7 +105,7 @@ export default function CommandPalette({
             id="command-palette-search"
             type="text"
             className="cmd-input"
-            placeholder="Type a command..."
+            placeholder="Type a command or tool..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus

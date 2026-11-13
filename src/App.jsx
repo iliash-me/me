@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { PROFILE } from "./data/portfolioData";
 import CommandPalette from "./components/CommandPalette";
+import SpringEasingTunerSheet from "./components/SpringEasingTunerSheet";
 
 const INQUIRY_TOPICS = ["Web App / UI", "Design System", "3D / Creative", "General Inquiry"];
 
@@ -15,12 +16,15 @@ export default function App() {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const [tunerOpen, setTunerOpen] = useState(() => {
+    return window.location.hash === "#easing" || window.location.hash === "#tools";
+  });
   const [localTime, setLocalTime] = useState("");
   const [selectedTopic, setSelectedTopic] = useState(INQUIRY_TOPICS[0]);
   const [senderName, setSenderName] = useState("");
   const [senderEmail, setSenderEmail] = useState("");
   const [customNote, setCustomNote] = useState("");
-  const [submitStatus, setSubmitStatus] = useState("idle"); // "idle" | "sending" | "success" | "error"
+  const [submitStatus, setSubmitStatus] = useState("idle");
   const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
@@ -53,13 +57,14 @@ export default function App() {
 
   useEffect(() => {
     const handleEsc = (e) => {
-      if (e.key === "Escape" && contactOpen) {
-        setContactOpen(false);
+      if (e.key === "Escape") {
+        if (contactOpen) setContactOpen(false);
+        if (tunerOpen) setTunerOpen(false);
       }
     };
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [contactOpen]);
+  }, [contactOpen, tunerOpen]);
 
   const handleToggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
@@ -69,6 +74,16 @@ export default function App() {
     navigator.clipboard?.writeText(PROFILE.email);
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 2000);
+  };
+
+  const openTuner = () => {
+    setContactOpen(false);
+    setTunerOpen(true);
+  };
+
+  const openContact = () => {
+    setTunerOpen(false);
+    setContactOpen(true);
   };
 
   const GOOGLE_SCRIPT_URL =
@@ -116,7 +131,6 @@ export default function App() {
         );
       }
     } catch {
-      // Fallback with no-cors in case strict browser tracking prevention blocks the 302 redirect read
       try {
         await fetch(GOOGLE_SCRIPT_URL, {
           method: "POST",
@@ -166,9 +180,18 @@ export default function App() {
           <div className="topbar-actions">
             <button
               type="button"
+              id="nav-open-tuner-btn"
+              className="action-chip"
+              onClick={openTuner}
+            >
+              <span>Easing Tuner</span>
+            </button>
+
+            <button
+              type="button"
               id="nav-open-contact-btn"
               className="action-chip"
-              onClick={() => setContactOpen(true)}
+              onClick={openContact}
             >
               <span>Contact</span>
             </button>
@@ -218,7 +241,7 @@ export default function App() {
                   type="button"
                   id="hero-open-contact-sheet-btn"
                   className="btn-primary"
-                  onClick={() => setContactOpen(true)}
+                  onClick={openContact}
                 >
                   <span>Get in Touch</span>
                   <span aria-hidden="true">→</span>
@@ -243,6 +266,31 @@ export default function App() {
                   <span>GitHub</span>
                   <span aria-hidden="true">↗</span>
                 </a>
+              </div>
+
+              {/* Minimal Interactive Micro-Tool Launcher Strip */}
+              <div className="micro-tool-launcher" onClick={openTuner}>
+                <div className="micro-tool-left">
+                  <span className="micro-tool-tag">TOOL 01</span>
+                  <div>
+                    <div className="micro-tool-name">CSS Spring & Easing Tuner</div>
+                    <div className="micro-tool-desc">
+                      Test <code>cubic-bezier()</code> curves on realistic Toast, Modal, Dropdown & Tab UI components
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  id="launch-tuner-strip-btn"
+                  className="micro-tool-open-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openTuner();
+                  }}
+                >
+                  <span>Launch Tool</span>
+                  <span aria-hidden="true">↑</span>
+                </button>
               </div>
             </div>
 
@@ -288,7 +336,7 @@ export default function App() {
                     type="button"
                     id="dossier-open-sheet-btn"
                     className="dossier-footer-link"
-                    onClick={() => setContactOpen(true)}
+                    onClick={openContact}
                   >
                     Message →
                   </button>
@@ -322,7 +370,7 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Bottom Slide-Up Contact Sheet (Persistent in DOM for smooth enter & exit transitions) */}
+      {/* Bottom Slide-Up Contact Sheet */}
       <div
         className={`sheet-backdrop ${contactOpen ? "is-open" : ""}`}
         role="dialog"
@@ -482,6 +530,12 @@ export default function App() {
         </aside>
       </div>
 
+      {/* Bottom Slide-Up CSS Spring & Easing Tuner Sheet */}
+      <SpringEasingTunerSheet
+        isOpen={tunerOpen}
+        onClose={() => setTunerOpen(false)}
+      />
+
       {/* Keyboard-Accessible Command Palette Modal */}
       <CommandPalette
         isOpen={cmdOpen}
@@ -489,7 +543,8 @@ export default function App() {
         theme={theme}
         onToggleTheme={handleToggleTheme}
         onCopyEmail={handleCopyEmail}
-        onOpenContactSheet={() => setContactOpen(true)}
+        onOpenContactSheet={openContact}
+        onOpenTunerSheet={openTuner}
       />
     </div>
   );
