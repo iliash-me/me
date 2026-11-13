@@ -267,6 +267,74 @@
 @keyframes hexaComboPop {
   0% { transform: scale(0.85); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
+/* Non-blocking 2048 Milestone Celebration Banner */
+.hexa-milestone-banner {
+  position: absolute;
+  top: 4.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.4rem 0.85rem;
+  background-color: #ffffff;
+  border: 1px solid rgba(255, 79, 24, 0.25);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px -4px rgba(255, 79, 24, 0.16), 0 2px 8px rgba(0, 0, 0, 0.04);
+  z-index: 15;
+  animation: hexaMilestoneSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+  white-space: nowrap;
+}
+
+@keyframes hexaMilestoneSlide {
+  0% { transform: translate(-50%, -10px); opacity: 0; }
+  100% { transform: translate(-50%, 0); opacity: 1; }
+}
+
+.hexa-milestone-content {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.76rem;
+}
+
+.hexa-milestone-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.hexa-milestone-text {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #111315;
+}
+
+.hexa-milestone-text strong {
+  color: #ff4f18;
+  font-weight: 700;
+}
+
+.hexa-milestone-text span {
+  color: #71717a;
+  font-size: 0.72rem;
+}
+
+.hexa-milestone-dismiss {
+  background: none;
+  border: none;
+  color: #a1a1aa;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.3rem;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: color 0.15s ease;
+  line-height: 1;
+}
+
+.hexa-milestone-dismiss:hover {
+  color: #111315;
 }
 
 /* Game Over / Win Overlay */
@@ -422,6 +490,14 @@
   }
   .hexa-fullscreen-btn {
     padding: 0.32rem 0.45rem;
+  }
+  .hexa-milestone-banner {
+    top: 3.75rem;
+    padding: 0.35rem 0.65rem;
+    max-width: 90%;
+  }
+  .hexa-milestone-text span {
+    display: none;
   }
 }
 

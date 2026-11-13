@@ -257,6 +257,8 @@ export default function HexaMergeApp({ onNavigateHome }) {
   const [combo, setCombo] = useState(() => (savedInit ? savedInit.combo || 0 : 0));
   const [gameState, setGameState] = useState(() => (savedInit ? savedInit.gameState || "playing" : "playing"));
   const [canUndo, setCanUndo] = useState(() => Boolean(savedInit?.canUndo));
+  const [hasWon2048, setHasWon2048] = useState(() => Boolean(savedInit?.hasWon2048));
+  const [showMilestone, setShowMilestone] = useState(false);
 
   const canvasRef = useRef(null);
   const boardCardRef = useRef(null);
@@ -274,19 +276,6 @@ export default function HexaMergeApp({ onNavigateHome }) {
     lastTime: 0
   });
 
-  // Handle continuing to play beyond 2048 milestone
-  const handleContinuePlaying = useCallback(() => {
-    setGameState("playing");
-    saveHexaProgress(mode, {
-      tiles: gameRef.current.tiles.map((t) => ({ id: t.id, q: t.q, r: t.r, value: t.value })),
-      score,
-      combo,
-      canUndo,
-      history: gameRef.current.history,
-      gameState: "playing"
-    });
-  }, [mode, score, combo, canUndo]);
-
   // Ensure initial fresh board is saved on mount and auto-save on page unload/unmount
   useEffect(() => {
     const existing = loadHexaProgress(mode);
@@ -297,7 +286,8 @@ export default function HexaMergeApp({ onNavigateHome }) {
         combo,
         canUndo,
         history: gameRef.current.history,
-        gameState
+        gameState,
+        hasWon2048
       });
     }
 
@@ -310,7 +300,8 @@ export default function HexaMergeApp({ onNavigateHome }) {
           combo,
           canUndo,
           history: g.history,
-          gameState
+          gameState,
+          hasWon2048
         });
       }
     };
@@ -320,7 +311,7 @@ export default function HexaMergeApp({ onNavigateHome }) {
       window.removeEventListener("beforeunload", handleBeforeUnload);
       handleBeforeUnload();
     };
-  }, [mode, score, combo, canUndo, gameState]);
+  }, [mode, score, combo, canUndo, gameState, hasWon2048]);
 
   // Spawn random tile (2 with 90% probability, 4 with 10%)
   const spawnTile = useCallback((tilesList, boardRadius) => {
@@ -355,6 +346,8 @@ export default function HexaMergeApp({ onNavigateHome }) {
       setCombo(0);
       setGameState("playing");
       setCanUndo(false);
+      setHasWon2048(false);
+      setShowMilestone(false);
 
       // Persist fresh board & record games played stat
       saveHexaProgress(targetMode, {
@@ -363,7 +356,8 @@ export default function HexaMergeApp({ onNavigateHome }) {
         combo: 0,
         canUndo: false,
         history: null,
-        gameState: "playing"
+        gameState: "playing",
+        hasWon2048: false
       });
       updateHexaStats(0, 0, 1);
     },
@@ -392,6 +386,8 @@ export default function HexaMergeApp({ onNavigateHome }) {
       setCombo(progress.combo || 0);
       setCanUndo(Boolean(progress.canUndo));
       setGameState(progress.gameState || "playing");
+      setHasWon2048(Boolean(progress.hasWon2048));
+      setShowMilestone(false);
     } else {
       resetGame(targetConfig.radius, newMode);
     }
@@ -540,29 +536,37 @@ export default function HexaMergeApp({ onNavigateHome }) {
       const highestInMove = Math.max(...nextTiles.map((t) => t.value));
       updateHexaStats(roundMerges, highestInMove, 0);
 
-      // Check win or game over
-      let nextGameState = gameState;
-      const has2048 = nextTiles.some((t) => t.value >= 2048);
-      if (has2048 && gameState !== "won") {
-        nextGameState = "won";
-        setGameState("won");
-      } else if (checkGameOver(nextTiles, radius)) {
+      // Check 2048 milestone celebration (displayed once, never blocks gameplay)
+      let newlyWon = false;
+      const has2048Now = nextTiles.some((t) => t.value >= 2048);
+      if (has2048Now && !hasWon2048) {
+        setHasWon2048(true);
+        setShowMilestone(true);
+        newlyWon = true;
+        playHexaSound("merge", 2048, 4, sfxEnabled);
+        setTimeout(() => setShowMilestone(false), 5000);
+      }
+
+      // Check game over (only when no valid moves remain)
+      let nextGameState = gameState === "won" ? "playing" : gameState;
+      if (checkGameOver(nextTiles, radius)) {
         playHexaSound("gameover", 0, 0, sfxEnabled);
         nextGameState = "gameover";
         setGameState("gameover");
       }
 
-      // Persist active board state (persists high score and final board even on game over)
+      // Persist active board state
       saveHexaProgress(mode, {
         tiles: nextTiles.map((t) => ({ id: t.id, q: t.q, r: t.r, value: t.value })),
         score: newScore,
         combo: nextCombo,
         canUndo: nextGameState === "playing",
         history: previousState,
-        gameState: nextGameState
+        gameState: nextGameState,
+        hasWon2048: hasWon2048 || newlyWon
       });
     },
-    [gameState, score, combo, radius, sfxEnabled, mode, spawnTile]
+    [gameState, score, combo, radius, sfxEnabled, mode, spawnTile, hasWon2048]
   );
 
   // Undo move
@@ -586,9 +590,10 @@ export default function HexaMergeApp({ onNavigateHome }) {
       combo: restoredCombo,
       canUndo: false,
       history: null,
-      gameState: "playing"
+      gameState: "playing",
+      hasWon2048
     });
-  }, [mode]);
+  }, [mode, hasWon2048]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -975,16 +980,37 @@ export default function HexaMergeApp({ onNavigateHome }) {
             </div>
           )}
 
-          {/* Game Over / Win Modal Overlay */}
-          {gameState !== "playing" && (
+          {/* 2048 Milestone Celebration Banner (Non-blocking) */}
+          {showMilestone && (
+            <div className="hexa-milestone-banner" role="status" aria-live="polite">
+              <div className="hexa-milestone-content">
+                <span className="hexa-milestone-icon">🏆</span>
+                <div className="hexa-milestone-text">
+                  <strong>2048 Achieved!</strong>
+                  <span>Infinite mode unlocked — keep merging!</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="hexa-milestone-dismiss"
+                onClick={() => setShowMilestone(false)}
+                aria-label="Dismiss banner"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {/* Game Over Modal Overlay */}
+          {gameState === "gameover" && (
             <div className="hexa-overlay" onClick={(e) => e.stopPropagation()}>
               <div className="hexa-overlay-card">
                 <h2 className="hexa-overlay-title">
-                  {gameState === "won" ? "2048 Achieved!" : "No Moves Left"}
+                  {hasWon2048 ? "2048 Master!" : "No Moves Left"}
                 </h2>
                 <p className="hexa-overlay-sub">
-                  {gameState === "won"
-                    ? "Magnificent job reaching the legendary hexagonal summit!"
+                  {hasWon2048
+                    ? "Incredible hexagonal conquest reaching 2048 and beyond!"
                     : "The hexagonal grid is locked with no possible merges."}
                 </p>
 
@@ -1019,15 +1045,9 @@ export default function HexaMergeApp({ onNavigateHome }) {
                   type="button"
                   id="hexa-play-again-btn"
                   className="hexa-restart-btn"
-                  onClick={() => {
-                    if (gameState === "won") {
-                      handleContinuePlaying();
-                    } else {
-                      resetGame();
-                    }
-                  }}
+                  onClick={() => resetGame()}
                 >
-                  {gameState === "won" ? "Continue Playing" : "Try Again (R)"}
+                  Play Again (R)
                 </button>
               </div>
             </div>
