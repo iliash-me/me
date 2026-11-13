@@ -11,15 +11,6 @@ const INQUIRY_TOPICS = ["Web App / UI", "Design System", "3D / Creative", "Gener
 
 function getNormalizedRoute() {
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
-  if (
-    path === "/t" ||
-    path === "/terminal" ||
-    window.location.hash === "#/t" ||
-    window.location.hash === "#t" ||
-    window.location.hash === "#/terminal"
-  ) {
-    return "/t";
-  }
   if (path === "/tools/spring-tuner" || window.location.hash === "#/tools/spring-tuner") {
     return "/tools/spring-tuner";
   }
@@ -44,7 +35,7 @@ const CURRENT_YEAR = new Date().getFullYear();
 
 export default function App() {
   const [route, setRoute] = useState(getNormalizedRoute);
-  const [terminalOpen, setTerminalOpen] = useState(() => getNormalizedRoute() === "/t");
+  const [terminalOpen, setTerminalOpen] = useState(false);
 
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem("iliash-theme");
@@ -69,23 +60,18 @@ export default function App() {
   const navigateTo = (targetPath) => {
     window.history.pushState({}, "", targetPath);
     setRoute(targetPath);
-    setTerminalOpen(targetPath === "/t");
+    setTerminalOpen(false);
     window.scrollTo(0, 0);
   };
 
   const closeTerminal = () => {
     setTerminalOpen(false);
-    if (route === "/t") {
-      window.history.pushState({}, "", "/");
-      setRoute("/");
-    }
   };
 
   useEffect(() => {
     const handlePopState = () => {
-      const next = getNormalizedRoute();
-      setRoute(next);
-      setTerminalOpen(next === "/t");
+      setRoute(getNormalizedRoute());
+      setTerminalOpen(false);
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -96,9 +82,7 @@ export default function App() {
     localStorage.setItem("iliash-theme", theme);
     const metaTheme = document.querySelector('meta[name="theme-color"]');
     if (metaTheme) {
-      if (route === "/t") {
-        metaTheme.setAttribute("content", "#0b0d13");
-      } else if (
+      if (
         route === "/tools/spring-tuner" ||
         route === "/games/orbit-dash" ||
         route === "/games/kinetic-stack"
@@ -138,14 +122,7 @@ export default function App() {
         setToolsMenuOpen(false);
         setGamesMenuOpen(false);
         setContactOpen(false);
-        setTerminalOpen((prev) => {
-          const next = !prev;
-          if (!next && route === "/t") {
-            window.history.pushState({}, "", "/");
-            setRoute("/");
-          }
-          return next;
-        });
+        setTerminalOpen((prev) => !prev);
       } else if (e.key === "Escape") {
         if (contactOpen) setContactOpen(false);
         if (toolsMenuOpen) setToolsMenuOpen(false);
