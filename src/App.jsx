@@ -44,6 +44,7 @@ const CURRENT_YEAR = new Date().getFullYear();
 
 export default function App() {
   const [route, setRoute] = useState(getNormalizedRoute);
+  const [terminalOpen, setTerminalOpen] = useState(() => getNormalizedRoute() === "/t");
 
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem("iliash-theme");
@@ -68,12 +69,23 @@ export default function App() {
   const navigateTo = (targetPath) => {
     window.history.pushState({}, "", targetPath);
     setRoute(targetPath);
+    setTerminalOpen(targetPath === "/t");
     window.scrollTo(0, 0);
+  };
+
+  const closeTerminal = () => {
+    setTerminalOpen(false);
+    if (route === "/t") {
+      window.history.pushState({}, "", "/");
+      setRoute("/");
+    }
   };
 
   useEffect(() => {
     const handlePopState = () => {
-      setRoute(getNormalizedRoute());
+      const next = getNormalizedRoute();
+      setRoute(next);
+      setTerminalOpen(next === "/t");
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -126,9 +138,12 @@ export default function App() {
         setToolsMenuOpen(false);
         setGamesMenuOpen(false);
         setContactOpen(false);
-        setRoute((prev) => {
-          const next = prev === "/t" ? "/" : "/t";
-          window.history.pushState({}, "", next);
+        setTerminalOpen((prev) => {
+          const next = !prev;
+          if (!next && route === "/t") {
+            window.history.pushState({}, "", "/");
+            setRoute("/");
+          }
           return next;
         });
       } else if (e.key === "Escape") {
@@ -151,20 +166,37 @@ export default function App() {
       window.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [contactOpen, toolsMenuOpen, gamesMenuOpen]);
+  }, [contactOpen, toolsMenuOpen, gamesMenuOpen, route]);
 
-  // Render standalone tools and games with their own dedicated vibes
-  if (route === "/tools/spring-tuner") {
-    return <SpringTunerApp onNavigateHome={() => navigateTo("/")} />;
-  }
-  if (route === "/tools/palette-studio") {
-    return <OklchLabApp onNavigateHome={() => navigateTo("/")} />;
-  }
-  if (route === "/games/orbit-dash") {
-    return <OrbitDashApp onNavigateHome={() => navigateTo("/")} />;
-  }
-  if (route === "/games/kinetic-stack") {
-    return <KineticStackApp onNavigateHome={() => navigateTo("/")} />;
+  // Render standalone tools and games with their own dedicated vibes, plus global terminal overlay
+  if (
+    route === "/tools/spring-tuner" ||
+    route === "/tools/palette-studio" ||
+    route === "/games/orbit-dash" ||
+    route === "/games/kinetic-stack"
+  ) {
+    return (
+      <>
+        {route === "/tools/spring-tuner" && (
+          <SpringTunerApp onNavigateHome={() => navigateTo("/")} />
+        )}
+        {route === "/tools/palette-studio" && (
+          <OklchLabApp onNavigateHome={() => navigateTo("/")} />
+        )}
+        {route === "/games/orbit-dash" && (
+          <OrbitDashApp onNavigateHome={() => navigateTo("/")} />
+        )}
+        {route === "/games/kinetic-stack" && (
+          <KineticStackApp onNavigateHome={() => navigateTo("/")} />
+        )}
+        {terminalOpen && (
+          <TerminalApp
+            onNavigateHome={closeTerminal}
+            onNavigateTo={navigateTo}
+          />
+        )}
+      </>
+    );
   }
 
   const handleToggleTheme = () => {
@@ -181,7 +213,7 @@ export default function App() {
     setToolsMenuOpen(false);
     setGamesMenuOpen(false);
     setContactOpen(false);
-    navigateTo("/t");
+    setTerminalOpen(true);
   };
 
   const openTunerRoute = () => {
@@ -431,14 +463,13 @@ export default function App() {
               <span>Contact</span>
             </button>
 
-            <a
-              href={route === "/t" ? "/" : "/t"}
+            <button
+              type="button"
               id="open-command-palette-btn"
-              className={`action-chip ${route === "/t" ? "tools-dropdown-trigger is-open" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                if (route === "/t") {
-                  navigateTo("/");
+              className={`action-chip ${terminalOpen ? "tools-dropdown-trigger is-open" : ""}`}
+              onClick={() => {
+                if (terminalOpen) {
+                  closeTerminal();
                 } else {
                   openTerminalRoute();
                 }
@@ -446,7 +477,7 @@ export default function App() {
               title="Toggle Terminal Window (⌘K)"
             >
               <kbd>⌘K</kbd>
-            </a>
+            </button>
 
             <button
               type="button"
@@ -786,9 +817,9 @@ export default function App() {
       </div>
 
       {/* Draggable Floating Terminal Window (/t or ⌘K) */}
-      {route === "/t" && (
+      {terminalOpen && (
         <TerminalApp
-          onNavigateHome={() => navigateTo("/")}
+          onNavigateHome={closeTerminal}
           onNavigateTo={navigateTo}
         />
       )}
