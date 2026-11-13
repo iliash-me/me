@@ -5,6 +5,7 @@ import SpringTunerApp from "./tools/SpringTunerApp";
 import OklchLabApp from "./tools/OklchLabApp";
 import OrbitDashApp from "./games/OrbitDashApp";
 import KineticStackApp from "./games/KineticStackApp";
+import HexaMergeApp from "./games/HexaMergeApp";
 import TerminalApp from "./terminal/TerminalApp";
 
 const INQUIRY_TOPICS = ["Web App / UI", "Design System", "3D / Creative", "General Inquiry"];
@@ -27,6 +28,9 @@ function getNormalizedRoute() {
   }
   if (path === "/games/kinetic-stack" || window.location.hash === "#/games/kinetic-stack") {
     return "/games/kinetic-stack";
+  }
+  if (path === "/games/hexa-merge" || window.location.hash === "#/games/hexa-merge") {
+    return "/games/hexa-merge";
   }
   return "/";
 }
@@ -85,7 +89,8 @@ export default function App() {
       if (
         route === "/tools/spring-tuner" ||
         route === "/games/orbit-dash" ||
-        route === "/games/kinetic-stack"
+        route === "/games/kinetic-stack" ||
+        route === "/games/hexa-merge"
       ) {
         metaTheme.setAttribute("content", "#f5f5f3");
       } else if (route === "/tools/palette-studio") {
@@ -150,7 +155,8 @@ export default function App() {
     route === "/tools/spring-tuner" ||
     route === "/tools/palette-studio" ||
     route === "/games/orbit-dash" ||
-    route === "/games/kinetic-stack"
+    route === "/games/kinetic-stack" ||
+    route === "/games/hexa-merge"
   ) {
     return (
       <>
@@ -165,6 +171,9 @@ export default function App() {
         )}
         {route === "/games/kinetic-stack" && (
           <KineticStackApp onNavigateHome={() => navigateTo("/")} />
+        )}
+        {route === "/games/hexa-merge" && (
+          <HexaMergeApp onNavigateHome={() => navigateTo("/")} />
         )}
         {terminalOpen && (
           <TerminalApp
@@ -219,6 +228,13 @@ export default function App() {
     setGamesMenuOpen(false);
     setContactOpen(false);
     navigateTo("/games/kinetic-stack");
+  };
+
+  const openHexaMergeRoute = () => {
+    setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
+    setContactOpen(false);
+    navigateTo("/games/hexa-merge");
   };
 
   const openContact = () => {
@@ -394,6 +410,23 @@ export default function App() {
 
               {gamesMenuOpen && (
                 <div className="tools-dropdown-menu" role="menu" aria-label="Games">
+                  <a
+                    href="/games/hexa-merge"
+                    id="dropdown-hexa-merge-link"
+                    role="menuitem"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openHexaMergeRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Hexa Merge</span>
+                      <span className="tools-dropdown-item-sub">Tactile hexagonal merge & combo puzzle</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+
                   <a
                     href="/games/kinetic-stack"
                     id="dropdown-kinetic-stack-link"

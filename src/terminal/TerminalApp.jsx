@@ -15,7 +15,7 @@ const VIRTUAL_FS = {
   },
   "~/games": {
     type: "dir",
-    children: ["kinetic-stack.exe", "orbit-dash.exe"]
+    children: ["hexa-merge.exe", "kinetic-stack.exe", "orbit-dash.exe"]
   }
 };
 
@@ -336,7 +336,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                   </tr>
                   <tr>
                     <td className="term-cmd-col">games</td>
-                    <td className="term-desc-col">Playable arcade games (Kinetic Stack, Orbit Dash)</td>
+                    <td className="term-desc-col">Playable arcade games (Hexa Merge, Kinetic Stack, Orbit Dash)</td>
                   </tr>
                   <tr>
                     <td className="term-cmd-col">contact</td>
@@ -362,7 +362,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                   </tr>
                   <tr>
                     <td className="term-cmd-col">open &lt;app&gt;</td>
-                    <td className="term-desc-col">Launch tool/game (tuner, palette, kinetic, orbit, github)</td>
+                    <td className="term-desc-col">Launch tool/game (tuner, palette, kinetic, orbit, hexa, github)</td>
                   </tr>
                   <tr>
                     <td className="term-cmd-col">neofetch</td>
@@ -596,6 +596,28 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
 
               <div className="term-card">
                 <div className="term-card-header">
+                  <strong className="term-card-title">Hexa Merge</strong>
+                  <span className="term-card-badge">/games/hexa-merge</span>
+                </div>
+                <div className="term-card-desc">
+                  Tactile hexagonal number & color merge puzzle
+                </div>
+                <div className="term-link-row">
+                  <button
+                    type="button"
+                    className="term-interactive-link"
+                    onClick={() => {
+                      if (onNavigateTo) onNavigateTo("/games/hexa-merge");
+                      else window.location.href = "/games/hexa-merge";
+                    }}
+                  >
+                    [Play Hexa Merge ↗]
+                  </button>
+                </div>
+              </div>
+
+              <div className="term-card">
+                <div className="term-card-header">
                   <strong className="term-card-title">Orbit Dash (Arcade Game)</strong>
                   <span className="term-card-badge">/games/orbit-dash</span>
                 </div>
@@ -778,7 +800,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
           if (!target) {
             outputContent = (
               <div style={{ color: "var(--t-error)" }}>
-                Usage: open &lt;app&gt; (tuner, palette, kinetic, orbit, gui, github)
+                Usage: open &lt;app&gt; (tuner, palette, kinetic, orbit, hexa, gui, github)
               </div>
             );
             break;
@@ -799,6 +821,10 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
             outputContent = <div>Launching Orbit Dash...</div>;
             if (onNavigateTo) onNavigateTo("/games/orbit-dash");
             else window.location.href = "/games/orbit-dash";
+          } else if (target === "hexa" || target === "hexa-merge" || target === "hexa-merge.exe" || target === "hexamerge") {
+            outputContent = <div>Launching Hexa Merge...</div>;
+            if (onNavigateTo) onNavigateTo("/games/hexa-merge");
+            else window.location.href = "/games/hexa-merge";
           } else if (target === "gui" || target === "home") {
             outputContent = <div>Closing terminal window...</div>;
             onNavigateHome?.();
@@ -808,7 +834,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
           } else {
             outputContent = (
               <div style={{ color: "var(--t-error)" }}>
-                Cannot open '{target}'. Valid targets: tuner, palette, kinetic, orbit, gui, github
+                Cannot open '{target}'. Valid targets: tuner, palette, kinetic, orbit, hexa, gui, github
               </div>
             );
           }
@@ -1041,7 +1067,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
       if (sub === "theme") {
         candidateList = THEMES;
       } else if (sub === "open") {
-        candidateList = ["tuner", "palette", "kinetic", "orbit", "gui", "github"];
+        candidateList = ["tuner", "palette", "kinetic", "orbit", "hexa", "gui", "github"];
       } else if (sub === "cat" || sub === "cd" || sub === "ls") {
         const dir = VIRTUAL_FS[cwd];
         if (dir) candidateList = dir.children;
