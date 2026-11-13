@@ -66,7 +66,6 @@ function oklchToSrgb(L, C, H) {
   const toHex = (n) => n.toString(16).padStart(2, "0");
   const hex = `#${toHex(r)}${toHex(g)}${toHex(bVal)}`.toUpperCase();
 
-  // Relative luminance for WCAG 2.1
   const lumChannel = (v) => {
     const srgb = v / 255;
     return srgb <= 0.03928 ? srgb / 12.92 : Math.pow((srgb + 0.055) / 1.055, 2.4);
@@ -77,7 +76,6 @@ function oklchToSrgb(L, C, H) {
   return { r, g, b: bVal, hex, luminance, inGamut };
 }
 
-// Find gamut-safe chroma via binary search if out of sRGB gamut
 function getGamutSafeOklch(L, targetC, H) {
   const initial = oklchToSrgb(L, targetC, H);
   if (initial.inGamut) {
@@ -106,12 +104,10 @@ function getWcagContrast(lum1, lum2) {
   return (brighter + 0.05) / (darker + 0.05);
 }
 
-// Simplified APCA Lc contrast approximation from relative luminances
 function getApcaLc(textLum, bgLum) {
   const txtY = Math.pow(Math.max(textLum, 0), 0.57);
   const bgY = Math.pow(Math.max(bgLum, 0), 0.56);
-  const raw =
-    bgLum > textLum ? (bgY - txtY) * 1.14 * 100 : (bgY - txtY) * 1.14 * 100;
+  const raw = (bgY - txtY) * 1.14 * 100;
   return Math.round(Math.abs(raw));
 }
 
@@ -121,14 +117,15 @@ export default function OklchLabApp({ onNavigateHome }) {
   const [peakChroma, setPeakChroma] = useState(0.19);
   const [hueShift, setHueShift] = useState(-6);
   const [curveMode, setCurveMode] = useState("parabolic");
-  const [contrastSpan, setContrastSpan] = useState("standard"); // standard | high | soft
+  const [contrastSpan, setContrastSpan] = useState("standard");
 
   const [selectedStep, setSelectedStep] = useState(500);
   const [compareBgStep, setCompareBgStep] = useState(50);
-  const [previewTheme, setPreviewTheme] = useState("light"); // light | dark
-  const [activeTab, setActiveTab] = useState("components"); // components | matrix | tokens
+  const [previewTheme, setPreviewTheme] = useState("light");
+  const [activeTab, setActiveTab] = useState("components"); // components | pair | matrix | tokens
   const [exportFormat, setExportFormat] = useState("oklch-css");
   const [copiedSwatch, setCopiedSwatch] = useState(null);
+  const [copiedValueType, setCopiedValueType] = useState(null);
   const [copiedExport, setCopiedExport] = useState(false);
 
   const applyPreset = (preset) => {
@@ -139,7 +136,6 @@ export default function OklchLabApp({ onNavigateHome }) {
     setCurveMode(preset.curve);
   };
 
-  // Generate 11 perceptually uniform stops (50..950)
   const scale = useMemo(() => {
     const baseLightness = {
       standard: [0.975, 0.94, 0.88, 0.8, 0.71, 0.62, 0.53, 0.44, 0.35, 0.25, 0.17],
@@ -148,13 +144,11 @@ export default function OklchLabApp({ onNavigateHome }) {
     }[contrastSpan];
 
     return SCALE_STEPS.map((step, idx) => {
-      const t = idx / (SCALE_STEPS.length - 1); // 0 at 50, 1 at 950
+      const t = idx / (SCALE_STEPS.length - 1);
       const L = baseLightness[idx];
 
-      // Chroma distribution across lightness
       let chromaFactor = 1;
       if (curveMode === "parabolic") {
-        // Peaks around 500 (t = 0.5), tapers at 50 and 950
         chromaFactor = Math.sin(Math.PI * Math.pow(t, 0.88)) * 0.92 + 0.08;
       } else if (curveMode === "vivid") {
         chromaFactor = Math.sin(Math.PI * t) * 0.78 + 0.28;
@@ -168,11 +162,13 @@ export default function OklchLabApp({ onNavigateHome }) {
       const stepHue = (hue + (t - 0.5) * 2 * hueShift + 360) % 360;
       const color = getGamutSafeOklch(L, rawC, stepHue);
       const oklchCss = `oklch(${(color.L * 100).toFixed(1)}% ${color.C.toFixed(3)} ${color.H.toFixed(1)})`;
+      const rgbCss = `rgb(${color.r}, ${color.g}, ${color.b})`;
 
       return {
         step,
         ...color,
-        oklchCss
+        oklchCss,
+        rgbCss
       };
     });
   }, [hue, peakChroma, hueShift, curveMode, contrastSpan]);
@@ -201,7 +197,9 @@ export default function OklchLabApp({ onNavigateHome }) {
 
   const getExportString = () => {
     if (exportFormat === "hex-css") {
-      return scale.map((s) => `--color-${paletteName}-${s.step}: ${s.hex};`).join("\n");
+      return `:root {\n${scale
+        .map((s) => `  --color-${paletteName}-${s.step}: ${s.hex};`)
+        .join("\n")}\n}`;
     }
     if (exportFormat === "tailwind") {
       return `@theme {\n${scale
@@ -211,11 +209,13 @@ export default function OklchLabApp({ onNavigateHome }) {
     if (exportFormat === "json") {
       const obj = {};
       scale.forEach((s) => {
-        obj[s.step] = { oklch: s.oklchCss, hex: s.hex };
+        obj[s.step] = { hex: s.hex, oklch: s.oklchCss };
       });
       return JSON.stringify({ [paletteName]: obj }, null, 2);
     }
-    return scale.map((s) => `--color-${paletteName}-${s.step}: ${s.oklchCss};`).join("\n");
+    return `:root {\n${scale
+      .map((s) => `  --color-${paletteName}-${s.step}: ${s.oklchCss};`)
+      .join("\n")}\n}`;
   };
 
   const handleCopySwatch = (stop) => {
@@ -223,6 +223,12 @@ export default function OklchLabApp({ onNavigateHome }) {
     navigator.clipboard?.writeText(stop.hex);
     setCopiedSwatch(stop.step);
     setTimeout(() => setCopiedSwatch(null), 1400);
+  };
+
+  const handleCopyStopValue = (type, val) => {
+    navigator.clipboard?.writeText(val);
+    setCopiedValueType(type);
+    setTimeout(() => setCopiedValueType(null), 1400);
   };
 
   const handleCopyExport = () => {
@@ -249,7 +255,7 @@ export default function OklchLabApp({ onNavigateHome }) {
               ← iliash.me
             </a>
             <span className="oklch-sep">/</span>
-            <h1 className="oklch-title">OKLCH Palette & Contrast Lab</h1>
+            <h1 className="oklch-title">Palette & Contrast Studio</h1>
           </div>
 
           <div className="oklch-presets-row" role="group" aria-label="Color presets">
@@ -274,11 +280,11 @@ export default function OklchLabApp({ onNavigateHome }) {
 
       {/* Main Studio Container */}
       <main className="oklch-container oklch-main">
-        {/* 11-Stop Perceptual Swatch Strip */}
+        {/* 1. Top 11-Stop Swatch Strip */}
         <section className="oklch-swatch-strip-card" aria-label="Generated 50 to 950 color scale">
           <div className="oklch-strip-header">
             <div className="oklch-strip-meta">
-              <span className="oklch-section-label">Perceptual Scale (50 – 950)</span>
+              <span className="oklch-section-label">Color Scale (50 – 950)</span>
               <span className="oklch-hint-text">Click any stop to inspect & copy HEX</span>
             </div>
             <div className="oklch-span-pills" role="group" aria-label="Lightness contrast span">
@@ -335,10 +341,10 @@ export default function OklchLabApp({ onNavigateHome }) {
           </div>
         </section>
 
-        {/* Two-Column Workbench */}
+        {/* 2. Middle Two-Column Workbench */}
         <div className="oklch-workbench-grid">
-          {/* LEFT: OKLCH Parameters & Stop Inspector */}
-          <section className="oklch-card oklch-controls-card" aria-label="OKLCH parameters">
+          {/* LEFT: Scale Parameters + Selected Stop Readout */}
+          <section className="oklch-card oklch-controls-card" aria-label="Scale parameters">
             <div className="oklch-card-head">
               <span className="oklch-section-label">Parameters</span>
               <div className="oklch-curve-pills">
@@ -395,7 +401,7 @@ export default function OklchLabApp({ onNavigateHome }) {
 
               <label className="oklch-slider-row">
                 <div className="slider-row-head">
-                  <span>Hue Rotation (ΔH across scale)</span>
+                  <span>Hue Rotation (ΔH)</span>
                   <code>{hueShift > 0 ? `+${hueShift}°` : `${hueShift}°`}</code>
                 </div>
                 <input
@@ -412,82 +418,58 @@ export default function OklchLabApp({ onNavigateHome }) {
               </label>
             </div>
 
-            {/* Live Contrast Pair Inspector */}
-            <div className="oklch-pair-inspector">
-              <div className="pair-inspector-head">
-                <span className="oklch-section-label">Contrast Pair Inspector</span>
-                <span className="pair-Equation">
-                  Stop {selectedStep} on Stop {compareBgStep}
+            {/* Clean Active Stop Inspector Card */}
+            <div className="active-stop-box">
+              <div className="active-stop-header">
+                <div className="active-stop-title-row">
+                  <span
+                    className="active-stop-Chip-swatch"
+                    style={{ backgroundColor: activeStop.hex }}
+                  />
+                  <div>
+                    <strong className="active-stop-name">
+                      Stop {activeStop.step}
+                    </strong>
+                    <span className="active-stop-gamut">sRGB Gamut Safe</span>
+                  </div>
+                </div>
+                <span className="active-stop-lum">
+                  Lum {(activeStop.luminance * 100).toFixed(1)}%
                 </span>
               </div>
 
-              <div className="pair-selectors-row">
-                <div className="pair-select-group">
-                  <span className="pair-select-label">Foreground</span>
-                  <div className="pair-step-chips">
-                    {[50, 200, 500, 600, 700, 900, 950].map((st) => (
-                      <button
-                        key={st}
-                        type="button"
-                        className={`pair-chip ${selectedStep === st ? "is-active" : ""}`}
-                        onClick={() => setSelectedStep(st)}
-                      >
-                        {st}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pair-select-group">
-                  <span className="pair-select-label">Background</span>
-                  <div className="pair-step-chips">
-                    {[50, 100, 200, 500, 800, 900, 950].map((st) => (
-                      <button
-                        key={st}
-                        type="button"
-                        className={`pair-chip ${compareBgStep === st ? "is-active" : ""}`}
-                        onClick={() => setCompareBgStep(st)}
-                      >
-                        {st}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="pair-sample-card"
-                style={{
-                  backgroundColor: bgStop.hex,
-                  color: activeStop.hex,
-                  borderColor: scaleMap[compareBgStep < 500 ? 200 : 800].hex
-                }}
-              >
-                <div className="pair-sample-text">
-                  <strong>Aa — Perceptual Uniformity</strong>
-                  <span>
-                    {activeStop.oklchCss} ({activeStop.hex})
-                  </span>
-                </div>
-                <div className="pair-badges">
-                  <span className="pair-metric-pill">
-                    WCAG {activeWcag.toFixed(2)}:1{" "}
-                    {activeWcag >= 7 ? "AAA" : activeWcag >= 4.5 ? "AA" : activeWcag >= 3 ? "AA+" : "FAIL"}
-                  </span>
-                  <span className="pair-metric-pill">APCA Lc {activeApca}</span>
-                </div>
+              <div className="active-stop-values-list">
+                {[
+                  { key: "hex", label: "HEX", val: activeStop.hex },
+                  { key: "oklch", label: "OKLCH", val: activeStop.oklchCss },
+                  { key: "rgb", label: "RGB", val: activeStop.rgbCss }
+                ].map((item) => (
+                  <button
+                    key={item.key}
+                    type="button"
+                    className="active-stop-copy-row"
+                    onClick={() => handleCopyStopValue(item.key, item.val)}
+                  >
+                    <span className="stop-val-label">{item.label}</span>
+                    <code className="stop-val-code">{item.val}</code>
+                    <span className="stop-val-action">
+                      {copiedValueType === item.key ? "Copied ✓" : "Copy"}
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
           </section>
 
-          {/* RIGHT: Realistic UI Components & Contrast Matrix */}
+          {/* RIGHT: Realistic UI Components, Contrast Pair Lab, Matrix, Tokens */}
           <section className="oklch-card oklch-preview-card" aria-label="Realistic UI preview">
             <div className="oklch-card-head">
               <div className="oklch-view-tabs" role="tablist">
                 {[
                   { id: "components", label: "UI Components" },
-                  { id: "matrix", label: "Contrast Matrix" },
-                  { id: "tokens", label: "Semantic Tokens" }
+                  { id: "pair", label: "Pair Contrast" },
+                  { id: "matrix", label: "Matrix" },
+                  { id: "tokens", label: "Tokens" }
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -524,15 +506,13 @@ export default function OklchLabApp({ onNavigateHome }) {
             <div className={`oklch-stage ${previewTheme === "dark" ? "is-dark-ui" : "is-light-ui"}`}>
               {activeTab === "components" && (
                 <div className="oklch-ui-showcase">
-                  {/* Top Alert Banner */}
                   <div className="preview-banner">
                     <span className="preview-badge">NEW RELEASE</span>
                     <span className="preview-banner-text">
-                      Perceptual tokens stay legible across every hue.
+                      Balanced contrast across every hue and lightness stop.
                     </span>
                   </div>
 
-                  {/* SaaS Card */}
                   <div className="preview-saas-card">
                     <div className="preview-card-top">
                       <div>
@@ -547,7 +527,6 @@ export default function OklchLabApp({ onNavigateHome }) {
                       <code>50–950</code> color scale.
                     </p>
 
-                    {/* Progress bar */}
                     <div className="preview-progress-wrap">
                       <div className="preview-progress-labels">
                         <span>Bandwidth Quota</span>
@@ -558,7 +537,6 @@ export default function OklchLabApp({ onNavigateHome }) {
                       </div>
                     </div>
 
-                    {/* Interactive Input + Buttons */}
                     <div className="preview-actions-row">
                       <input
                         type="text"
@@ -574,6 +552,77 @@ export default function OklchLabApp({ onNavigateHome }) {
                         Inspect
                       </button>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "pair" && (
+                <div className="pair-stage-panel">
+                  <div className="pair-selectors-grid">
+                    <div className="pair-selector-block">
+                      <span className="pair-select-label">Foreground Stop ({selectedStep})</span>
+                      <div className="pair-step-chips">
+                        {SCALE_STEPS.map((st) => (
+                          <button
+                            key={st}
+                            type="button"
+                            className={`pair-chip ${selectedStep === st ? "is-active" : ""}`}
+                            onClick={() => setSelectedStep(st)}
+                          >
+                            {st}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="pair-selector-block">
+                      <span className="pair-select-label">Background Stop ({compareBgStep})</span>
+                      <div className="pair-step-chips">
+                        {SCALE_STEPS.map((st) => (
+                          <button
+                            key={st}
+                            type="button"
+                            className={`pair-chip ${compareBgStep === st ? "is-active" : ""}`}
+                            onClick={() => setCompareBgStep(st)}
+                          >
+                            {st}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className="pair-live-specimen"
+                    style={{
+                      backgroundColor: bgStop.hex,
+                      color: activeStop.hex,
+                      borderColor: scaleMap[compareBgStep < 500 ? 200 : 800].hex
+                    }}
+                  >
+                    <div className="specimen-top-row">
+                      <span className="specimen-tag">
+                        Stop {selectedStep} on Stop {compareBgStep}
+                      </span>
+                      <div className="pair-badges">
+                        <span className="pair-metric-pill">
+                          WCAG {activeWcag.toFixed(2)}:1 ·{" "}
+                          {activeWcag >= 7
+                            ? "AAA"
+                            : activeWcag >= 4.5
+                            ? "AA"
+                            : activeWcag >= 3
+                            ? "AA Large"
+                            : "Fail"}
+                        </span>
+                        <span className="pair-metric-pill">APCA Lc {activeApca}</span>
+                      </div>
+                    </div>
+                    <h4 className="specimen-headline">Aa — Typography & Icon Legibility</h4>
+                    <p className="specimen-paragraph">
+                      Testing body copy legibility at 14px–16px. WCAG 4.5:1+ (or APCA Lc 60+) is
+                      recommended for normal body text, and 3.0:1+ for large headings or UI icons.
+                    </p>
                   </div>
                 </div>
               )}
@@ -658,35 +707,61 @@ export default function OklchLabApp({ onNavigateHome }) {
           </section>
         </div>
 
-        {/* Bottom Export Bar */}
-        <section className="oklch-export-bar" aria-label="Export color scale">
-          <div className="oklch-export-tabs" role="tablist">
-            {EXPORT_FORMATS.map((fmt) => (
-              <button
-                key={fmt.id}
-                type="button"
-                role="tab"
-                aria-selected={exportFormat === fmt.id}
-                className={`oklch-export-tab ${exportFormat === fmt.id ? "is-active" : ""}`}
-                onClick={() => setExportFormat(fmt.id)}
-              >
-                {fmt.label}
-              </button>
-            ))}
+        {/* 3. Restructured Bottom Export Card */}
+        <section className="oklch-export-card" aria-label="Export color scale">
+          <div className="oklch-export-header">
+            <div className="oklch-export-header-left">
+              <span className="oklch-section-label">Export Palette</span>
+              <div className="oklch-export-tabs" role="tablist">
+                {EXPORT_FORMATS.map((fmt) => (
+                  <button
+                    key={fmt.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={exportFormat === fmt.id}
+                    className={`oklch-export-tab ${exportFormat === fmt.id ? "is-active" : ""}`}
+                    onClick={() => setExportFormat(fmt.id)}
+                  >
+                    {fmt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              id="oklch-copy-export-btn"
+              className={`oklch-copy-btn ${copiedExport ? "is-copied" : ""}`}
+              onClick={handleCopyExport}
+            >
+              {copiedExport ? "Copied All 11 Stops ✓" : "Copy Code"}
+            </button>
           </div>
 
-          <pre className="oklch-export-pre">
-            <code>{getExportString()}</code>
-          </pre>
-
-          <button
-            type="button"
-            id="oklch-copy-export-btn"
-            className={`oklch-copy-btn ${copiedExport ? "is-copied" : ""}`}
-            onClick={handleCopyExport}
-          >
-            {copiedExport ? "Copied Scale ✓" : "Copy Tokens"}
-          </button>
+          <div className="oklch-export-tokens-grid">
+            {scale.map((s) => {
+              const displayValue =
+                exportFormat === "hex-css" || exportFormat === "json" ? s.hex : s.oklchCss;
+              return (
+                <button
+                  key={s.step}
+                  type="button"
+                  className="export-token-chip"
+                  onClick={() => handleCopySwatch(s)}
+                  title={`Click to copy ${displayValue}`}
+                >
+                  <span
+                    className="export-chip-dot"
+                    style={{ backgroundColor: s.hex }}
+                  />
+                  <span className="export-chip-name">
+                    --{paletteName}-{s.step}
+                  </span>
+                  <code className="export-chip-val">{displayValue}</code>
+                </button>
+              );
+            })}
+          </div>
         </section>
       </main>
     </div>
