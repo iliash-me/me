@@ -1,0 +1,340 @@
+/* ==========================================================================
+   SVG WAVE & ORGANIC SHAPE STUDIO (/tools/svg-wave)
+   ========================================================================== */
+
+.wave-studio-app {
+  min-height: 100vh;
+  background-color: #f5f5f3;
+  color: #111315;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.wave-nav {
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.wave-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.wave-back-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  color: #52525b;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  cursor: pointer;
+}
+
+.wave-back-link:hover {
+  color: #111315;
+  border-color: rgba(0, 0, 0, 0.18);
+  transform: translateX(-1px);
+}
+
+.wave-nav-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.wave-mode-pills {
+  display: flex;
+  background-color: #ebebea;
+  padding: 3px;
+  border-radius: 999px;
+  gap: 0.25rem;
+}
+
+.wave-mode-pill {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  color: #52525b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.wave-mode-pill.is-active {
+  background-color: #ffffff;
+  color: #111315;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.wave-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wave-shuffle-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background-color: #111315;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.wave-shuffle-btn:hover {
+  background-color: #ff4f18;
+  transform: translateY(-1px);
+}
+
+/* Main Workspace */
+.wave-main {
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem 2.5rem;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+.wave-panel {
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 20px;
+  padding: 1.25rem;
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.wave-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.wave-heading {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #71717a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wave-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+
+.wave-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #3f3f46;
+}
+
+.wave-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  color: #ff4f18;
+  font-weight: 600;
+}
+
+.wave-slider {
+  width: 100%;
+  accent-color: #ff4f18;
+  cursor: pointer;
+}
+
+.wave-divider {
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.wave-swatches {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.45rem;
+}
+
+.wave-swatch-chip {
+  padding: 0.4rem 0.5rem;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.wave-swatch-chip:hover {
+  transform: translateY(-1px);
+}
+
+.wave-Swatch-chip.is-active {
+  outline: 2px solid #111315;
+  outline-offset: 2px;
+}
+
+.wave-flip-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background-color: #f4f4f2;
+  color: #52525b;
+  cursor: pointer;
+}
+
+.wave-flip-btn.is-on {
+  background-color: #111315;
+  color: #ffffff;
+}
+
+/* Right Stage */
+.wave-stage-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.wave-canvas-card {
+  position: relative;
+  min-height: 360px;
+  background-color: #ffffff;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+  background-size: 20px 20px;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 22px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.05);
+}
+
+.wave-svg-preview {
+  width: 100%;
+  height: 360px;
+  display: block;
+}
+
+.wave-blob-svg {
+  width: 300px;
+  height: 300px;
+  display: block;
+}
+
+/* Export Section */
+.wave-export-card {
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 20px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.wave-export-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.wave-format-pills {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.wave-format-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background-color: #f4f4f2;
+  color: #52525b;
+  cursor: pointer;
+}
+
+.wave-format-pill.is-active {
+  background-color: #111315;
+  color: #ffffff;
+}
+
+.wave-export-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.wave-copy-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.38rem 0.9rem;
+  border-radius: 999px;
+  background-color: #ff4f18;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.wave-download-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.38rem 0.85rem;
+  border-radius: 999px;
+  background-color: #ebebea;
+  color: #111315;
+  cursor: pointer;
+}
+
+.wave-code-pre {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 12px;
+  background-color: #111315;
+  color: #e4e4e7;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  overflow-x: auto;
+  max-height: 240px;
+}
+
+@media (max-width: 860px) {
+  .wave-main {
+    grid-template-columns: 1fr;
+  }
+}

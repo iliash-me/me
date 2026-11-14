@@ -1,0 +1,425 @@
+/* ==========================================================================
+   SHADOW & GLASSMORPHISM LAB (/tools/shadow-lab)
+   ========================================================================== */
+
+.shadow-lab-app {
+  min-height: 100vh;
+  background-color: #f5f5f3;
+  color: #111315;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.shadow-nav {
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.shadow-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.shadow-back-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  color: #52525b;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  cursor: pointer;
+}
+
+.shadow-back-link:hover {
+  color: #111315;
+  border-color: rgba(0, 0, 0, 0.18);
+  transform: translateX(-1px);
+}
+
+.shadow-nav-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.shadow-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  background-color: #ebebea;
+  padding: 3px;
+  border-radius: 999px;
+}
+
+.shadow-preset-pill {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  color: #52525b;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.shadow-preset-pill:hover {
+  color: #111315;
+}
+
+.shadow-preset-pill.is-active {
+  background-color: #ffffff;
+  color: #111315;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.shadow-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.shadow-backdrop-pills {
+  display: flex;
+  background-color: #ebebea;
+  padding: 3px;
+  border-radius: 999px;
+  gap: 0.2rem;
+}
+
+.shadow-backdrop-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  color: #52525b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.shadow-backdrop-pill.is-active {
+  background-color: #111315;
+  color: #ffffff;
+}
+
+/* Main Workspace */
+.shadow-main {
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem 2.5rem;
+  display: grid;
+  grid-template-columns: 330px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+.shadow-panel {
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 20px;
+  padding: 1.25rem;
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.shadow-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.shadow-heading {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #71717a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.shadow-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+
+.shadow-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #3f3f46;
+}
+
+.shadow-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  color: #ff4f18;
+  font-weight: 600;
+}
+
+.shadow-slider {
+  width: 100%;
+  accent-color: #ff4f18;
+  cursor: pointer;
+}
+
+.shadow-divider {
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.shadow-toggle-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background-color: #f4f4f2;
+  color: #52525b;
+  cursor: pointer;
+}
+
+.shadow-toggle-btn.is-on {
+  background-color: #ff4f18;
+  color: #ffffff;
+}
+
+/* Right Column */
+.shadow-stage-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.shadow-preview-stage {
+  position: relative;
+  min-height: 360px;
+  border-radius: 22px;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
+  overflow: hidden;
+  transition: background 0.25s ease;
+}
+
+.shadow-preview-stage.bg-daylight {
+  background-color: #f7f7f5;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.shadow-preview-stage.bg-mesh {
+  background: radial-gradient(circle at 20% 25%, #ff8a65 0%, transparent 45%),
+    radial-gradient(circle at 80% 75%, #6366f1 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, #fbbf24 0%, transparent 55%),
+    #f3f4f6;
+}
+
+.shadow-preview-stage.bg-dark {
+  background: radial-gradient(circle at 25% 30%, rgba(255, 79, 24, 0.35) 0%, transparent 50%),
+    radial-gradient(circle at 75% 70%, rgba(59, 130, 246, 0.35) 0%, transparent 50%),
+    #111315;
+}
+
+/* Floating Orbs for Glassmorphism Context */
+.shadow-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.shadow-orb-1 {
+  width: 150px;
+  height: 150px;
+  background: linear-gradient(135deg, #ff4f18, #f59e0b);
+  top: 14%;
+  left: 18%;
+  opacity: 0.75;
+}
+
+.shadow-orb-2 {
+  width: 130px;
+  height: 130px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  bottom: 14%;
+  right: 18%;
+  opacity: 0.75;
+}
+
+.shadow-specimen-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 340px;
+  padding: 1.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  transition: box-shadow 0.1s ease, backdrop-filter 0.1s ease, background-color 0.1s ease;
+}
+
+.shadow-specimen-badge {
+  align-self: flex-start;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  background-color: rgba(255, 79, 24, 0.14);
+  color: #ff4f18;
+}
+
+.shadow-specimen-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.shadow-specimen-desc {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.shadow-specimen-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  opacity: 0.75;
+}
+
+/* Layer Stack Breakdown */
+.shadow-layers-card {
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 20px;
+  padding: 1.15rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.shadow-layers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 0.55rem;
+}
+
+.shadow-layer-chip {
+  background-color: #f6f6f4;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  padding: 0.5rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.shadow-layer-idx {
+  font-size: 0.62rem;
+  color: #71717a;
+  text-transform: uppercase;
+}
+
+.shadow-layer-val {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #111315;
+}
+
+/* Export Card */
+.shadow-export-card {
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 20px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.shadow-export-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.shadow-format-pills {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.shadow-format-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background-color: #f4f4f2;
+  color: #52525b;
+  cursor: pointer;
+}
+
+.shadow-format-pill.is-active {
+  background-color: #111315;
+  color: #ffffff;
+}
+
+.shadow-copy-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.38rem 0.9rem;
+  border-radius: 999px;
+  background-color: #ff4f18;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.shadow-code-pre {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 12px;
+  background-color: #111315;
+  color: #e4e4e7;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  overflow-x: auto;
+}
+
+@media (max-width: 860px) {
+  .shadow-main {
+    grid-template-columns: 1fr;
+  }
+}

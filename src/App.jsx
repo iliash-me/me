@@ -3,6 +3,9 @@ import "./App.css";
 import { PROFILE } from "./data/portfolioData";
 import SpringTunerApp from "./tools/SpringTunerApp";
 import OklchLabApp from "./tools/OklchLabApp";
+import TypeScaleApp from "./tools/TypeScaleApp";
+import ShadowLabApp from "./tools/ShadowLabApp";
+import SvgWaveApp from "./tools/SvgWaveApp";
 import OrbitDashApp from "./games/OrbitDashApp";
 import KineticStackApp from "./games/KineticStackApp";
 import HexaMergeApp from "./games/HexaMergeApp";
@@ -25,6 +28,15 @@ function getNormalizedRoute() {
     window.location.hash === "#/tools/oklch-lab"
   ) {
     return "/tools/palette-studio";
+  }
+  if (path === "/tools/type-scale" || window.location.hash === "#/tools/type-scale") {
+    return "/tools/type-scale";
+  }
+  if (path === "/tools/shadow-lab" || window.location.hash === "#/tools/shadow-lab") {
+    return "/tools/shadow-lab";
+  }
+  if (path === "/tools/svg-wave" || window.location.hash === "#/tools/svg-wave") {
+    return "/tools/svg-wave";
   }
   if (path === "/games/orbit-dash" || window.location.hash === "#/games/orbit-dash") {
     return "/games/orbit-dash";
@@ -104,6 +116,9 @@ export default function App() {
     if (metaTheme) {
       if (
         route === "/tools/spring-tuner" ||
+        route === "/tools/type-scale" ||
+        route === "/tools/shadow-lab" ||
+        route === "/tools/svg-wave" ||
         route === "/games/orbit-dash" ||
         route === "/games/kinetic-stack" ||
         route === "/games/hexa-merge" ||
@@ -178,6 +193,9 @@ export default function App() {
   if (
     route === "/tools/spring-tuner" ||
     route === "/tools/palette-studio" ||
+    route === "/tools/type-scale" ||
+    route === "/tools/shadow-lab" ||
+    route === "/tools/svg-wave" ||
     route === "/games/orbit-dash" ||
     route === "/games/kinetic-stack" ||
     route === "/games/hexa-merge" ||
@@ -192,6 +210,15 @@ export default function App() {
         )}
         {route === "/tools/palette-studio" && (
           <OklchLabApp onNavigateHome={() => navigateTo("/")} />
+        )}
+        {route === "/tools/type-scale" && (
+          <TypeScaleApp onNavigateHome={() => navigateTo("/")} />
+        )}
+        {route === "/tools/shadow-lab" && (
+          <ShadowLabApp onNavigateHome={() => navigateTo("/")} />
+        )}
+        {route === "/tools/svg-wave" && (
+          <SvgWaveApp onNavigateHome={() => navigateTo("/")} />
         )}
         {route === "/games/orbit-dash" && (
           <OrbitDashApp onNavigateHome={() => navigateTo("/")} />
@@ -251,6 +278,27 @@ export default function App() {
     setGamesMenuOpen(false);
     setContactOpen(false);
     navigateTo("/tools/palette-studio");
+  };
+
+  const openTypeScaleRoute = () => {
+    setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
+    setContactOpen(false);
+    navigateTo("/tools/type-scale");
+  };
+
+  const openShadowLabRoute = () => {
+    setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
+    setContactOpen(false);
+    navigateTo("/tools/shadow-lab");
+  };
+
+  const openSvgWaveRoute = () => {
+    setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
+    setContactOpen(false);
+    navigateTo("/tools/svg-wave");
   };
 
   const openOrbitDashRoute = () => {
@@ -444,6 +492,57 @@ export default function App() {
                       <div className="tools-dropdown-item-text">
                         <span className="tools-dropdown-item-title">Palette & Contrast Studio</span>
                         <span className="tools-dropdown-item-sub">Color scale generator & WCAG/APCA contrast lab</span>
+                      </div>
+                      <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                    </a>
+
+                    <a
+                      href="/tools/type-scale"
+                      id="dropdown-type-scale-link"
+                      role="menuitem"
+                      className="tools-dropdown-item"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openTypeScaleRoute();
+                      }}
+                    >
+                      <div className="tools-dropdown-item-text">
+                        <span className="tools-dropdown-item-title">Fluid Type & Spacing Studio</span>
+                        <span className="tools-dropdown-item-sub">Responsive CSS clamp() typography & space generator</span>
+                      </div>
+                      <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                    </a>
+
+                    <a
+                      href="/tools/shadow-lab"
+                      id="dropdown-shadow-lab-link"
+                      role="menuitem"
+                      className="tools-dropdown-item"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openShadowLabRoute();
+                      }}
+                    >
+                      <div className="tools-dropdown-item-text">
+                        <span className="tools-dropdown-item-title">Shadow & Glassmorphism Lab</span>
+                        <span className="tools-dropdown-item-sub">Multi-layered elevation & frosted surface studio</span>
+                      </div>
+                      <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                    </a>
+
+                    <a
+                      href="/tools/svg-wave"
+                      id="dropdown-svg-wave-link"
+                      role="menuitem"
+                      className="tools-dropdown-item"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openSvgWaveRoute();
+                      }}
+                    >
+                      <div className="tools-dropdown-item-text">
+                        <span className="tools-dropdown-item-title">SVG Wave & Organic Shape Studio</span>
+                        <span className="tools-dropdown-item-sub">Parametric Bezier waves, blobs & React JSX export</span>
                       </div>
                       <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
                     </a>
@@ -757,6 +856,48 @@ export default function App() {
                     <div className="tools-dropdown-item-text">
                       <span className="tools-dropdown-item-title">Palette & Contrast Studio</span>
                       <span className="tools-dropdown-item-sub">Color scale generator & WCAG/APCA contrast lab</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a
+                    href="/tools/type-scale"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openTypeScaleRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Fluid Type & Spacing Studio</span>
+                      <span className="tools-dropdown-item-sub">Responsive CSS clamp() typography & space generator</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a
+                    href="/tools/shadow-lab"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openShadowLabRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Shadow & Glassmorphism Lab</span>
+                      <span className="tools-dropdown-item-sub">Multi-layered elevation & frosted surface studio</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a
+                    href="/tools/svg-wave"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openSvgWaveRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">SVG Wave & Organic Shape Studio</span>
+                      <span className="tools-dropdown-item-sub">Parametric Bezier waves, blobs & React JSX export</span>
                     </div>
                     <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
                   </a>

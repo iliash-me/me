@@ -11,7 +11,13 @@ const VIRTUAL_FS = {
   },
   "~/tools": {
     type: "dir",
-    children: ["spring-tuner.sh", "palette-studio.sh"]
+    children: [
+      "spring-tuner.sh",
+      "palette-studio.sh",
+      "type-scale.sh",
+      "shadow-lab.sh",
+      "svg-wave.sh"
+    ]
   },
   "~/games": {
     type: "dir",
@@ -568,6 +574,72 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                   </button>
                 </div>
               </div>
+
+              <div className="term-card">
+                <div className="term-card-header">
+                  <strong className="term-card-title">Fluid Type & Spacing Studio</strong>
+                  <span className="term-card-badge">/tools/type-scale</span>
+                </div>
+                <div className="term-card-desc">
+                  Responsive CSS clamp() typography & space generator
+                </div>
+                <div className="term-link-row">
+                  <button
+                    type="button"
+                    className="term-interactive-link"
+                    onClick={() => {
+                      if (onNavigateTo) onNavigateTo("/tools/type-scale");
+                      else window.location.href = "/tools/type-scale";
+                    }}
+                  >
+                    [Launch Fluid Type & Spacing Studio ↗]
+                  </button>
+                </div>
+              </div>
+
+              <div className="term-card">
+                <div className="term-card-header">
+                  <strong className="term-card-title">Shadow & Glassmorphism Lab</strong>
+                  <span className="term-card-badge">/tools/shadow-lab</span>
+                </div>
+                <div className="term-card-desc">
+                  Multi-layered elevation & frosted surface studio
+                </div>
+                <div className="term-link-row">
+                  <button
+                    type="button"
+                    className="term-interactive-link"
+                    onClick={() => {
+                      if (onNavigateTo) onNavigateTo("/tools/shadow-lab");
+                      else window.location.href = "/tools/shadow-lab";
+                    }}
+                  >
+                    [Launch Shadow & Glassmorphism Lab ↗]
+                  </button>
+                </div>
+              </div>
+
+              <div className="term-card">
+                <div className="term-card-header">
+                  <strong className="term-card-title">SVG Wave & Organic Shape Studio</strong>
+                  <span className="term-card-badge">/tools/svg-wave</span>
+                </div>
+                <div className="term-card-desc">
+                  Parametric Bezier waves, blobs & React JSX export
+                </div>
+                <div className="term-link-row">
+                  <button
+                    type="button"
+                    className="term-interactive-link"
+                    onClick={() => {
+                      if (onNavigateTo) onNavigateTo("/tools/svg-wave");
+                      else window.location.href = "/tools/svg-wave";
+                    }}
+                  >
+                    [Launch SVG Wave & Organic Shape Studio ↗]
+                  </button>
+                </div>
+              </div>
             </div>
           );
           break;
@@ -886,6 +958,18 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
             outputContent = <div>Opening Palette & Contrast Studio...</div>;
             if (onNavigateTo) onNavigateTo("/tools/palette-studio");
             else window.location.href = "/tools/palette-studio";
+          } else if (target === "type" || target === "type-scale" || target === "type-scale.sh") {
+            outputContent = <div>Opening Fluid Type & Spacing Studio...</div>;
+            if (onNavigateTo) onNavigateTo("/tools/type-scale");
+            else window.location.href = "/tools/type-scale";
+          } else if (target === "shadow" || target === "shadow-lab" || target === "shadow-lab.sh") {
+            outputContent = <div>Opening Shadow & Glassmorphism Lab...</div>;
+            if (onNavigateTo) onNavigateTo("/tools/shadow-lab");
+            else window.location.href = "/tools/shadow-lab";
+          } else if (target === "wave" || target === "svg-wave" || target === "svg-wave.sh") {
+            outputContent = <div>Opening SVG Wave & Organic Shape Studio...</div>;
+            if (onNavigateTo) onNavigateTo("/tools/svg-wave");
+            else window.location.href = "/tools/svg-wave";
           } else if (target === "kinetic" || target === "kinetic-stack" || target === "kinetic-stack.exe") {
             outputContent = <div>Launching Kinetic Stack...</div>;
             if (onNavigateTo) onNavigateTo("/games/kinetic-stack");
