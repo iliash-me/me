@@ -198,9 +198,123 @@
   transform: translateY(-1px);
 }
 
-.wave-Swatch-chip.is-active {
+.wave-swatch-chip.is-active {
   outline: 2px solid #111315;
   outline-offset: 2px;
+}
+
+.wave-custom-colors {
+  margin-top: 0.4rem;
+  padding-top: 0.65rem;
+  border-top: 1px dashed rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.wave-custom-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #71717a;
+}
+
+.wave-custom-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.wave-mini-action-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  background-color: #f4f4f2;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #52525b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.wave-mini-action-btn:hover {
+  background-color: #111315;
+  color: #ffffff;
+}
+
+.wave-color-inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.wave-color-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.wave-color-field-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.64rem;
+  color: #71717a;
+  text-transform: uppercase;
+}
+
+.wave-color-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: #f6f6f4;
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  border-radius: 10px;
+  padding: 0.28rem 0.45rem;
+  transition: border-color 0.15s ease;
+}
+
+.wave-color-input-wrap:focus-within {
+  border-color: #111315;
+  background-color: #ffffff;
+}
+
+.wave-color-WELL {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.wave-color-WELL::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.wave-color-WELL::-webkit-color-swatch {
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 6px;
+}
+
+.wave-hex-input {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #111315;
+  outline: none;
+  text-transform: uppercase;
 }
 
 .wave-flip-btn {

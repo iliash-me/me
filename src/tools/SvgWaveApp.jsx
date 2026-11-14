@@ -71,14 +71,65 @@ export default function SvgWaveApp({ onNavigateHome }) {
   const [seed, setSeed] = useState(42);
   const [flipY, setFlipY] = useState(false);
   const [themeId, setThemeId] = useState("sunset");
+  const [startColor, setStartColor] = useState("#ff4f18");
+  const [endColor, setEndColor] = useState("#f59e0b");
+  const [startHexInput, setStartHexInput] = useState("#FF4F18");
+  const [endHexInput, setEndHexInput] = useState("#F59E0B");
 
   const [exportFormat, setExportFormat] = useState("svg"); // svg | jsx | css
   const [copied, setCopied] = useState(false);
 
-  const activeTheme = useMemo(
-    () => COLOR_THEMES.find((t) => t.id === themeId) || COLOR_THEMES[0],
-    [themeId]
-  );
+  const selectThemePreset = (theme) => {
+    setThemeId(theme.id);
+    setStartColor(theme.start);
+    setEndColor(theme.end);
+    setStartHexInput(theme.start.toUpperCase());
+    setEndHexInput(theme.end.toUpperCase());
+  };
+
+  const normalizeHex = (val) => {
+    const clean = val.trim().replace(/^#/, "");
+    if (/^[0-9a-fA-F]{3}$/.test(clean)) {
+      return (
+        "#" +
+        clean
+          .split("")
+          .map((c) => c + c)
+          .join("")
+          .toLowerCase()
+      );
+    }
+    if (/^[0-9a-fA-F]{6}$/.test(clean)) {
+      return "#" + clean.toLowerCase();
+    }
+    return null;
+  };
+
+  const handleStartHexChange = (val) => {
+    setStartHexInput(val);
+    const parsed = normalizeHex(val);
+    if (parsed) {
+      setThemeId("custom");
+      setStartColor(parsed);
+    }
+  };
+
+  const handleEndHexChange = (val) => {
+    setEndHexInput(val);
+    const parsed = normalizeHex(val);
+    if (parsed) {
+      setThemeId("custom");
+      setEndColor(parsed);
+    }
+  };
+
+  const handleSwapColors = () => {
+    setThemeId("custom");
+    setStartColor(endColor);
+    setEndColor(startColor);
+    setStartHexInput(endColor.toUpperCase());
+    setEndHexInput(startColor.toUpperCase());
+  };
 
   const wavePaths = useMemo(() => {
     const width = 1440;
@@ -142,7 +193,7 @@ export default function SvgWaveApp({ onNavigateHome }) {
             `  <path d="${p.d}" fill="url(#shapeGrad)" fill-opacity="${p.opacity}" />`
         )
         .join("\n");
-      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">\n  <defs>\n    <linearGradient id="shapeGrad" x1="0%" y1="0%" x2="100%" y2="100%">\n      <stop offset="0%" stop-color="${activeTheme.start}" />\n      <stop offset="100%" stop-color="${activeTheme.end}" />\n    </linearGradient>\n  </defs>\n${paths}\n</svg>`;
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">\n  <defs>\n    <linearGradient id="shapeGrad" x1="0%" y1="0%" x2="100%" y2="100%">\n      <stop offset="0%" stop-color="${startColor}" />\n      <stop offset="100%" stop-color="${endColor}" />\n    </linearGradient>\n  </defs>\n${paths}\n</svg>`;
     }
 
     const paths = wavePaths
@@ -151,8 +202,8 @@ export default function SvgWaveApp({ onNavigateHome }) {
           `  <path d="${p.d}" fill="url(#waveGrad)" fill-opacity="${p.opacity}" />`
       )
       .join("\n");
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 360" preserveAspectRatio="none" width="100%" height="100%">\n  <defs>\n    <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="0%">\n      <stop offset="0%" stop-color="${activeTheme.start}" />\n      <stop offset="100%" stop-color="${activeTheme.end}" />\n    </linearGradient>\n  </defs>\n${paths}\n</svg>`;
-  }, [shapeMode, wavePaths, blobPaths, activeTheme]);
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 360" preserveAspectRatio="none" width="100%" height="100%">\n  <defs>\n    <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="0%">\n      <stop offset="0%" stop-color="${startColor}" />\n      <stop offset="100%" stop-color="${endColor}" />\n    </linearGradient>\n  </defs>\n${paths}\n</svg>`;
+  }, [shapeMode, wavePaths, blobPaths, startColor, endColor]);
 
   const exportCode = useMemo(() => {
     if (exportFormat === "jsx") {
@@ -309,7 +360,11 @@ export default function SvgWaveApp({ onNavigateHome }) {
           <div className="wave-section">
             <div className="wave-heading">
               <span>Gradient Palette</span>
-              <span>{activeTheme.name}</span>
+              <span>
+                {themeId === "custom"
+                  ? "Custom"
+                  : COLOR_THEMES.find((t) => t.id === themeId)?.name || "Vermilion"}
+              </span>
             </div>
 
             <div className="wave-swatches">
@@ -321,11 +376,93 @@ export default function SvgWaveApp({ onNavigateHome }) {
                   style={{
                     background: `linear-gradient(135deg, ${t.start}, ${t.end})`
                   }}
-                  onClick={() => setThemeId(t.id)}
+                  onClick={() => selectThemePreset(t)}
                 >
                   {t.name}
                 </button>
               ))}
+            </div>
+
+            <div className="wave-custom-colors">
+              <div className="wave-custom-header">
+                <span>Custom Colors</span>
+                <div className="wave-custom-actions">
+                  <button
+                    type="button"
+                    className="wave-mini-action-btn"
+                    onClick={handleSwapColors}
+                    title="Swap Start & End Colors"
+                  >
+                    ⇄ Swap
+                  </button>
+                  <button
+                    type="button"
+                    className="wave-mini-action-btn"
+                    onClick={() => {
+                      setThemeId("custom");
+                      setEndColor(startColor);
+                      setEndHexInput(startColor.toUpperCase());
+                    }}
+                    title="Make Solid Single Color"
+                  >
+                    Solid
+                  </button>
+                </div>
+              </div>
+
+              <div className="wave-color-inputs-grid">
+                <div className="wave-color-field">
+                  <span className="wave-color-field-label">Start</span>
+                  <div className="wave-color-input-wrap">
+                    <input
+                      type="color"
+                      aria-label="Start gradient color picker"
+                      className="wave-color-WELL"
+                      value={startColor}
+                      onChange={(e) => {
+                        setThemeId("custom");
+                        setStartColor(e.target.value);
+                        setStartHexInput(e.target.value.toUpperCase());
+                      }}
+                    />
+                    <input
+                      type="text"
+                      aria-label="Start HEX color code"
+                      className="wave-hex-input"
+                      value={startHexInput}
+                      maxLength={7}
+                      onChange={(e) => handleStartHexChange(e.target.value)}
+                      onBlur={() => setStartHexInput(startColor.toUpperCase())}
+                    />
+                  </div>
+                </div>
+
+                <div className="wave-color-field">
+                  <span className="wave-color-field-label">End</span>
+                  <div className="wave-color-input-wrap">
+                    <input
+                      type="color"
+                      aria-label="End gradient color picker"
+                      className="wave-color-WELL"
+                      value={endColor}
+                      onChange={(e) => {
+                        setThemeId("custom");
+                        setEndColor(e.target.value);
+                        setEndHexInput(e.target.value.toUpperCase());
+                      }}
+                    />
+                    <input
+                      type="text"
+                      aria-label="End HEX color code"
+                      className="wave-hex-input"
+                      value={endHexInput}
+                      maxLength={7}
+                      onChange={(e) => handleEndHexChange(e.target.value)}
+                      onBlur={() => setEndHexInput(endColor.toUpperCase())}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </aside>
@@ -341,8 +478,8 @@ export default function SvgWaveApp({ onNavigateHome }) {
               >
                 <defs>
                   <linearGradient id="waveGradPreview" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor={activeTheme.start} />
-                    <stop offset="100%" stopColor={activeTheme.end} />
+                    <stop offset="0%" stopColor={startColor} />
+                    <stop offset="100%" stopColor={endColor} />
                   </linearGradient>
                 </defs>
                 {wavePaths.map((p) => (
@@ -358,8 +495,8 @@ export default function SvgWaveApp({ onNavigateHome }) {
               <svg className="wave-blob-svg" viewBox="0 0 400 400">
                 <defs>
                   <linearGradient id="blobGradPreview" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor={activeTheme.start} />
-                    <stop offset="100%" stopColor={activeTheme.end} />
+                    <stop offset="0%" stopColor={startColor} />
+                    <stop offset="100%" stopColor={endColor} />
                   </linearGradient>
                 </defs>
                 {blobPaths.map((p) => (
