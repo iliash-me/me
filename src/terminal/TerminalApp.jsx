@@ -15,7 +15,14 @@ const VIRTUAL_FS = {
   },
   "~/games": {
     type: "dir",
-    children: ["hexa-merge.exe", "kinetic-stack.exe", "orbit-dash.exe"]
+    children: [
+      "hexa-merge.exe",
+      "kinetic-stack.exe",
+      "orbit-dash.exe",
+      "color-flood.exe",
+      "pulse-grid.exe",
+      "prism-break.exe"
+    ]
   }
 };
 
@@ -637,6 +644,72 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                   </button>
                 </div>
               </div>
+
+              <div className="term-card">
+                <div className="term-card-header">
+                  <strong className="term-card-title">Color Flood</strong>
+                  <span className="term-card-badge">/games/color-flood</span>
+                </div>
+                <div className="term-card-desc">
+                  Chromatic grid unification puzzle
+                </div>
+                <div className="term-link-row">
+                  <button
+                    type="button"
+                    className="term-interactive-link"
+                    onClick={() => {
+                      if (onNavigateTo) onNavigateTo("/games/color-flood");
+                      else window.location.href = "/games/color-flood";
+                    }}
+                  >
+                    [Play Color Flood ↗]
+                  </button>
+                </div>
+              </div>
+
+              <div className="term-card">
+                <div className="term-card-header">
+                  <strong className="term-card-title">Pulse Grid</strong>
+                  <span className="term-card-badge">/games/pulse-grid</span>
+                </div>
+                <div className="term-card-desc">
+                  Pentatonic memory & pattern sequencer
+                </div>
+                <div className="term-link-row">
+                  <button
+                    type="button"
+                    className="term-interactive-link"
+                    onClick={() => {
+                      if (onNavigateTo) onNavigateTo("/games/pulse-grid");
+                      else window.location.href = "/games/pulse-grid";
+                    }}
+                  >
+                    [Play Pulse Grid ↗]
+                  </button>
+                </div>
+              </div>
+
+              <div className="term-card">
+                <div className="term-card-header">
+                  <strong className="term-card-title">Prism Break</strong>
+                  <span className="term-card-badge">/games/prism-break</span>
+                </div>
+                <div className="term-card-desc">
+                  Tactile arcade brick breaker
+                </div>
+                <div className="term-link-row">
+                  <button
+                    type="button"
+                    className="term-interactive-link"
+                    onClick={() => {
+                      if (onNavigateTo) onNavigateTo("/games/prism-break");
+                      else window.location.href = "/games/prism-break";
+                    }}
+                  >
+                    [Play Prism Break ↗]
+                  </button>
+                </div>
+              </div>
             </div>
           );
           break;
@@ -825,6 +898,18 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
             outputContent = <div>Launching Hexa Merge...</div>;
             if (onNavigateTo) onNavigateTo("/games/hexa-merge");
             else window.location.href = "/games/hexa-merge";
+          } else if (target === "flood" || target === "color-flood" || target === "color-flood.exe") {
+            outputContent = <div>Launching Color Flood...</div>;
+            if (onNavigateTo) onNavigateTo("/games/color-flood");
+            else window.location.href = "/games/color-flood";
+          } else if (target === "pulse" || target === "pulse-grid" || target === "pulse-grid.exe") {
+            outputContent = <div>Launching Pulse Grid...</div>;
+            if (onNavigateTo) onNavigateTo("/games/pulse-grid");
+            else window.location.href = "/games/pulse-grid";
+          } else if (target === "prism" || target === "prism-break" || target === "prism-break.exe") {
+            outputContent = <div>Launching Prism Break...</div>;
+            if (onNavigateTo) onNavigateTo("/games/prism-break");
+            else window.location.href = "/games/prism-break";
           } else if (target === "gui" || target === "home") {
             outputContent = <div>Closing terminal window...</div>;
             onNavigateHome?.();

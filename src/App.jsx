@@ -6,6 +6,9 @@ import OklchLabApp from "./tools/OklchLabApp";
 import OrbitDashApp from "./games/OrbitDashApp";
 import KineticStackApp from "./games/KineticStackApp";
 import HexaMergeApp from "./games/HexaMergeApp";
+import ColorFloodApp from "./games/ColorFloodApp";
+import PulseGridApp from "./games/PulseGridApp";
+import PrismBreakApp from "./games/PrismBreakApp";
 import TerminalApp from "./terminal/TerminalApp";
 
 const INQUIRY_TOPICS = ["Web App / UI", "Design System", "3D / Creative", "General Inquiry"];
@@ -31,6 +34,15 @@ function getNormalizedRoute() {
   }
   if (path === "/games/hexa-merge" || window.location.hash === "#/games/hexa-merge") {
     return "/games/hexa-merge";
+  }
+  if (path === "/games/color-flood" || window.location.hash === "#/games/color-flood") {
+    return "/games/color-flood";
+  }
+  if (path === "/games/pulse-grid" || window.location.hash === "#/games/pulse-grid") {
+    return "/games/pulse-grid";
+  }
+  if (path === "/games/prism-break" || window.location.hash === "#/games/prism-break") {
+    return "/games/prism-break";
   }
   return "/";
 }
@@ -94,7 +106,10 @@ export default function App() {
         route === "/tools/spring-tuner" ||
         route === "/games/orbit-dash" ||
         route === "/games/kinetic-stack" ||
-        route === "/games/hexa-merge"
+        route === "/games/hexa-merge" ||
+        route === "/games/color-flood" ||
+        route === "/games/pulse-grid" ||
+        route === "/games/prism-break"
       ) {
         metaTheme.setAttribute("content", "#f5f5f3");
       } else if (route === "/tools/palette-studio") {
@@ -165,7 +180,10 @@ export default function App() {
     route === "/tools/palette-studio" ||
     route === "/games/orbit-dash" ||
     route === "/games/kinetic-stack" ||
-    route === "/games/hexa-merge"
+    route === "/games/hexa-merge" ||
+    route === "/games/color-flood" ||
+    route === "/games/pulse-grid" ||
+    route === "/games/prism-break"
   ) {
     return (
       <>
@@ -183,6 +201,15 @@ export default function App() {
         )}
         {route === "/games/hexa-merge" && (
           <HexaMergeApp onNavigateHome={() => navigateTo("/")} />
+        )}
+        {route === "/games/color-flood" && (
+          <ColorFloodApp onNavigateHome={() => navigateTo("/")} />
+        )}
+        {route === "/games/pulse-grid" && (
+          <PulseGridApp onNavigateHome={() => navigateTo("/")} />
+        )}
+        {route === "/games/prism-break" && (
+          <PrismBreakApp onNavigateHome={() => navigateTo("/")} />
         )}
         {terminalOpen && (
           <TerminalApp
@@ -245,6 +272,27 @@ export default function App() {
     setGamesMenuOpen(false);
     setContactOpen(false);
     navigateTo("/games/hexa-merge");
+  };
+
+  const openColorFloodRoute = () => {
+    setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
+    setContactOpen(false);
+    navigateTo("/games/color-flood");
+  };
+
+  const openPulseGridRoute = () => {
+    setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
+    setContactOpen(false);
+    navigateTo("/games/pulse-grid");
+  };
+
+  const openPrismBreakRoute = () => {
+    setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
+    setContactOpen(false);
+    navigateTo("/games/prism-break");
   };
 
   const openContact = () => {
@@ -469,6 +517,57 @@ export default function App() {
                       <div className="tools-dropdown-item-text">
                         <span className="tools-dropdown-item-title">Orbit Dash (Arcade Game)</span>
                         <span className="tools-dropdown-item-sub">One-button rhythm & dual-ring orbit dodge</span>
+                      </div>
+                      <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                    </a>
+
+                    <a
+                      href="/games/color-flood"
+                      id="dropdown-color-flood-link"
+                      role="menuitem"
+                      className="tools-dropdown-item"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openColorFloodRoute();
+                      }}
+                    >
+                      <div className="tools-dropdown-item-text">
+                        <span className="tools-dropdown-item-title">Color Flood</span>
+                        <span className="tools-dropdown-item-sub">Chromatic grid unification puzzle</span>
+                      </div>
+                      <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                    </a>
+
+                    <a
+                      href="/games/pulse-grid"
+                      id="dropdown-pulse-grid-link"
+                      role="menuitem"
+                      className="tools-dropdown-item"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openPulseGridRoute();
+                      }}
+                    >
+                      <div className="tools-dropdown-item-text">
+                        <span className="tools-dropdown-item-title">Pulse Grid</span>
+                        <span className="tools-dropdown-item-sub">Pentatonic memory & pattern sequencer</span>
+                      </div>
+                      <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                    </a>
+
+                    <a
+                      href="/games/prism-break"
+                      id="dropdown-prism-break-link"
+                      role="menuitem"
+                      className="tools-dropdown-item"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openPrismBreakRoute();
+                      }}
+                    >
+                      <div className="tools-dropdown-item-text">
+                        <span className="tools-dropdown-item-title">Prism Break</span>
+                        <span className="tools-dropdown-item-sub">Tactile arcade brick breaker</span>
                       </div>
                       <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
                     </a>
@@ -706,6 +805,48 @@ export default function App() {
                     <div className="tools-dropdown-item-text">
                       <span className="tools-dropdown-item-title">Orbit Dash (Arcade Game)</span>
                       <span className="tools-dropdown-item-sub">One-button rhythm & dual-ring orbit dodge</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a
+                    href="/games/color-flood"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openColorFloodRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Color Flood</span>
+                      <span className="tools-dropdown-item-sub">Chromatic grid unification puzzle</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a
+                    href="/games/pulse-grid"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openPulseGridRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Pulse Grid</span>
+                      <span className="tools-dropdown-item-sub">Pentatonic memory & pattern sequencer</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a
+                    href="/games/prism-break"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openPrismBreakRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Prism Break</span>
+                      <span className="tools-dropdown-item-sub">Tactile arcade brick breaker</span>
                     </div>
                     <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
                   </a>
