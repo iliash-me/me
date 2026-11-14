@@ -6,6 +6,10 @@ import OklchLabApp from "./tools/OklchLabApp";
 import TypeScaleApp from "./tools/TypeScaleApp";
 import ShadowLabApp from "./tools/ShadowLabApp";
 import SvgWaveApp from "./tools/SvgWaveApp";
+import AnimationPlaygroundApp from "./tools/AnimationPlaygroundApp";
+import GradientGeneratorApp from "./tools/GradientGeneratorApp";
+import SocialComposerApp from "./tools/SocialComposerApp";
+import PricingCalculatorApp from "./tools/PricingCalculatorApp";
 import OrbitDashApp from "./games/OrbitDashApp";
 import KineticStackApp from "./games/KineticStackApp";
 import HexaMergeApp from "./games/HexaMergeApp";
@@ -37,6 +41,18 @@ function getNormalizedRoute() {
   }
   if (path === "/tools/svg-wave" || window.location.hash === "#/tools/svg-wave") {
     return "/tools/svg-wave";
+  }
+  if (path === "/tools/animation-playground" || window.location.hash === "#/tools/animation-playground") {
+    return "/tools/animation-playground";
+  }
+  if (path === "/tools/gradient-generator" || window.location.hash === "#/tools/gradient-generator") {
+    return "/tools/gradient-generator";
+  }
+  if (path === "/tools/social-composer" || window.location.hash === "#/tools/social-composer") {
+    return "/tools/social-composer";
+  }
+  if (path === "/tools/pricing-calculator" || window.location.hash === "#/tools/pricing-calculator") {
+    return "/tools/pricing-calculator";
   }
   if (path === "/games/orbit-dash" || window.location.hash === "#/games/orbit-dash") {
     return "/games/orbit-dash";
@@ -119,6 +135,10 @@ export default function App() {
         route === "/tools/type-scale" ||
         route === "/tools/shadow-lab" ||
         route === "/tools/svg-wave" ||
+        route === "/tools/animation-playground" ||
+        route === "/tools/gradient-generator" ||
+        route === "/tools/social-composer" ||
+        route === "/tools/pricing-calculator" ||
         route === "/games/orbit-dash" ||
         route === "/games/kinetic-stack" ||
         route === "/games/hexa-merge" ||
@@ -196,6 +216,10 @@ export default function App() {
     route === "/tools/type-scale" ||
     route === "/tools/shadow-lab" ||
     route === "/tools/svg-wave" ||
+    route === "/tools/animation-playground" ||
+    route === "/tools/gradient-generator" ||
+    route === "/tools/social-composer" ||
+    route === "/tools/pricing-calculator" ||
     route === "/games/orbit-dash" ||
     route === "/games/kinetic-stack" ||
     route === "/games/hexa-merge" ||
@@ -219,6 +243,18 @@ export default function App() {
         )}
         {route === "/tools/svg-wave" && (
           <SvgWaveApp onNavigateHome={() => navigateTo("/")} />
+        )}
+        {route === "/tools/animation-playground" && (
+          <AnimationPlaygroundApp onNavigateHome={() => navigateTo("/")} />
+        )}
+        {route === "/tools/gradient-generator" && (
+          <GradientGeneratorApp onNavigateHome={() => navigateTo("/")} />
+        )}
+        {route === "/tools/social-composer" && (
+          <SocialComposerApp onNavigateHome={() => navigateTo("/")} />
+        )}
+        {route === "/tools/pricing-calculator" && (
+          <PricingCalculatorApp onNavigateHome={() => navigateTo("/")} />
         )}
         {route === "/games/orbit-dash" && (
           <OrbitDashApp onNavigateHome={() => navigateTo("/")} />
@@ -299,6 +335,34 @@ export default function App() {
     setGamesMenuOpen(false);
     setContactOpen(false);
     navigateTo("/tools/svg-wave");
+  };
+
+  const openAnimPlaygroundRoute = () => {
+    setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
+    setContactOpen(false);
+    navigateTo("/tools/animation-playground");
+  };
+
+  const openGradientGenRoute = () => {
+    setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
+    setContactOpen(false);
+    navigateTo("/tools/gradient-generator");
+  };
+
+  const openSocialComposerRoute = () => {
+    setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
+    setContactOpen(false);
+    navigateTo("/tools/social-composer");
+  };
+
+  const openPricingCalcRoute = () => {
+    setToolsMenuOpen(false);
+    setGamesMenuOpen(false);
+    setContactOpen(false);
+    navigateTo("/tools/pricing-calculator");
   };
 
   const openOrbitDashRoute = () => {
@@ -543,6 +607,74 @@ export default function App() {
                       <div className="tools-dropdown-item-text">
                         <span className="tools-dropdown-item-title">SVG Wave & Organic Shape Studio</span>
                         <span className="tools-dropdown-item-sub">Parametric Bezier waves, blobs & React JSX export</span>
+                      </div>
+                      <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                    </a>
+
+                    <a
+                      href="/tools/animation-playground"
+                      id="dropdown-animation-playground-link"
+                      role="menuitem"
+                      className="tools-dropdown-item"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openAnimPlaygroundRoute();
+                      }}
+                    >
+                      <div className="tools-dropdown-item-text">
+                        <span className="tools-dropdown-item-title">SVG & CSS Animation Playground</span>
+                        <span className="tools-dropdown-item-sub">Interactive vector stroke & @keyframes studio</span>
+                      </div>
+                      <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                    </a>
+
+                    <a
+                      href="/tools/gradient-generator"
+                      id="dropdown-gradient-generator-link"
+                      role="menuitem"
+                      className="tools-dropdown-item"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openGradientGenRoute();
+                      }}
+                    >
+                      <div className="tools-dropdown-item-text">
+                        <span className="tools-dropdown-item-title">Gradient & Background Generator</span>
+                        <span className="tools-dropdown-item-sub">Multi-stop mesh gradients & architectural grids</span>
+                      </div>
+                      <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                    </a>
+
+                    <a
+                      href="/tools/social-composer"
+                      id="dropdown-social-composer-link"
+                      role="menuitem"
+                      className="tools-dropdown-item"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openSocialComposerRoute();
+                      }}
+                    >
+                      <div className="tools-dropdown-item-text">
+                        <span className="tools-dropdown-item-title">Social Media Image Composer</span>
+                        <span className="tools-dropdown-item-sub">Open Graph, X & banner card builder with PNG export</span>
+                      </div>
+                      <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                    </a>
+
+                    <a
+                      href="/tools/pricing-calculator"
+                      id="dropdown-pricing-calculator-link"
+                      role="menuitem"
+                      className="tools-dropdown-item"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openPricingCalcRoute();
+                      }}
+                    >
+                      <div className="tools-dropdown-item-text">
+                        <span className="tools-dropdown-item-title">Interactive Pricing Calculator</span>
+                        <span className="tools-dropdown-item-sub">Project scope estimator & SaaS ROI modeler</span>
                       </div>
                       <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
                     </a>
@@ -898,6 +1030,62 @@ export default function App() {
                     <div className="tools-dropdown-item-text">
                       <span className="tools-dropdown-item-title">SVG Wave & Organic Shape Studio</span>
                       <span className="tools-dropdown-item-sub">Parametric Bezier waves, blobs & React JSX export</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a
+                    href="/tools/animation-playground"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openAnimPlaygroundRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">SVG & CSS Animation Playground</span>
+                      <span className="tools-dropdown-item-sub">Interactive vector stroke & @keyframes studio</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a
+                    href="/tools/gradient-generator"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openGradientGenRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Gradient & Background Generator</span>
+                      <span className="tools-dropdown-item-sub">Multi-stop mesh gradients & architectural grids</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a
+                    href="/tools/social-composer"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openSocialComposerRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Social Media Image Composer</span>
+                      <span className="tools-dropdown-item-sub">Open Graph, X & banner card builder with PNG export</span>
+                    </div>
+                    <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a
+                    href="/tools/pricing-calculator"
+                    className="tools-dropdown-item"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openPricingCalcRoute();
+                    }}
+                  >
+                    <div className="tools-dropdown-item-text">
+                      <span className="tools-dropdown-item-title">Interactive Pricing Calculator</span>
+                      <span className="tools-dropdown-item-sub">Project scope estimator & SaaS ROI modeler</span>
                     </div>
                     <span className="tools-dropdown-item-arrow" aria-hidden="true">↗</span>
                   </a>

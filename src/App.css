@@ -196,8 +196,10 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  min-width: 240px;
+  min-width: 260px;
   max-width: calc(100vw - 2rem);
+  max-height: min(76vh, 540px);
+  overflow-y: auto;
   background-color: var(--surface-1);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);

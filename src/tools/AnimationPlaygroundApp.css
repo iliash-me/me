@@ -1,0 +1,389 @@
+/* ==========================================================================
+   SVG & CSS ANIMATION PLAYGROUND (/tools/animation-playground)
+   ========================================================================== */
+
+.anim-studio-app {
+  min-height: 100vh;
+  background-color: #f5f5f3;
+  color: #111315;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.anim-nav {
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.anim-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.anim-back-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  color: #52525b;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  cursor: pointer;
+}
+
+.anim-back-link:hover {
+  color: #111315;
+  border-color: rgba(0, 0, 0, 0.18);
+  transform: translateX(-1px);
+}
+
+.anim-nav-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.anim-presets {
+  display: flex;
+  background-color: #ebebea;
+  padding: 3px;
+  border-radius: 999px;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.anim-preset-pill {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  color: #52525b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.anim-preset-pill:hover {
+  color: #111315;
+}
+
+.anim-preset-pill.is-active {
+  background-color: #ffffff;
+  color: #111315;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.anim-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.anim-play-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background-color: #111315;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.anim-play-btn.is-paused {
+  background-color: #ff4f18;
+}
+
+/* Main Layout */
+.anim-main {
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem 2.5rem;
+  display: grid;
+  grid-template-columns: 330px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+.anim-panel {
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 20px;
+  padding: 1.25rem;
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.anim-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.anim-heading {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #71717a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.anim-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+
+.anim-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #3f3f46;
+}
+
+.anim-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  color: #ff4f18;
+  font-weight: 600;
+}
+
+.anim-slider {
+  width: 100%;
+  accent-color: #ff4f18;
+  cursor: pointer;
+}
+
+.anim-select {
+  width: 100%;
+  padding: 0.45rem 0.65rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: #f6f6f4;
+  color: #111315;
+  cursor: pointer;
+}
+
+.anim-divider {
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.anim-color-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.anim-color-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.anim-color-field-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.64rem;
+  color: #71717a;
+  text-transform: uppercase;
+}
+
+.anim-color-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: #f6f6f4;
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  border-radius: 10px;
+  padding: 0.28rem 0.45rem;
+}
+
+.anim-color-well {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+
+.anim-color-well::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.anim-color-well::-webkit-color-swatch {
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 6px;
+}
+
+.anim-hex-input {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #111315;
+  outline: none;
+  text-transform: uppercase;
+}
+
+/* Right Stage */
+.anim-stage-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.anim-preview-stage {
+  position: relative;
+  min-height: 360px;
+  background-color: #ffffff;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+  background-size: 20px 20px;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.05);
+}
+
+.anim-preview-stage.is-dark {
+  background-color: #111315;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+}
+
+.anim-stage-toolbar {
+  position: absolute;
+  top: 1rem;
+  left: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.anim-stage-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background-color: rgba(17, 19, 21, 0.06);
+  color: #52525b;
+}
+
+.anim-preview-stage.is-dark .anim-stage-badge {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e4e4e7;
+}
+
+.anim-bg-toggle {
+  pointer-events: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  background-color: #f4f4f2;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #111315;
+  cursor: pointer;
+}
+
+/* Export Box */
+.anim-export-card {
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 20px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.anim-export-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.anim-format-pills {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.anim-format-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background-color: #f4f4f2;
+  color: #52525b;
+  cursor: pointer;
+}
+
+.anim-format-pill.is-active {
+  background-color: #111315;
+  color: #ffffff;
+}
+
+.anim-copy-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.38rem 0.9rem;
+  border-radius: 999px;
+  background-color: #ff4f18;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.anim-code-pre {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 12px;
+  background-color: #111315;
+  color: #e4e4e7;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  overflow-x: auto;
+  max-height: 260px;
+}
+
+@media (max-width: 860px) {
+  .anim-main {
+    grid-template-columns: 1fr;
+  }
+}

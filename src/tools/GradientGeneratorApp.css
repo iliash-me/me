@@ -1,0 +1,580 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+.grad-studio-shell {
+  min-height: 100vh;
+  background-color: #f5f5f3;
+  color: #111315;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 3rem;
+}
+
+.grad-studio-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(245, 245, 243, 0.88);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.grad-studio-topbar-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.grad-studio-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.grad-studio-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #111315;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.grad-studio-back:hover {
+  border-color: #111315;
+  transform: translateX(-2px);
+}
+
+.grad-studio-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.grad-studio-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #ff4f18;
+  font-weight: 700;
+}
+
+.grad-studio-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.grad-studio-presets {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.grad-preset-pill {
+  padding: 0.4rem 0.78rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  color: #525860;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.grad-preset-pill:hover {
+  border-color: #111315;
+  color: #111315;
+}
+
+.grad-preset-pill.is-active {
+  background: #111315;
+  color: #ffffff;
+  border-color: #111315;
+}
+
+.grad-preset-dots {
+  display: inline-flex;
+  align-items: center;
+}
+
+.grad-preset-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  margin-left: -3px;
+}
+
+.grad-preset-dot:first-child {
+  margin-left: 0;
+}
+
+.grad-studio-workspace {
+  max-width: 1440px;
+  width: 100%;
+  margin: 1.5rem auto 0;
+  padding: 0 1.5rem;
+  display: grid;
+  grid-template-columns: 400px minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.grad-studio-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.grad-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 18px;
+  padding: 1.2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.025);
+}
+
+.grad-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.95rem;
+}
+
+.grad-card-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #111315;
+  margin: 0;
+}
+
+.grad-card-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: #6c727a;
+  background: #f5f5f3;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
+.grad-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.35rem;
+  background: #f5f5f3;
+  padding: 0.25rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+
+.grad-mode-btn {
+  padding: 0.44rem 0.35rem;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #525860;
+  cursor: pointer;
+  transition: all 0.14s ease;
+}
+
+.grad-mode-btn.is-active {
+  background: #ffffff;
+  color: #111315;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.grad-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.grad-control-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.grad-control-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #363a40;
+}
+
+.grad-control-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.73rem;
+  color: #111315;
+  font-weight: 600;
+}
+
+.grad-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: #e5e5e0;
+  outline: none;
+}
+
+.grad-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #111315;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+.grad-stops-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.grad-stop-item {
+  background: #f8f8f6;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.grad-stop-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.grad-stop-color-pick {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.grad-native-color {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 7px;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+.grad-native-color::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.grad-native-color::-webkit-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+.grad-hex-input {
+  width: 82px;
+  padding: 0.3rem 0.48rem;
+  border-radius: 7px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #111315;
+  text-transform: uppercase;
+}
+
+.grad-hex-input:focus {
+  outline: none;
+  border-color: #111315;
+}
+
+.grad-stop-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: #6c727a;
+  font-weight: 600;
+}
+
+.grad-stop-xy {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.grad-mini-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.66rem;
+  color: #525860;
+}
+
+.grad-action-btn {
+  padding: 0.42rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  color: #111315;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.grad-action-btn:hover {
+  background: #111315;
+  color: #ffffff;
+}
+
+.grad-studio-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.grad-stage-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.035);
+}
+
+.grad-stage-toolbar {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.grad-stage-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  color: #525860;
+}
+
+.grad-stage-viewport {
+  position: relative;
+  min-height: 450px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 2.5rem;
+  transition: background 0.25s ease;
+}
+
+.grad-pattern-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.grad-grain-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+.grad-hero-preview-card {
+  position: relative;
+  z-index: 2;
+  max-width: 480px;
+  width: 100%;
+  padding: 2rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.14);
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.grad-hero-preview-card.is-dark-ink {
+  background: rgba(255, 255, 255, 0.74);
+  border-color: rgba(17, 19, 21, 0.12);
+  color: #111315;
+  text-shadow: none;
+}
+
+.grad-hero-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  opacity: 0.85;
+  margin-bottom: 0.45rem;
+}
+
+.grad-hero-heading {
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin: 0 0 0.65rem;
+}
+
+.grad-hero-desc {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  opacity: 0.9;
+  margin: 0 0 1.25rem;
+}
+
+.grad-hero-swatches {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.grad-hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.22);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: #ffffff;
+}
+
+.grad-hero-preview-card.is-dark-ink .grad-hero-chip {
+  background: rgba(17, 19, 21, 0.08);
+  color: #111315;
+}
+
+.grad-hero-chip-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.grad-code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.85rem;
+}
+
+.grad-export-tabs {
+  display: flex;
+  gap: 0.35rem;
+  background: #f5f5f3;
+  padding: 0.25rem;
+  border-radius: 10px;
+}
+
+.grad-export-tab {
+  padding: 0.38rem 0.75rem;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #525860;
+  cursor: pointer;
+}
+
+.grad-export-tab.is-active {
+  background: #ffffff;
+  color: #111315;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.grad-copy-btn {
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: none;
+  background: #111315;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.grad-copy-btn:hover {
+  background: #ff4f18;
+}
+
+.grad-code-pre {
+  margin: 0;
+  padding: 1.1rem;
+  border-radius: 12px;
+  background: #111315;
+  color: #e5e7eb;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+
+@media (max-width: 1024px) {
+  .grad-studio-workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .grad-studio-topbar-inner,
+  .grad-studio-workspace {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .grad-stage-viewport {
+    min-height: 360px;
+    padding: 1.25rem;
+  }
+}

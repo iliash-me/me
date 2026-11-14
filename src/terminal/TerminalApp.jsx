@@ -16,7 +16,11 @@ const VIRTUAL_FS = {
       "palette-studio.sh",
       "type-scale.sh",
       "shadow-lab.sh",
-      "svg-wave.sh"
+      "svg-wave.sh",
+      "animation-playground.sh",
+      "gradient-generator.sh",
+      "social-composer.sh",
+      "pricing-calculator.sh"
     ]
   },
   "~/games": {
@@ -640,6 +644,94 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
                   </button>
                 </div>
               </div>
+
+              <div className="term-card">
+                <div className="term-card-header">
+                  <strong className="term-card-title">SVG & CSS Animation Playground</strong>
+                  <span className="term-card-badge">/tools/animation-playground</span>
+                </div>
+                <div className="term-card-desc">
+                  Interactive vector stroke & @keyframes studio
+                </div>
+                <div className="term-link-row">
+                  <button
+                    type="button"
+                    className="term-interactive-link"
+                    onClick={() => {
+                      if (onNavigateTo) onNavigateTo("/tools/animation-playground");
+                      else window.location.href = "/tools/animation-playground";
+                    }}
+                  >
+                    [Launch SVG & CSS Animation Playground ↗]
+                  </button>
+                </div>
+              </div>
+
+              <div className="term-card">
+                <div className="term-card-header">
+                  <strong className="term-card-title">Gradient & Background Generator</strong>
+                  <span className="term-card-badge">/tools/gradient-generator</span>
+                </div>
+                <div className="term-card-desc">
+                  Multi-stop mesh gradients & architectural grids
+                </div>
+                <div className="term-link-row">
+                  <button
+                    type="button"
+                    className="term-interactive-link"
+                    onClick={() => {
+                      if (onNavigateTo) onNavigateTo("/tools/gradient-generator");
+                      else window.location.href = "/tools/gradient-generator";
+                    }}
+                  >
+                    [Launch Gradient & Background Generator ↗]
+                  </button>
+                </div>
+              </div>
+
+              <div className="term-card">
+                <div className="term-card-header">
+                  <strong className="term-card-title">Social Media Image Composer</strong>
+                  <span className="term-card-badge">/tools/social-composer</span>
+                </div>
+                <div className="term-card-desc">
+                  Open Graph, X & banner card builder with PNG export
+                </div>
+                <div className="term-link-row">
+                  <button
+                    type="button"
+                    className="term-interactive-link"
+                    onClick={() => {
+                      if (onNavigateTo) onNavigateTo("/tools/social-composer");
+                      else window.location.href = "/tools/social-composer";
+                    }}
+                  >
+                    [Launch Social Media Image Composer ↗]
+                  </button>
+                </div>
+              </div>
+
+              <div className="term-card">
+                <div className="term-card-header">
+                  <strong className="term-card-title">Interactive Pricing Calculator</strong>
+                  <span className="term-card-badge">/tools/pricing-calculator</span>
+                </div>
+                <div className="term-card-desc">
+                  Project scope estimator & SaaS ROI modeler
+                </div>
+                <div className="term-link-row">
+                  <button
+                    type="button"
+                    className="term-interactive-link"
+                    onClick={() => {
+                      if (onNavigateTo) onNavigateTo("/tools/pricing-calculator");
+                      else window.location.href = "/tools/pricing-calculator";
+                    }}
+                  >
+                    [Launch Interactive Pricing Calculator ↗]
+                  </button>
+                </div>
+              </div>
             </div>
           );
           break;
@@ -945,7 +1037,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
           if (!target) {
             outputContent = (
               <div style={{ color: "var(--t-error)" }}>
-                Usage: open &lt;app&gt; (tuner, palette, kinetic, orbit, hexa, gui, github)
+                Usage: open &lt;app&gt; (tuner, palette, type, shadow, wave, anim, gradient, social, pricing, kinetic, orbit, hexa, gui, github)
               </div>
             );
             break;
@@ -970,6 +1062,22 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
             outputContent = <div>Opening SVG Wave & Organic Shape Studio...</div>;
             if (onNavigateTo) onNavigateTo("/tools/svg-wave");
             else window.location.href = "/tools/svg-wave";
+          } else if (target === "anim" || target === "animation" || target === "animation-playground" || target === "animation-playground.sh") {
+            outputContent = <div>Opening SVG & CSS Animation Playground...</div>;
+            if (onNavigateTo) onNavigateTo("/tools/animation-playground");
+            else window.location.href = "/tools/animation-playground";
+          } else if (target === "gradient" || target === "gradient-generator" || target === "gradient-generator.sh") {
+            outputContent = <div>Opening Gradient & Background Generator...</div>;
+            if (onNavigateTo) onNavigateTo("/tools/gradient-generator");
+            else window.location.href = "/tools/gradient-generator";
+          } else if (target === "social" || target === "social-composer" || target === "social-composer.sh") {
+            outputContent = <div>Opening Social Media Image Composer...</div>;
+            if (onNavigateTo) onNavigateTo("/tools/social-composer");
+            else window.location.href = "/tools/social-composer";
+          } else if (target === "pricing" || target === "pricing-calculator" || target === "pricing-calculator.sh") {
+            outputContent = <div>Opening Interactive Pricing Calculator...</div>;
+            if (onNavigateTo) onNavigateTo("/tools/pricing-calculator");
+            else window.location.href = "/tools/pricing-calculator";
           } else if (target === "kinetic" || target === "kinetic-stack" || target === "kinetic-stack.exe") {
             outputContent = <div>Launching Kinetic Stack...</div>;
             if (onNavigateTo) onNavigateTo("/games/kinetic-stack");
@@ -1003,7 +1111,7 @@ export default function TerminalApp({ onNavigateHome, onNavigateTo }) {
           } else {
             outputContent = (
               <div style={{ color: "var(--t-error)" }}>
-                Cannot open '{target}'. Valid targets: tuner, palette, kinetic, orbit, hexa, gui, github
+                Cannot open '{target}'. Valid targets: tuner, palette, type, shadow, wave, anim, gradient, social, pricing, kinetic, orbit, hexa, gui, github
               </div>
             );
           }
