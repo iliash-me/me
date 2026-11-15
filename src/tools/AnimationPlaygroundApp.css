@@ -382,6 +382,181 @@
   max-height: 260px;
 }
 
+.anim-upload-top-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background-color: #ffffff;
+  color: #111315;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.anim-upload-top-btn:hover {
+  border-color: #ff4f18;
+  color: #ff4f18;
+}
+
+.anim-preset-pill.is-custom {
+  color: #ff4f18;
+  font-weight: 600;
+}
+
+.anim-dropzone {
+  width: 100%;
+  border: 1.5px dashed rgba(0, 0, 0, 0.16);
+  background-color: #f8f8f6;
+  border-radius: 14px;
+  padding: 0.9rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.anim-dropzone:hover,
+.anim-dropzone.is-dragging {
+  border-color: #ff4f18;
+  background-color: rgba(255, 79, 24, 0.05);
+}
+
+.anim-dropzone-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #111315;
+}
+
+.anim-dropzone-sub {
+  font-size: 0.72rem;
+  color: #71717a;
+  line-height: 1.35;
+}
+
+.anim-custom-file-card {
+  background-color: #f6f6f4;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.anim-custom-file-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.anim-custom-file-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #111315;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  text-align: left;
+}
+
+.anim-custom-file-name.is-active {
+  color: #ff4f18;
+}
+
+.anim-custom-file-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.anim-mini-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 0.22rem 0.5rem;
+  border-radius: 7px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #3f3f46;
+  cursor: pointer;
+}
+
+.anim-mini-btn:hover {
+  border-color: #111315;
+  color: #111315;
+}
+
+.anim-mini-btn.is-danger:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.anim-effect-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.anim-effect-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.26rem 0.55rem;
+  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #52525b;
+  cursor: pointer;
+}
+
+.anim-effect-pill.is-active {
+  background-color: #111315;
+  border-color: #111315;
+  color: #ffffff;
+}
+
+.anim-check-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.anim-check-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: #3f3f46;
+  cursor: pointer;
+}
+
+.anim-check-label input {
+  accent-color: #ff4f18;
+}
+
+.anim-upload-error {
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: #dc2626;
+}
+
+.anim-preview-stage.is-dragging {
+  border-color: #ff4f18;
+  box-shadow: 0 0 0 2px rgba(255, 79, 24, 0.2);
+}
+
 @media (max-width: 860px) {
   .anim-main {
     grid-template-columns: 1fr;

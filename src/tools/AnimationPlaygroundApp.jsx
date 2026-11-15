@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import "./AnimationPlaygroundApp.css";
 
 const SCENES = [
@@ -17,7 +17,102 @@ const EASINGS = [
   { label: "ease-in-back", value: "cubic-bezier(0.68, -0.55, 0.27, 1.55)" }
 ];
 
+const CUSTOM_EFFECTS = [
+  {
+    id: "stroke-draw",
+    label: "Path Draw",
+    name: "svgPathDraw",
+    keyframes: `@keyframes svgPathDraw {\n  0% {\n    stroke-dashoffset: 1;\n    opacity: 0.35;\n  }\n  100% {\n    stroke-dashoffset: 0;\n    opacity: 1;\n  }\n}`
+  },
+  {
+    id: "float",
+    label: "3D Float",
+    name: "svgFloat",
+    keyframes: `@keyframes svgFloat {\n  0% { transform: translateY(0px) rotate(-3deg); }\n  100% { transform: translateY(-14px) rotate(3deg); }\n}`
+  },
+  {
+    id: "spin",
+    label: "Spin",
+    name: "svgSpin",
+    keyframes: `@keyframes svgSpin {\n  0% { transform: rotate(0deg); }\n  100% { transform: rotate(360deg); }\n}`
+  },
+  {
+    id: "pulse",
+    label: "Pulse",
+    name: "svgPulse",
+    keyframes: `@keyframes svgPulse {\n  0% { transform: scale(0.86); opacity: 0.75; }\n  100% { transform: scale(1.1); opacity: 1; }\n}`
+  },
+  {
+    id: "swing",
+    label: "Pendulum",
+    name: "svgSwing",
+    keyframes: `@keyframes svgSwing {\n  0% { transform: rotate(-14deg) scale(0.96); }\n  100% { transform: rotate(14deg) scale(1.04); }\n}`
+  }
+];
+
+const GEOM_TAGS = new Set([
+  "path",
+  "circle",
+  "rect",
+  "line",
+  "polyline",
+  "polygon",
+  "ellipse"
+]);
+const DISALLOWED_TAGS = new Set(["script", "foreignobject", "iframe", "object", "embed"]);
+
+function parseUploadedSvg(rawText, fileName = "custom.svg") {
+  const doc = new DOMParser().parseFromString(rawText, "image/svg+xml");
+  if (doc.querySelector("parsererror")) {
+    return { error: "Could not parse SVG XML." };
+  }
+  const svg = doc.querySelector("svg");
+  if (!svg) {
+    return { error: "No <svg> root element found in file." };
+  }
+
+  // Strip unsafe tags and inline event handlers
+  svg.querySelectorAll("*").forEach((el) => {
+    if (DISALLOWED_TAGS.has(el.tagName.toLowerCase())) {
+      el.remove();
+      return;
+    }
+    [...el.attributes].forEach((attr) => {
+      const name = attr.name.toLowerCase();
+      const val = attr.value.trim().toLowerCase();
+      if (name.startsWith("on") || ((name === "href" || name === "xlink:href") && val.startsWith("javascript:"))) {
+        el.removeAttribute(attr.name);
+      }
+    });
+    if (GEOM_TAGS.has(el.tagName.toLowerCase()) && !el.hasAttribute("pathLength")) {
+      el.setAttribute("pathLength", "1");
+    }
+  });
+
+  let viewBox = svg.getAttribute("viewBox")?.trim();
+  if (!viewBox) {
+    const w = parseFloat(svg.getAttribute("width")) || 120;
+    const h = parseFloat(svg.getAttribute("height")) || 120;
+    viewBox = `0 0 ${w} ${h}`;
+  }
+
+  const innerMarkup = svg.innerHTML.trim();
+  if (!innerMarkup) {
+    return { error: "Uploaded SVG has no drawable child elements." };
+  }
+
+  return {
+    name: fileName,
+    viewBox,
+    innerMarkup,
+    shapeCount: svg.querySelectorAll("path, circle, rect, line, polyline, polygon, ellipse").length
+  };
+}
+
 export default function AnimationPlaygroundApp({ onNavigateHome }) {
+  const scopeId = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  const fileInputRef = useRef(null);
+
   const [scene, setScene] = useState("stroke-draw");
   const [duration, setDuration] = useState(1.8);
   const [delay, setDelay] = useState(0);
@@ -30,10 +125,20 @@ export default function AnimationPlaygroundApp({ onNavigateHome }) {
   const [primaryHex, setPrimaryHex] = useState("#FF4F18");
   const [accentHex, setAccentHex] = useState("#2563EB");
 
+  const [customSvg, setCustomSvg] = useState(null);
+  const [customEffect, setCustomEffect] = useState("stroke-draw");
+  const [staggerStep, setStaggerStep] = useState(0.08);
+  const [overrideColors, setOverrideColors] = useState(true);
+  const [overrideStroke, setOverrideStroke] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+
   const [paused, setPaused] = useState(false);
   const [darkStage, setDarkStage] = useState(false);
   const [exportFormat, setExportFormat] = useState("css"); // css | svg | jsx
   const [copied, setCopied] = useState(false);
+
+  const isCustomActive = scene === "custom-svg" && Boolean(customSvg);
 
   const normalizeHex = (val) => {
     const clean = val.trim().replace(/^#/, "");
@@ -41,7 +146,47 @@ export default function AnimationPlaygroundApp({ onNavigateHome }) {
     return null;
   };
 
+  const handleSvgFile = (file) => {
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith(".svg") && file.type !== "image/svg+xml") {
+      setUploadError("Please select a valid .svg file.");
+      return;
+    }
+    if (file.size > 1.5 * 1024 * 1024) {
+      setUploadError("SVG file is too large (max 1.5 MB).");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const parsed = parseUploadedSvg(String(reader.result || ""), file.name);
+      if (parsed.error) {
+        setUploadError(parsed.error);
+        return;
+      }
+      setUploadError("");
+      setCustomSvg(parsed);
+      setScene("custom-svg");
+    };
+    reader.onerror = () => setUploadError("Failed to read file.");
+    reader.readAsText(file);
+  };
+
+  const clearCustomSvg = () => {
+    setCustomSvg(null);
+    setUploadError("");
+    if (scene === "custom-svg") setScene("stroke-draw");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const activeCustomEffect = useMemo(
+    () => CUSTOM_EFFECTS.find((fx) => fx.id === customEffect) || CUSTOM_EFFECTS[0],
+    [customEffect]
+  );
+
   const keyframesCss = useMemo(() => {
+    if (isCustomActive) {
+      return activeCustomEffect.keyframes;
+    }
     if (scene === "stroke-draw") {
       return `@keyframes svgStrokeDraw {\n  0% {\n    stroke-dashoffset: 320;\n    transform: rotate(-8deg) scale(0.94);\n  }\n  100% {\n    stroke-dashoffset: 0;\n    transform: rotate(0deg) scale(1);\n  }\n}`;
     }
@@ -55,19 +200,123 @@ export default function AnimationPlaygroundApp({ onNavigateHome }) {
       return `@keyframes barWave {\n  0%, 100% { transform: scaleY(0.35); }\n  50% { transform: scaleY(1); }\n}`;
     }
     return `@keyframes floatCard {\n  0% { transform: translateY(0px) rotate(-2deg); }\n  100% { transform: translateY(-16px) rotate(2deg); }\n}`;
-  }, [scene]);
+  }, [scene, isCustomActive, activeCustomEffect]);
 
   const animName = useMemo(() => {
+    if (isCustomActive) return activeCustomEffect.name;
     if (scene === "stroke-draw") return "svgStrokeDraw";
     if (scene === "orbit-spinner") return "orbitSpin";
     if (scene === "pulse-rings") return "radarPulse";
     if (scene === "morph-loader") return "barWave";
     return "floatCard";
-  }, [scene]);
+  }, [scene, isCustomActive, activeCustomEffect]);
 
   const animShorthand = `${animName} ${duration}s ${easing} ${delay}s infinite ${direction}`;
 
+  const customStageCss = useMemo(() => {
+    if (!isCustomActive) return "";
+    const sel = `.anim-custom-svg-${scopeId}`;
+    const shapeSel = `${sel} :is(path, circle, rect, line, polyline, polygon, ellipse)`;
+    const playState = paused ? "paused" : "running";
+    const lines = [
+      `${sel} { overflow: visible; }`,
+      `${shapeSel} { transform-box: fill-box; transform-origin: center; }`
+    ];
+
+    if (customEffect === "stroke-draw") {
+      lines.push(
+        `${shapeSel} {`,
+        `  stroke: ${overrideColors ? primaryColor : "currentColor"};`,
+        `  stroke-width: ${strokeWidth}px;`,
+        `  stroke-linecap: round;`,
+        `  stroke-linejoin: round;`,
+        `  stroke-dasharray: 1;`,
+        `  stroke-dashoffset: 1;`,
+        overrideColors ? `  fill: none;` : "",
+        `  animation: ${animShorthand};`,
+        `  animation-play-state: ${playState};`,
+        `}`
+      );
+      if (overrideColors) {
+        lines.push(`${shapeSel}:nth-of-type(even) { stroke: ${accentColor}; }`);
+      }
+      if (staggerStep > 0) {
+        for (let i = 1; i <= 12; i++) {
+          const d = +(delay + (i - 1) * staggerStep).toFixed(2);
+          lines.push(`${shapeSel}:nth-of-type(${i}) { animation-delay: ${d}s; }`);
+        }
+      }
+    } else {
+      lines.push(
+        `${sel} {`,
+        `  animation: ${animShorthand};`,
+        `  animation-play-state: ${playState};`,
+        `  transform-origin: center;`,
+        `}`
+      );
+      if (overrideColors) {
+        lines.push(
+          `${shapeSel} { stroke: ${primaryColor}; }`,
+          `${shapeSel}:not([fill="none"]) { fill: ${primaryColor}; }`,
+          `${shapeSel}:nth-of-type(even):not([fill="none"]) { fill: ${accentColor}; }`,
+          `${shapeSel}:nth-of-type(even) { stroke: ${accentColor}; }`
+        );
+      }
+      if (overrideStroke) {
+        lines.push(`${shapeSel} { stroke-width: ${strokeWidth}px; stroke-linecap: round; }`);
+      }
+      if (staggerStep > 0) {
+        for (let i = 1; i <= 12; i++) {
+          const d = +(delay + (i - 1) * staggerStep).toFixed(2);
+          lines.push(
+            `${shapeSel}:nth-of-type(${i}) { animation: ${animName} ${duration}s ${easing} ${d}s infinite ${direction}; animation-play-state: ${playState}; }`
+          );
+        }
+      }
+    }
+
+    return lines.filter(Boolean).join("\n");
+  }, [
+    isCustomActive,
+    scopeId,
+    paused,
+    customEffect,
+    overrideColors,
+    overrideStroke,
+    primaryColor,
+    accentColor,
+    strokeWidth,
+    animShorthand,
+    animName,
+    duration,
+    easing,
+    delay,
+    direction,
+    staggerStep
+  ]);
+
   const exportCode = useMemo(() => {
+    if (isCustomActive && customSvg) {
+      const targetRules =
+        customEffect === "stroke-draw"
+          ? `.custom-svg :is(path, circle, rect, line, polyline, polygon, ellipse) {\n  stroke: ${primaryColor};\n  stroke-width: ${strokeWidth}px;\n  stroke-linecap: round;\n  stroke-dasharray: 1;\n  fill: none;\n  transform-box: fill-box;\n  transform-origin: center;\n  animation: ${animShorthand};\n}`
+          : `.custom-svg {\n  transform-origin: center;\n  animation: ${animShorthand};\n}${
+              overrideColors
+                ? `\n.custom-svg :is(path, circle, rect, line, polyline, polygon, ellipse) {\n  stroke: ${primaryColor};\n}`
+                : ""
+            }`;
+
+      if (exportFormat === "svg") {
+        return `<svg xmlns="http://www.w3.org/2000/svg" class="custom-svg" width="${size}" height="${size}" viewBox="${customSvg.viewBox}" fill="none">\n  <style>\n    ${keyframesCss.replace(/\n/g, "\n    ")}\n    ${targetRules.replace(/\n/g, "\n    ")}\n  </style>\n  ${customSvg.innerMarkup}\n</svg>`;
+      }
+
+      if (exportFormat === "jsx") {
+        return `export function CustomAnimatedSvg() {\n  const svgMarkup = ${JSON.stringify(customSvg.innerMarkup)};\n  return (\n    <div className="anim-wrapper">\n      <style>{\`${keyframesCss}\n${targetRules}\`}</style>\n      <svg\n        className="custom-svg"\n        width={${size}}\n        height={${size}}\n        viewBox="${customSvg.viewBox}"\n        fill="none"\n        dangerouslySetInnerHTML={{ __html: svgMarkup }}\n      />\n    </div>\n  );\n}`;
+      }
+
+      return `${keyframesCss}\n\n${targetRules}`;
+    }
+
     if (exportFormat === "svg") {
       return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 120 120" fill="none">\n  <style>\n    ${keyframesCss.replace(/\n/g, "\n    ")}\n    .anim-target {\n      animation: ${animShorthand};\n      transform-origin: center;\n      stroke-dasharray: 320;\n    }\n  </style>\n  <path class="anim-target" d="M60 14 L102 38 L102 82 L60 106 L18 82 L18 38 Z" stroke="${primaryColor}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round" />\n</svg>`;
     }
@@ -77,7 +326,18 @@ export default function AnimationPlaygroundApp({ onNavigateHome }) {
     }
 
     return `${keyframesCss}\n\n.animated-element {\n  animation: ${animShorthand};\n  transform-origin: center;\n  stroke: ${primaryColor};\n  stroke-width: ${strokeWidth}px;\n}`;
-  }, [exportFormat, size, keyframesCss, animShorthand, primaryColor, strokeWidth]);
+  }, [
+    isCustomActive,
+    customSvg,
+    customEffect,
+    overrideColors,
+    exportFormat,
+    size,
+    keyframesCss,
+    animShorthand,
+    primaryColor,
+    strokeWidth
+  ]);
 
   const handleCopy = () => {
     navigator.clipboard?.writeText(exportCode);
@@ -88,6 +348,7 @@ export default function AnimationPlaygroundApp({ onNavigateHome }) {
   return (
     <div className="anim-studio-app">
       <style>{keyframesCss}</style>
+      {isCustomActive && <style>{customStageCss}</style>}
 
       <header className="anim-nav">
         <div className="anim-nav-left">
@@ -115,9 +376,28 @@ export default function AnimationPlaygroundApp({ onNavigateHome }) {
               {s.name}
             </button>
           ))}
+          {customSvg && (
+            <button
+              type="button"
+              role="radio"
+              aria-checked={scene === "custom-svg"}
+              className={`anim-preset-pill is-custom ${scene === "custom-svg" ? "is-active" : ""}`}
+              onClick={() => setScene("custom-svg")}
+              title={customSvg.name}
+            >
+              ✦ Custom SVG
+            </button>
+          )}
         </div>
 
         <div className="anim-nav-right">
+          <button
+            type="button"
+            className="anim-upload-top-btn"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            ↑ Upload SVG
+          </button>
           <button
             type="button"
             className={`anim-play-btn ${paused ? "is-paused" : ""}`}
@@ -131,6 +411,135 @@ export default function AnimationPlaygroundApp({ onNavigateHome }) {
       <main className="anim-main">
         {/* Left Controls */}
         <aside className="anim-panel" aria-label="Animation Parameters">
+          <div className="anim-section">
+            <div className="anim-heading">
+              <span>Custom SVG File</span>
+              {customSvg && <span>{customSvg.shapeCount} shapes</span>}
+            </div>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".svg,image/svg+xml"
+              hidden
+              onChange={(e) => {
+                handleSvgFile(e.target.files?.[0]);
+                e.target.value = "";
+              }}
+            />
+
+            {!customSvg ? (
+              <button
+                type="button"
+                className={`anim-dropzone ${isDraggingFile ? "is-dragging" : ""}`}
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDraggingFile(true);
+                }}
+                onDragLeave={() => setIsDraggingFile(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDraggingFile(false);
+                  handleSvgFile(e.dataTransfer.files?.[0]);
+                }}
+              >
+                <span className="anim-dropzone-title">↑ Upload or drop an .svg file</span>
+                <span className="anim-dropzone-sub">
+                  Animate your own icon, logo, or vector paths with keyframes
+                </span>
+              </button>
+            ) : (
+              <div className="anim-custom-file-card">
+                <div className="anim-custom-file-meta">
+                  <button
+                    type="button"
+                    className={`anim-custom-file-name ${isCustomActive ? "is-active" : ""}`}
+                    onClick={() => setScene("custom-svg")}
+                    title="Click to activate on stage"
+                  >
+                    ✦ {customSvg.name}
+                  </button>
+                  <div className="anim-custom-file-actions">
+                    <button
+                      type="button"
+                      className="anim-mini-btn"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      Replace
+                    </button>
+                    <button
+                      type="button"
+                      className="anim-mini-btn is-danger"
+                      onClick={clearCustomSvg}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+
+                <div className="anim-effect-pills" role="radiogroup" aria-label="Custom SVG Animation Mode">
+                  {CUSTOM_EFFECTS.map((fx) => (
+                    <button
+                      key={fx.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={customEffect === fx.id}
+                      className={`anim-effect-pill ${customEffect === fx.id ? "is-active" : ""}`}
+                      onClick={() => {
+                        setCustomEffect(fx.id);
+                        setScene("custom-svg");
+                      }}
+                    >
+                      {fx.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="anim-control">
+                  <div className="anim-label-row">
+                    <span>Path Stagger</span>
+                    <span className="anim-val">{staggerStep}s</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="0.3"
+                    step="0.02"
+                    value={staggerStep}
+                    onChange={(e) => setStaggerStep(Number(e.target.value))}
+                    className="anim-slider"
+                  />
+                </div>
+
+                <div className="anim-check-row">
+                  <label className="anim-check-label">
+                    <input
+                      type="checkbox"
+                      checked={overrideColors}
+                      onChange={(e) => setOverrideColors(e.target.checked)}
+                    />
+                    <span>Apply studio colors</span>
+                  </label>
+                  {customEffect !== "stroke-draw" && (
+                    <label className="anim-check-label">
+                      <input
+                        type="checkbox"
+                        checked={overrideStroke}
+                        onChange={(e) => setOverrideStroke(e.target.checked)}
+                      />
+                      <span>Override stroke</span>
+                    </label>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {uploadError && <p className="anim-upload-error">{uploadError}</p>}
+          </div>
+
+          <div className="anim-divider" />
+
           <div className="anim-section">
             <div className="anim-heading">
               <span>Timing & Curve</span>
@@ -219,7 +628,7 @@ export default function AnimationPlaygroundApp({ onNavigateHome }) {
               <input
                 type="range"
                 min="80"
-                max="220"
+                max="260"
                 step="4"
                 value={size}
                 onChange={(e) => setSize(Number(e.target.value))}
@@ -234,7 +643,7 @@ export default function AnimationPlaygroundApp({ onNavigateHome }) {
               </div>
               <input
                 type="range"
-                min="2"
+                min="1"
                 max="12"
                 step="0.5"
                 value={strokeWidth}
@@ -307,10 +716,22 @@ export default function AnimationPlaygroundApp({ onNavigateHome }) {
 
         {/* Right Stage & Code */}
         <div className="anim-stage-col">
-          <div className={`anim-preview-stage ${darkStage ? "is-dark" : ""}`}>
+          <div
+            className={`anim-preview-stage ${darkStage ? "is-dark" : ""} ${isDraggingFile ? "is-dragging" : ""}`}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDraggingFile(true);
+            }}
+            onDragLeave={() => setIsDraggingFile(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsDraggingFile(false);
+              handleSvgFile(e.dataTransfer.files?.[0]);
+            }}
+          >
             <div className="anim-stage-toolbar">
               <span className="anim-stage-badge">
-                {animName} · {duration}s
+                {animName} · {duration}s{isCustomActive ? ` · ${customSvg.name}` : ""}
               </span>
               <button
                 type="button"
@@ -320,6 +741,18 @@ export default function AnimationPlaygroundApp({ onNavigateHome }) {
                 {darkStage ? "☀ Light Stage" : "☾ Dark Stage"}
               </button>
             </div>
+
+            {isCustomActive && customSvg && (
+              <svg
+                className={`anim-custom-svg-${scopeId}`}
+                width={size}
+                height={size}
+                viewBox={customSvg.viewBox}
+                fill="none"
+                style={{ color: primaryColor }}
+                dangerouslySetInnerHTML={{ __html: customSvg.innerMarkup }}
+              />
+            )}
 
             {scene === "stroke-draw" && (
               <svg width={size} height={size} viewBox="0 0 120 120" fill="none">
