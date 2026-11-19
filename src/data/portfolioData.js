@@ -20,8 +20,8 @@ export const PROFILE = {
     {
       id: "social-facebook",
       label: "Facebook",
-      handle: "/iliashhosain",
-      url: "https://www.facebook.com/iliashhosain"
+      handle: "/iliash.me",
+      url: "https://www.facebook.com/iliash.me"
     },
     {
       id: "social-email",
